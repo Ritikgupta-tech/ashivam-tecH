@@ -1,0 +1,27 @@
+/* ============================================================
+   CARD PRIMITIVE STYLES
+   ============================================================ */
+
+.comp-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  transition: all var(--dur-base) var(--ease-out);
+  position: relative;
+}
+
+.comp-card--elevated {
+  background: var(--clr-surface-elevated);
+  box-shadow: var(--shadow-card);
+}
+
+.comp-card--interactive {
+  cursor: pointer;
+}
+
+.comp-card--interactive:hover {
+  border-color: var(--clr-border-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}

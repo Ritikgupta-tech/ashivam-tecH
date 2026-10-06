@@ -1,0 +1,408 @@
+/* ============================================================
+   ASHIVAM TECHNOLOGIES — PRODUCTION DESIGN SYSTEM
+   Brand Foundation: Black, Charcoal, White, Neutral Tones + Gold Accent
+   ============================================================ */
+
+/* ---------- CSS Custom Properties (Design Tokens) ---------- */
+:root {
+  /* Brand Primitives: Neutrals */
+  --clr-black: #07090e;
+  --clr-charcoal-dark: #0b0f17;
+  --clr-charcoal: #111723;
+  --clr-charcoal-light: #182030;
+  --clr-charcoal-elevated: #1f293d;
+  --clr-white: #ffffff;
+
+  /* Neutral Scale */
+  --clr-neutral-50: #f8fafc;
+  --clr-neutral-100: #f1f5f9;
+  --clr-neutral-200: #e2e8f0;
+  --clr-neutral-300: #cbd5e1;
+  --clr-neutral-400: #94a3b8;
+  --clr-neutral-500: #64748b;
+  --clr-neutral-600: #475569;
+  --clr-neutral-700: #334155;
+  --clr-neutral-800: #1e293b;
+  --clr-neutral-900: #0f172a;
+
+  /* Brand Accent: Authentic Gold (Sampled from Official Logo) */
+  --clr-gold-light: #e6c55c;
+  --clr-gold: #c59b27;
+  --clr-gold-dark: #9e7914;
+  --clr-gold-glow: rgba(197, 155, 39, 0.16);
+  --clr-gold-subtle: rgba(197, 155, 39, 0.08);
+  --clr-gold-border: rgba(197, 155, 39, 0.28);
+
+  /* Semantic Brand Roles */
+  --clr-primary: var(--clr-gold);
+  --clr-primary-dark: var(--clr-gold-dark);
+  --clr-primary-light: var(--clr-gold-light);
+  --clr-primary-glow: var(--clr-gold-glow);
+  --clr-secondary: #94a3b8;
+
+  /* Legacy aliases migrated from cyan to sophisticated neutral/gold */
+  --clr-cyan: var(--clr-gold);
+  --clr-cyan-glow: var(--clr-gold-glow);
+
+  /* Backgrounds & Surfaces */
+  --clr-bg: #090d15;
+  --clr-bg-2: #0e131e;
+  --clr-surface: #121824;
+  --clr-surface-elevated: #182030;
+  --clr-surface-hover: #1e273a;
+  --clr-bg-card: #121824;
+  --clr-bg-glass: rgba(18, 24, 36, 0.72);
+  --clr-bg-glass-hover: rgba(24, 32, 48, 0.85);
+
+  /* Typography Colors */
+  --clr-text: #f8fafc;
+  --clr-text-muted: #94a3b8;
+  --clr-text-subtle: #64748b;
+  --clr-text-inverse: #07090e;
+  --clr-text-gold: var(--clr-gold-light);
+
+  /* Borders */
+  --clr-border: rgba(255, 255, 255, 0.09);
+  --clr-border-subtle: rgba(255, 255, 255, 0.05);
+  --clr-border-hover: rgba(197, 155, 39, 0.35);
+  --clr-border-glass: rgba(255, 255, 255, 0.08);
+  --clr-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Semantic Feedback Tokens */
+  --clr-success: #10b981;
+  --clr-success-bg: rgba(16, 185, 129, 0.12);
+  --clr-warning: #f59e0b;
+  --clr-warning-bg: rgba(245, 158, 11, 0.12);
+  --clr-error: #ef4444;
+  --clr-error-bg: rgba(239, 68, 68, 0.12);
+  --clr-info: #3b82f6;
+
+  /* Gradients (Restrained & Sophisticated) */
+  --grad-primary: linear-gradient(135deg, #e6c55c 0%, #c59b27 100%);
+  --grad-gold: linear-gradient(135deg, #e6c55c 0%, #c59b27 100%);
+  --grad-hero: linear-gradient(180deg, #090d15 0%, #0d131f 60%, #090d15 100%);
+  --grad-text: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  --grad-gold-text: linear-gradient(135deg, #e6c55c 0%, #c59b27 100%);
+  --grad-card: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+
+  /* Shadows (Depth-focused, eliminating neon blurs) */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 44px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-card-hover: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(197, 155, 39, 0.32);
+  --shadow-gold: 0 4px 20px rgba(197, 155, 39, 0.18);
+  --shadow-glow: 0 0 24px rgba(197, 155, 39, 0.14);
+  --shadow-glow-strong: 0 0 40px rgba(197, 155, 39, 0.25);
+
+  /* Typography */
+  --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Typography Scales */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4.5rem;    /* 72px */
+
+  /* Layout Containers & Sections */
+  --section-padding: clamp(4.5rem, 8vw, 7rem) clamp(1.25rem, 4vw, 4rem);
+  --container-max: 1240px;
+
+  /* Animation & Motion */
+  --dur-instant: 100ms;
+  --dur-fast: 180ms;
+  --dur-base: 280ms;
+  --dur-slow: 450ms;
+  --dur-slower: 700ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* ---------- Reset & Box Sizing ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--clr-gold) var(--clr-bg-2);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--clr-bg-2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--clr-gold);
+  border-radius: var(--radius-full);
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Typography Defaults ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--clr-text);
+}
+
+/* Controlled, responsive heading clamp sizes */
+h1 { font-size: clamp(2.25rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.85rem, 3.5vw, 3rem); }
+h3 { font-size: clamp(1.35rem, 2.2vw, 1.85rem); }
+h4 { font-size: clamp(1.1rem, 1.6vw, 1.4rem); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p {
+  color: var(--clr-text-muted);
+  line-height: 1.7;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--dur-fast) ease;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font-family: var(--font-primary);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* ---------- Layout Utilities ---------- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.section {
+  padding: var(--section-padding);
+  position: relative;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  margin-bottom: 1rem;
+}
+
+.section-label::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1.5px;
+  background: var(--clr-gold);
+}
+
+.section-heading {
+  margin-bottom: 1.5rem;
+}
+
+.gradient-text {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-gold {
+  background: var(--grad-gold-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- Restrained Card Primitives ---------- */
+.glass-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  transition: all var(--dur-base) var(--ease-out);
+}
+
+.glass-card:hover {
+  background: var(--clr-surface-hover);
+  border-color: var(--clr-border-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+/* ---------- Buttons (Design System Foundation) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: all var(--dur-fast) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-primary {
+  background: var(--grad-primary);
+  color: #07090e;
+  box-shadow: var(--shadow-gold);
+  font-weight: 650;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(197, 155, 39, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border-strong);
+}
+
+.btn-outline:hover {
+  border-color: var(--clr-gold);
+  color: var(--clr-gold-light);
+  background: var(--clr-gold-subtle);
+  transform: translateY(-2px);
+}
+
+.btn-gold {
+  background: var(--grad-gold);
+  color: #07090e;
+  font-weight: 700;
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-gold:hover {
+  box-shadow: 0 6px 24px rgba(197, 155, 39, 0.35);
+  transform: translateY(-2px);
+}
+
+/* ---------- Focus States (Strict WCAG 2.2 AA Compliance) ---------- */
+:focus-visible {
+  outline: 2px solid var(--clr-gold);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* ---------- Global Ambient Background ---------- */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--clr-bg);
+  pointer-events: none;
+}
+
+.page-bg::before {
+  content: '';
+  position: absolute;
+  top: -25%;
+  left: -15%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(ellipse at center, rgba(197, 155, 39, 0.035) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.page-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.015) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* ---------- Section Dividers ---------- */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--clr-border), transparent);
+  margin: 0;
+}
+
+/* ---------- Reduced Motion (Accessibility) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Selection Highlight ---------- */
+::selection {
+  background: rgba(197, 155, 39, 0.28);
+  color: #ffffff;
+}

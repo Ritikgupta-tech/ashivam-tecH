@@ -1,0 +1,85 @@
+/* ============================================================
+   FORM CONTROLS STYLES (WCAG 2.2 AA COMPLIANT)
+   ============================================================ */
+
+.comp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.comp-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--clr-text);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.comp-label__required {
+  color: var(--clr-gold);
+}
+
+.comp-control {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--clr-text);
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  line-height: 1.5;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background-color var(--dur-fast) ease;
+}
+
+.comp-control::placeholder {
+  color: var(--clr-text-subtle);
+}
+
+.comp-control:focus {
+  outline: none;
+  border-color: var(--clr-gold);
+  box-shadow: 0 0 0 3px var(--clr-gold-subtle);
+  background: var(--clr-surface-elevated);
+}
+
+.comp-control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--clr-bg);
+}
+
+.comp-control--error {
+  border-color: var(--clr-error) !important;
+}
+
+.comp-control--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.comp-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.comp-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.comp-helper-text {
+  font-size: 0.75rem;
+  color: var(--clr-text-subtle);
+}
+
+.comp-error-message {
+  font-size: 0.75rem;
+  color: var(--clr-error);
+  font-weight: 500;
+}

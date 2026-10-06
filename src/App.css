@@ -1,0 +1,56 @@
+/* App-level styles */
+.app {
+  position: relative;
+  z-index: 1;
+}
+
+/* Custom Cursor */
+.cursor-dot {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--clr-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transition: opacity 0.2s;
+}
+
+.cursor-ring {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(197, 155, 39, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s, opacity 0.2s;
+}
+
+.cursor-ring--active {
+  width: 60px;
+  height: 60px;
+  border-color: rgba(197, 155, 39, 0.85);
+  background: rgba(197, 155, 39, 0.06);
+}
+
+@media (max-width: 1024px) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+  * { cursor: auto !important; }
+}
+
+@media (hover: none) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+}

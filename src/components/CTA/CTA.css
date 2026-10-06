@@ -1,0 +1,93 @@
+.cta-section {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--clr-border-glass);
+}
+
+.cta-section__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cta-section__orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(ellipse at center, rgba(56,189,248,0.12) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: orbMove1 12s ease-in-out infinite;
+}
+
+.cta-section__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+
+.cta-section__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+.cta-section__heading {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  color: var(--clr-text);
+  margin-bottom: 1.5rem;
+}
+
+.cta-section__desc {
+  font-size: 1.125rem;
+  color: var(--clr-text-muted);
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-section__buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-section__btn-primary {
+  font-size: 1rem;
+  padding: 1rem 2.5rem;
+  box-shadow: 0 8px 40px rgba(56,189,248,0.35);
+}
+
+/* Floating glass elements */
+.cta-section__glass-elements {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 3rem;
+  flex-wrap: wrap;
+}
+
+.cta-glass-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.125rem;
+  background: rgba(8, 15, 32, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--clr-text-muted);
+}

@@ -1,0 +1,50 @@
+/* ============================================================
+   OFFICIAL ASHIVAM TECHNOLOGIES LOGO STYLES
+   ============================================================ */
+
+.ashivam-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 1;
+  position: relative;
+  vertical-align: middle;
+  border-radius: var(--radius-sm, 8px);
+  transition: opacity var(--dur-fast, 180ms) ease, transform var(--dur-fast, 180ms) ease;
+}
+
+.ashivam-logo--theme-badge {
+  background: #ffffff;
+  padding: 0.35rem 0.75rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(212, 175, 55, 0.2);
+}
+
+.ashivam-logo--theme-transparent {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.ashivam-logo__image {
+  display: block;
+  height: var(--logo-height, 38px);
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: var(--logo-aspect, 670 / 140);
+  object-fit: contain;
+}
+
+.ashivam-logo--stacked .ashivam-logo__image {
+  aspect-ratio: 390 / 287;
+}
+
+.ashivam-logo--symbol .ashivam-logo__image {
+  aspect-ratio: 320 / 184;
+}
+
+/* Accessible focus styling */
+.ashivam-logo:focus-visible {
+  outline: 2px solid var(--clr-gold, #c59b27);
+  outline-offset: 4px;
+}

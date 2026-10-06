@@ -1,0 +1,53 @@
+/* ============================================================
+   BADGE PRIMITIVE STYLES
+   ============================================================ */
+
+.comp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  width: fit-content;
+  line-height: 1.2;
+}
+
+.comp-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.comp-badge--gold {
+  background: var(--clr-gold-subtle);
+  color: var(--clr-gold-light);
+  border: 1px solid var(--clr-gold-border);
+}
+
+.comp-badge--neutral {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--clr-neutral-300);
+  border: 1px solid var(--clr-border);
+}
+
+.comp-badge--success {
+  background: var(--clr-success-bg);
+  color: var(--clr-success);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.comp-badge--warning {
+  background: var(--clr-warning-bg);
+  color: var(--clr-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.comp-badge--purple {
+  background: rgba(168, 85, 247, 0.1);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}

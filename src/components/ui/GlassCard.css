@@ -1,0 +1,50 @@
+/* ============================================================
+   GLASS CARD PRIMITIVE STYLES
+   ============================================================ */
+
+.glass-card {
+  position: relative;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  overflow: hidden;
+  transition: border-color var(--dur-base) ease, box-shadow var(--dur-base) ease, transform var(--dur-base) ease;
+}
+
+.glass-card:hover {
+  border-color: var(--clr-border-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.glass-card--accent-gold:hover {
+  border-color: var(--clr-gold-border);
+  box-shadow: var(--shadow-card-hover), 0 0 24px var(--clr-gold-subtle);
+}
+
+.glass-card--accent-neutral:hover {
+  border-color: var(--clr-border-strong);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.glass-card__spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    360px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    var(--glow-color, rgba(197, 155, 39, 0.12)),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-base) ease;
+}
+
+.glass-card:hover .glass-card__spotlight {
+  opacity: 1;
+}
+
+.glass-card__content {
+  position: relative;
+  z-index: 1;
+}

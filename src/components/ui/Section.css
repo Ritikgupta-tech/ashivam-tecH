@@ -1,0 +1,8 @@
+/* ============================================================
+   SECTION PRIMITIVE STYLES
+   ============================================================ */
+
+.section {
+  position: relative;
+  padding: var(--section-padding);
+}
