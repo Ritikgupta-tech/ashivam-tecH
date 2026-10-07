@@ -1,7 +1,12 @@
+/* ============================================================
+   ASHIVAM TECHNOLOGIES — CTA SECTION
+   ============================================================ */
+
 .cta-section {
   position: relative;
   overflow: hidden;
-  border-top: 1px solid var(--clr-border-glass);
+  border-top: 1px solid var(--clr-border-subtle);
+  background: radial-gradient(circle at 50% 50%, rgba(197, 155, 39, 0.05) 0%, transparent 65%);
 }
 
 .cta-section__bg {
@@ -10,84 +15,109 @@
   pointer-events: none;
 }
 
-.cta-section__orb {
+.cta-section__orb--gold {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(ellipse at center, rgba(56,189,248,0.12) 0%, transparent 65%);
+  width: min(750px, 90vw);
+  height: 500px;
+  background: radial-gradient(ellipse at center, rgba(197, 155, 39, 0.12) 0%, transparent 70%);
   border-radius: 50%;
-  animation: orbMove1 12s ease-in-out infinite;
+  animation: orbMove1 16s ease-in-out infinite;
 }
 
 .cta-section__grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
 }
 
 .cta-section__content {
   position: relative;
   z-index: 1;
   text-align: center;
-  max-width: 740px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
 .cta-section__heading {
-  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-size: clamp(2.25rem, 4.8vw, 3.85rem);
   color: var(--clr-text);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.025em;
 }
 
 .cta-section__desc {
-  font-size: 1.125rem;
-  color: var(--clr-text-muted);
-  line-height: 1.8;
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  color: var(--clr-neutral-400);
+  line-height: 1.75;
   margin-bottom: 2.5rem;
-  max-width: 600px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .cta-section__buttons {
   display: flex;
-  gap: 1rem;
+  gap: 1.125rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .cta-section__btn-primary {
-  font-size: 1rem;
-  padding: 1rem 2.5rem;
-  box-shadow: 0 8px 40px rgba(56,189,248,0.35);
+  font-size: 0.95rem;
+  padding: 0.85rem 2.25rem;
+  box-shadow: var(--shadow-gold);
 }
 
-/* Floating glass elements */
+/* Floating glass badges */
 .cta-section__glass-elements {
   display: flex;
-  gap: 1rem;
+  gap: 0.875rem;
   justify-content: center;
-  margin-top: 3rem;
+  margin-top: 3.25rem;
   flex-wrap: wrap;
 }
 
 .cta-glass-card {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1.125rem;
-  background: rgba(8, 15, 32, 0.8);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.15);
+  gap: 0.55rem;
+  padding: 0.5rem 1.15rem;
+  background: rgba(18, 24, 38, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
-  font-size: 0.82rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--clr-text-muted);
+  color: var(--clr-text);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cta-glass-icon {
+  color: var(--clr-gold);
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .cta-section__buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .cta-section__btn-primary,
+  .cta-section__buttons .btn-outline {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -1,37 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { COMPANY } from '../../data/content';
+import { WebIcon, DesignIcon, ApiIcon, MobileIcon, ArrowRightIcon } from '../icons';
 import './Hero.css';
 
-const FLOAT_CARDS = [
-  { icon: '🌐', label: 'Web Development', delay: 0 },
-  { icon: '🎨', label: 'UI/UX Design', delay: 0.5 },
-  { icon: '☁️', label: 'Cloud & Backend', delay: 1 },
-  { icon: '📱', label: 'Mobile Apps', delay: 1.5 },
+const TECH_BADGES = [
+  { label: 'Web Platforms', Icon: WebIcon, delay: 0 },
+  { label: 'UI/UX Architecture', Icon: DesignIcon, delay: 0.5 },
+  { label: 'Cloud & Microservices', Icon: ApiIcon, delay: 1 },
+  { label: 'Native & Hybrid Mobile', Icon: MobileIcon, delay: 1.5 },
 ];
-
-const WORDS = ['Forward.', 'Reality.', 'Impact.', 'Tomorrow.'];
 
 export default function Hero() {
   const heroRef = useRef(null);
   const canvasRef = useRef(null);
   const parallaxRef = useRef(null);
-  const [wordIndex, setWordIndex] = useState(0);
-  const [wordVisible, setWordVisible] = useState(true);
   const mousePos = useRef({ x: 0, y: 0 });
 
-  // Word cycler
-  useEffect(() => {
-    const cycle = setInterval(() => {
-      setWordVisible(false);
-      setTimeout(() => {
-        setWordIndex((i) => (i + 1) % WORDS.length);
-        setWordVisible(true);
-      }, 400);
-    }, 2500);
-    return () => clearInterval(cycle);
-  }, []);
-
-  // Particle canvas
+  // Subtle ambient particle canvas (restrained, tech studio style)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -46,15 +31,14 @@ export default function Hero() {
     resize();
     window.addEventListener('resize', resize);
 
-    // Create particles
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 45; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 1.5 + 0.3,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        opacity: Math.random() * 0.5 + 0.1,
+        r: Math.random() * 1.2 + 0.4,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        opacity: Math.random() * 0.4 + 0.1,
       });
     }
 
@@ -70,19 +54,19 @@ export default function Hero() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(56, 189, 248, ${p.opacity})`;
+        ctx.fillStyle = `rgba(197, 155, 39, ${p.opacity * 0.8})`;
         ctx.fill();
       });
 
-      // Draw connections
+      // Subtle particle connections
       particles.forEach((a, i) => {
         particles.slice(i + 1).forEach((b) => {
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (dist < 110) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(56, 189, 248, ${0.06 * (1 - dist / 120)})`;
+            ctx.strokeStyle = `rgba(197, 155, 39, ${0.045 * (1 - dist / 110)})`;
             ctx.lineWidth = 0.5;
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -101,7 +85,7 @@ export default function Hero() {
     };
   }, []);
 
-  // Mouse parallax
+  // Soft mouse parallax for depth
   useEffect(() => {
     const handleMove = (e) => {
       const rect = heroRef.current?.getBoundingClientRect();
@@ -111,7 +95,7 @@ export default function Hero() {
         y: (e.clientY - rect.top) / rect.height - 0.5,
       };
       if (parallaxRef.current) {
-        parallaxRef.current.style.transform = `translate(${mousePos.current.x * -20}px, ${mousePos.current.y * -15}px)`;
+        parallaxRef.current.style.transform = `translate(${mousePos.current.x * -16}px, ${mousePos.current.y * -12}px)`;
       }
     };
     const el = heroRef.current;
@@ -119,108 +103,96 @@ export default function Hero() {
     return () => el?.removeEventListener('mousemove', handleMove);
   }, []);
 
-  const scrollToNext = () => {
-    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleCTA = (href) => {
-    document.getElementById(href)?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <section className="hero" id="home" ref={heroRef} aria-labelledby="hero-heading">
-      {/* Particle canvas */}
+      {/* Interactive particle canvas */}
       <canvas className="hero__canvas" ref={canvasRef} aria-hidden="true" />
 
-      {/* Background elements */}
+      {/* Background Lighting & Grid Geometry */}
       <div className="hero__bg" aria-hidden="true">
-        <div className="hero__orb hero__orb--1" />
-        <div className="hero__orb hero__orb--2" />
-        <div className="hero__orb hero__orb--3" />
+        <div className="hero__orb hero__orb--gold" />
+        <div className="hero__orb hero__orb--ambient" />
         <div className="hero__grid" />
+        <div className="hero__radial-glow" />
       </div>
 
-      {/* Parallax layer */}
+      {/* Floating Architecture Depth Cards */}
       <div className="hero__parallax" ref={parallaxRef} aria-hidden="true">
-        {FLOAT_CARDS.map((card, i) => (
-          <div
-            key={card.label}
-            className={`hero__float-card float-${(i % 4) + 1}`}
-            style={{ animationDelay: `${card.delay}s` }}
-            data-index={i}
-          >
-            <span className="hero__float-icon">{card.icon}</span>
-            <span className="hero__float-label">{card.label}</span>
-          </div>
-        ))}
+        {TECH_BADGES.map((b, i) => {
+          const IconComp = b.Icon;
+          return (
+            <div
+              key={b.label}
+              className={`hero__float-card float-${(i % 4) + 1}`}
+              style={{ animationDelay: `${b.delay}s` }}
+            >
+              <span className="hero__float-icon">
+                <IconComp size={16} />
+              </span>
+              <span className="hero__float-label">{b.label}</span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="hero__content container">
-        {/* Badge */}
-        <div className="hero__badge page-load-2" aria-label="Company identity">
-          <span className="hero__badge-dot" />
-          Innovation &nbsp;•&nbsp; Technology &nbsp;•&nbsp; Impact
+        {/* Gold Eyebrow */}
+        <div className="hero__eyebrow page-load-2">
+          <span className="hero__eyebrow-line" aria-hidden="true" />
+          <span className="hero__eyebrow-text">ASHIVAM TECHNOLOGIES</span>
+          <span className="hero__eyebrow-pill">AGRA • INDIA</span>
         </div>
 
-        {/* Headline */}
+        {/* Large Headline */}
         <h1 id="hero-heading" className="hero__headline page-load-3">
-          We Build Technology
+          Infinite Possibilities.
           <br />
-          That Moves Ideas{' '}
-          <span className={`hero__word gradient-text${wordVisible ? ' hero__word--visible' : ''}`}>
-            {WORDS[wordIndex]}
-          </span>
+          <span className="gradient-text-gold">Engineered with Precision.</span>
         </h1>
 
-        {/* Description */}
+        {/* Supporting Text */}
         <p className="hero__description page-load-4">
-          {COMPANY.description}
+          We are a modern technology and software engineering company crafting scalable digital products,
+          enterprise architectures, and innovative platforms that move ideas into reality.
         </p>
 
         {/* CTAs */}
         <div className="hero__ctas page-load-5">
           <button
             className="btn btn-primary hero__cta-primary"
-            onClick={() => handleCTA('contact')}
+            onClick={() => scrollToSection('contact')}
             id="hero-cta-start"
           >
-            Start a Project
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            Let's Build Together
+            <ArrowRightIcon size={16} className="hero__btn-arrow" />
           </button>
           <button
             className="btn btn-outline hero__cta-secondary"
-            onClick={() => handleCTA('projects')}
+            onClick={() => scrollToSection('projects')}
             id="hero-cta-explore"
           >
             Explore Our Work
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" strokeLinecap="round" />
-            </svg>
           </button>
         </div>
 
-        {/* Trust indicators */}
+        {/* Trust Badges */}
         <div className="hero__trust page-load-6">
           <div className="hero__trust-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--clr-primary)" aria-hidden="true">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="var(--clr-primary)" strokeWidth="2" fill="none" strokeLinecap="round" />
-            </svg>
-            Modern Tech Stack
+            <span className="hero__trust-dot" aria-hidden="true" />
+            <span>Modern Tech Stack</span>
           </div>
           <div className="hero__trust-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" strokeWidth="2" aria-hidden="true">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" />
-            </svg>
-            Quality Driven
+            <span className="hero__trust-dot" aria-hidden="true" />
+            <span>Clean Architecture</span>
           </div>
           <div className="hero__trust-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" strokeWidth="2" aria-hidden="true">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" />
-            </svg>
-            Future Ready
+            <span className="hero__trust-dot" aria-hidden="true" />
+            <span>Future Ready Engineering</span>
           </div>
         </div>
       </div>
@@ -228,8 +200,8 @@ export default function Hero() {
       {/* Scroll indicator */}
       <button
         className="hero__scroll-indicator"
-        onClick={scrollToNext}
-        aria-label="Scroll to next section"
+        onClick={() => scrollToSection('about')}
+        aria-label="Scroll to about section"
       >
         <div className="hero__scroll-wheel" />
         <span className="hero__scroll-text">Scroll</span>

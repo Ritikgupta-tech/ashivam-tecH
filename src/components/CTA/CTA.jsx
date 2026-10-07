@@ -1,3 +1,4 @@
+import { RocketIcon, LightbulbIcon, ActivityIcon, ArrowRightIcon } from '../icons';
 import './CTA.css';
 
 export default function CTA() {
@@ -7,23 +8,23 @@ export default function CTA() {
 
   return (
     <section className="cta-section section" id="cta" aria-labelledby="cta-heading">
-      {/* Background */}
+      {/* Background Lighting */}
       <div className="cta-section__bg" aria-hidden="true">
-        <div className="cta-section__orb" />
+        <div className="cta-section__orb cta-section__orb--gold" />
         <div className="cta-section__grid" />
         <div className="cta-section__particles" />
       </div>
 
       <div className="container">
         <div className="cta-section__content">
-          <p className="section-label reveal">Ready to Start?</p>
+          <p className="section-label reveal">Initiate Engagement</p>
           <h2 id="cta-heading" className="cta-section__heading reveal reveal--delay-1">
-            Have an Idea?{' '}
-            <span className="gradient-text">Let's Build It.</span>
+            Have an Enterprise Vision?{' '}
+            <span className="gradient-text-gold">Let's Build It.</span>
           </h2>
           <p className="cta-section__desc reveal reveal--delay-2">
-            Whether it's a software product, mobile application, web platform or a new
-            digital idea — Ashivam Technologies can turn concepts into meaningful technology.
+            Whether you require enterprise web applications, mobile platforms, custom software architectures, 
+            or AI solutions — Ashivam Technologies engineers your vision into high-performance digital reality.
           </p>
           <div className="cta-section__buttons reveal reveal--delay-3">
             <button
@@ -31,30 +32,31 @@ export default function CTA() {
               onClick={() => scrollTo('contact')}
               id="cta-start-conversation"
             >
-              Start a Conversation
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <span>Start a Consultation</span>
+              <ArrowRightIcon size={16} />
             </button>
             <button
               className="btn btn-outline"
               onClick={() => scrollTo('services')}
               id="cta-explore-services"
             >
-              Explore Services
+              Explore Capabilities
             </button>
           </div>
 
-          {/* Glass cards floating */}
+          {/* Glass cards floating with SVG icons */}
           <div className="cta-section__glass-elements" aria-hidden="true">
             <div className="cta-glass-card float-1">
-              <span>🚀</span> Project Ready
+              <RocketIcon size={16} className="cta-glass-icon" />
+              <span>Production Ready</span>
             </div>
             <div className="cta-glass-card float-2">
-              <span>💡</span> Idea to Reality
+              <LightbulbIcon size={16} className="cta-glass-icon" />
+              <span>Concept to Reality</span>
             </div>
             <div className="cta-glass-card float-3">
-              <span>⚡</span> Fast Execution
+              <ActivityIcon size={16} className="cta-glass-icon" />
+              <span>Agile Execution</span>
             </div>
           </div>
         </div>

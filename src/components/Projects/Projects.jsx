@@ -1,53 +1,75 @@
 import { useState } from 'react';
 import { PROJECTS } from '../../data/content';
+import { StarIcon, ArrowRightIcon, TECH_ICON_MAP, SoftwareIcon } from '../icons';
 import './Projects.css';
 
 const CATEGORIES = ['All', 'Web', 'Mobile', 'Software', 'Experiments'];
 
-const STATUS_COLORS = {
-  'Active': '#22c55e',
-  'In Development': '#38bdf8',
-  'Planning': '#f0c040',
-  'Experiment': '#a78bfa',
+const STATUS_CONFIG = {
+  'Active': { label: 'Active', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
+  'In Development': { label: 'In Development', color: '#e6c55c', bg: 'rgba(230, 197, 92, 0.12)' },
+  'Planning': { label: 'Planning', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.12)' },
+  'Experiment': { label: 'Experiment', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.12)' },
 };
 
 function ProjectCard({ project, index }) {
+  const primaryTag = project.tags[0];
+  const PrimaryTagIcon = TECH_ICON_MAP[primaryTag] || SoftwareIcon;
+  const statusInfo = STATUS_CONFIG[project.status] || { label: project.status, color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.1)' };
+
   return (
     <div
       className={`project-card reveal reveal--scale reveal--delay-${(index % 3) + 1}`}
       role="article"
       aria-labelledby={`project-${project.id}-name`}
     >
-      {/* Mock visual */}
+      {/* Visual Header */}
       <div className="project-card__image">
         <div className="project-card__image-bg" aria-hidden="true">
           <div className="project-card__image-grid" />
-          <div className="project-card__image-icon">{project.tags[0]?.[0] || '⚡'}</div>
+          <div className="project-card__image-icon">
+            <PrimaryTagIcon size={38} className="project-card__brand-icon" />
+          </div>
         </div>
         <div className="project-card__overlay">
-          <a href="#contact" className="project-card__view-btn btn btn-primary" aria-label={`View ${project.name} project`}>
-            View Project
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-              <path d="M7 17L17 7M17 7H7M17 7v10" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          <a href="#contact" className="project-card__view-btn btn btn-primary" aria-label={`Inquire about ${project.name}`}>
+            <span>Project Inquiry</span>
+            <ArrowRightIcon size={14} />
           </a>
         </div>
         {project.featured && (
-          <span className="project-card__featured" aria-label="Featured project">⭐ Featured</span>
+          <span className="project-card__featured" aria-label="Featured project">
+            <StarIcon size={12} />
+            <span>Featured</span>
+          </span>
         )}
       </div>
 
+      {/* Card Content Body */}
       <div className="project-card__body">
-        <div className="project-card__status" style={{ '--status-color': STATUS_COLORS[project.status] || '#94a3b8' }}>
+        <div
+          className="project-card__status"
+          style={{ '--status-color': statusInfo.color, '--status-bg': statusInfo.bg }}
+        >
           <span className="project-card__status-dot" aria-hidden="true" />
-          {project.status}
+          <span>{project.status}</span>
         </div>
-        <h3 id={`project-${project.id}-name`} className="project-card__name">{project.name}</h3>
+
+        <h3 id={`project-${project.id}-name`} className="project-card__name">
+          {project.name}
+        </h3>
         <p className="project-card__desc">{project.description}</p>
+
         <div className="project-card__tags" aria-label="Technologies used">
-          {project.tags.map((t) => (
-            <span key={t} className="project-card__tag">{t}</span>
-          ))}
+          {project.tags.map((t) => {
+            const TagIcon = TECH_ICON_MAP[t];
+            return (
+              <span key={t} className="project-card__tag">
+                {TagIcon && <TagIcon size={12} className="project-card__tag-icon" />}
+                <span>{t}</span>
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -65,17 +87,17 @@ export default function Projects() {
     <section className="projects section" id="projects" aria-labelledby="projects-heading">
       <div className="container">
         <div className="projects__header">
-          <p className="section-label reveal">Portfolio</p>
+          <p className="section-label reveal">Portfolio & Case Studies</p>
           <h2 id="projects-heading" className="reveal reveal--delay-1">
-            Ideas. Products. <span className="gradient-text">Experiments.</span>
+            Engineered Products &{' '}
+            <span className="gradient-text-gold">Innovations</span>
           </h2>
           <p className="projects__subtitle reveal reveal--delay-2">
-            A growing collection of real software projects — from products in development
-            to experimental ideas worth building.
+            A curated portfolio of software products, enterprise platforms, and experimental digital architectures.
           </p>
         </div>
 
-        {/* Filters */}
+        {/* Category Filters */}
         <div className="projects__filters reveal reveal--delay-3" role="group" aria-label="Project category filters">
           {CATEGORIES.map((cat) => (
             <button
@@ -95,7 +117,7 @@ export default function Projects() {
             <ProjectCard key={p.id} project={p} index={i} />
           ))}
           {filtered.length === 0 && (
-            <p className="projects__empty">No projects in this category yet. Check back soon!</p>
+            <p className="projects__empty">No projects found in this category.</p>
           )}
         </div>
       </div>

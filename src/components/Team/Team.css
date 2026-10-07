@@ -1,57 +1,71 @@
+/* ============================================================
+   ASHIVAM TECHNOLOGIES — TEAM SECTION
+   ============================================================ */
+
 .team {
-  border-top: 1px solid var(--clr-border-glass);
+  border-top: 1px solid var(--clr-border-subtle);
+  background: radial-gradient(circle at 50% 50%, rgba(197, 155, 39, 0.02) 0%, transparent 60%);
 }
 
 .team__header {
   text-align: center;
-  margin-bottom: 4rem;
+  max-width: 700px;
+  margin: 0 auto 3.5rem;
 }
 
 .team__header h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  color: var(--clr-text);
-  margin-bottom: 1rem;
+  font-size: clamp(2rem, 3.8vw, 3rem);
+  margin-bottom: 0.875rem;
 }
 
 .team__subtitle {
-  max-width: 520px;
-  margin: 0 auto;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  color: var(--clr-neutral-400);
+  line-height: 1.7;
 }
 
 .team__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .team__note {
   text-align: center;
-  font-size: 0.8rem;
-  color: var(--clr-text-subtle);
-  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--clr-neutral-500);
 }
 
 /* Team Card */
 .team-card {
   position: relative;
-  background: var(--clr-bg-glass);
-  border: 1px solid var(--clr-border-glass);
+  background: rgba(18, 24, 38, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
-  padding: 2rem 1.5rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 2.25rem 1.5rem;
   text-align: center;
   overflow: hidden;
-  transition: all 0.3s var(--ease-out);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) ease,
+    background var(--dur-base) ease,
+    box-shadow var(--dur-base) ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .team-card:hover {
-  border-color: rgba(56, 189, 248, 0.25);
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-card-hover);
+  background: rgba(22, 30, 48, 0.9);
+  border-color: rgba(197, 155, 39, 0.45);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 20px rgba(197, 155, 39, 0.1);
 }
 
 /* Avatar */
@@ -64,127 +78,127 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #050b18));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--accent);
-  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+  border: 1.5px solid rgba(197, 155, 39, 0.4);
+  transition: transform var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 
 .team-card:hover .team-card__avatar {
   transform: scale(1.08);
-  box-shadow: 0 0 24px var(--accent);
+  border-color: var(--clr-gold);
 }
 
 .team-card__initials {
   font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 800;
-  color: #fff;
+  color: #ffffff;
   letter-spacing: -0.05em;
 }
 
 .team-card__avatar-glow {
   position: absolute;
-  inset: -4px;
+  inset: -6px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--accent), transparent);
+  background: radial-gradient(circle, rgba(197, 155, 39, 0.25), transparent 70%);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity var(--dur-fast) ease;
   z-index: -1;
-  filter: blur(8px);
 }
 
 .team-card:hover .team-card__avatar-glow {
-  opacity: 0.35;
+  opacity: 1;
 }
 
 /* Info */
 .team-card__info {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.35rem;
 }
 
 .team-card__name {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  color: var(--clr-text);
+  color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
 .team-card__role {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--clr-primary);
-  letter-spacing: 0.04em;
+  color: var(--clr-gold);
+  letter-spacing: 0.02em;
 }
 
 .team-card__bio {
-  font-size: 0.83rem;
-  color: var(--clr-text-muted);
-  line-height: 1.6;
+  font-size: 0.85rem;
+  color: var(--clr-neutral-400);
+  line-height: 1.65;
+  margin-top: 0.25rem;
 }
 
 /* Socials */
 .team-card__socials {
   display: flex;
-  gap: 0.75rem;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: all 0.3s var(--ease-out);
-}
-
-.team-card:hover .team-card__socials {
-  opacity: 1;
-  transform: translateY(0);
+  gap: 0.65rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
 }
 
 .team-card__social-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  color: var(--clr-text-muted);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--clr-neutral-400);
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all var(--dur-fast) ease;
 }
 
 .team-card__social-link:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: var(--clr-primary);
-  color: var(--clr-primary);
-  transform: scale(1.1);
+  background: rgba(197, 155, 39, 0.15);
+  border-color: var(--clr-gold);
+  color: var(--clr-gold-light);
+  transform: translateY(-2px);
 }
 
-/* Border glow effect */
+/* Border effect */
 .team-card__border {
   position: absolute;
   inset: -1px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--accent), transparent, transparent);
+  background: linear-gradient(135deg, rgba(197, 155, 39, 0.1), transparent, transparent);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity var(--dur-fast) ease;
   pointer-events: none;
   z-index: -1;
 }
 
 .team-card:hover .team-card__border {
-  opacity: 0.15;
+  opacity: 1;
 }
 
 @media (max-width: 1024px) {
   .team__grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 540px) {
   .team__grid {
     grid-template-columns: 1fr;
+  }
+
+  .team-card {
+    padding: 1.75rem 1.25rem;
   }
 }

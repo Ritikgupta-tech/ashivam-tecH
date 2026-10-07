@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { COMPANY, NAV_LINKS, SERVICES } from '../../data/content';
+import { CheckIcon, ArrowRightIcon } from '../icons';
 import Logo from '../ui/Logo';
 import './Footer.css';
 
@@ -40,38 +41,39 @@ export default function Footer() {
       <div className="footer__grid-pattern" aria-hidden="true" />
 
       <div className="container">
-        {/* Top Newsletter & Brand Banner */}
+        {/* Top Newsletter & Insights Banner */}
         <div className="footer__newsletter-card reveal">
           <div className="footer__newsletter-content">
             <h3 className="footer__newsletter-title">
-              Stay ahead with <span className="gradient-text">Ashivam Tech Insights</span>
+              Stay ahead with <span className="gradient-text-gold">Ashivam Tech Insights</span>
             </h3>
             <p className="footer__newsletter-desc">
-              Subscribe for periodic product updates, engineering articles, and technology breakthroughs.
+              Subscribe for periodic product updates, engineering articles, and enterprise architecture breakthroughs.
             </p>
           </div>
 
           <div className="footer__newsletter-action">
             {subscribed ? (
               <div className="footer__newsletter-success" role="status">
-                <span className="footer__newsletter-check">✓</span> You're on the list! Thank you.
+                <span className="footer__newsletter-check">
+                  <CheckIcon size={14} />
+                </span>
+                <span>You're on the list. Thank you for subscribing.</span>
               </div>
             ) : (
               <form className="footer__newsletter-form" onSubmit={handleSubscribe} noValidate>
                 <div className="footer__input-wrap">
                   <input
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your business email"
                     value={newsletterEmail}
                     onChange={(e) => { setNewsletterEmail(e.target.value); setError(''); }}
                     className={`footer__input${error ? ' footer__input--error' : ''}`}
                     aria-label="Newsletter email address"
                   />
                   <button type="submit" className="footer__subscribe-btn" aria-label="Subscribe to newsletter">
-                    Subscribe
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                      <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <span>Subscribe</span>
+                    <ArrowRightIcon size={14} />
                   </button>
                 </div>
                 {error && <span className="footer__error-msg">{error}</span>}
@@ -85,13 +87,13 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="footer__brand-col">
             <a href="#home" className="footer__logo-link" onClick={(e) => { e.preventDefault(); scrollToTop(); }}>
-              <Logo size={42} showText={true} />
+              <Logo size={40} showText={true} />
             </a>
             <p className="footer__tagline">{COMPANY.tagline}</p>
             <p className="footer__description">{COMPANY.description}</p>
             
             {/* Status Pill */}
-            <div className="footer__status-badge" title="Service status">
+            <div className="footer__status-badge" title="Service operational status">
               <span className="footer__status-dot" aria-hidden="true" />
               <span className="footer__status-text">All Systems Operational</span>
             </div>
@@ -117,7 +119,7 @@ export default function Footer() {
 
           {/* Services */}
           <div className="footer__col">
-            <h4 className="footer__col-title">Services</h4>
+            <h4 className="footer__col-title">Engineering</h4>
             <ul className="footer__links">
               {SERVICES.map((s) => (
                 <li key={s.id}>
@@ -133,14 +135,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Connect / Social */}
+          {/* Connect / Location */}
           <div className="footer__col">
-            <h4 className="footer__col-title">Connect</h4>
+            <h4 className="footer__col-title">Headquarters</h4>
             <p className="footer__contact-info">
-              <span>Email:</span> <a href={`mailto:${COMPANY.email}`} className="footer__contact-link">{COMPANY.email}</a>
+              <span>Location:</span> Agra, Uttar Pradesh, India
             </p>
             <p className="footer__contact-info">
-              <span>Location:</span> {COMPANY.location}
+              <span>Email:</span>{' '}
+              <a href={`mailto:${COMPANY.email}`} className="footer__contact-link">
+                {COMPANY.email}
+              </a>
             </p>
 
             <div className="footer__socials" aria-label="Social media channels">
@@ -184,7 +189,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="footer__bottom">
           <div className="footer__copyright">
-            {COMPANY.copyright}
+            {COMPANY.copyright} • Agra, India
           </div>
 
           <div className="footer__legal">
@@ -200,7 +205,7 @@ export default function Footer() {
             className="footer__back-to-top"
             aria-label="Back to top of page"
           >
-            Back to Top
+            <span>Back to Top</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
               <path d="M18 15l-6-6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

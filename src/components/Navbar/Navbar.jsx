@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { NAV_LINKS, COMPANY } from '../../data/content';
+import { ArrowRightIcon } from '../icons';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -10,13 +11,13 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 60);
+      setScrolled(window.scrollY > 40);
 
       // Active section detection
       const sections = NAV_LINKS.map((l) => l.href.replace('#', ''));
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
-        if (el && el.getBoundingClientRect().top <= 120) {
+        if (el && el.getBoundingClientRect().top <= 140) {
           setActiveSection(sections[i]);
           break;
         }
@@ -38,7 +39,7 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
 
-  // Prevent body scroll when menu open
+  // Prevent background scrolling when mobile menu open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -61,15 +62,15 @@ export default function Navbar() {
         aria-label="Main navigation"
       >
         <div className="navbar__container">
-          {/* Logo */}
+          {/* Logo on Left */}
           <a
             href="#home"
             className="navbar__logo"
             onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
-            aria-label="Ashivam Technologies - Home"
+            aria-label="Ashivam Technologies - Return to home"
           >
             <div className="navbar__logo-mark">
-              <img src="/logo.svg" alt="Ashivam Technologies Logo" className="navbar__logo-img" />
+              <img src="/logo.svg" alt="" className="navbar__logo-img" />
             </div>
             <div className="navbar__logo-text">
               <span className="navbar__logo-name">Ashivam</span>
@@ -77,39 +78,42 @@ export default function Navbar() {
             </div>
           </a>
 
-          {/* Desktop Nav */}
+          {/* Centered/Right Desktop Navigation */}
           <ul className="navbar__links" role="menubar">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href} role="none">
-                <a
-                  href={link.href}
-                  className={`navbar__link${activeSection === link.href.replace('#', '') ? ' navbar__link--active' : ''}`}
-                  role="menuitem"
-                  onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                >
-                  {link.label}
-                  <span className="navbar__link-underline" />
-                </a>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const secId = link.href.replace('#', '');
+              const isActive = activeSection === secId;
+              return (
+                <li key={link.href} role="none">
+                  <a
+                    href={link.href}
+                    className={`navbar__link${isActive ? ' navbar__link--active' : ''}`}
+                    role="menuitem"
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
+                  >
+                    <span>{link.label}</span>
+                    <span className="navbar__link-underline" aria-hidden="true" />
+                  </a>
+                </li>
+              );
+            })}
           </ul>
 
-          {/* CTA */}
+          {/* CTA on Far Right */}
           <a
             href="#contact"
             className="navbar__cta btn btn-primary"
             onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
           >
-            Let's Build Together
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <span>Let's Build Together</span>
+            <ArrowRightIcon size={15} className="navbar__cta-arrow" />
           </a>
 
-          {/* Hamburger */}
+          {/* Hamburger (Mobile) */}
           <button
             className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(!menuOpen)}
           >
@@ -120,43 +124,51 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Navigation Drawer */}
       <div
         className={`mobile-menu${menuOpen ? ' mobile-menu--open' : ''}`}
         aria-hidden={!menuOpen}
         role="dialog"
         aria-modal="true"
-        aria-label="Mobile navigation"
+        aria-label="Mobile navigation menu"
       >
         <div className="mobile-menu__content">
           <div className="mobile-menu__logo">
-            <img src="/logo.png" alt="" className="mobile-menu__logo-img" />
+            <img src="/logo.svg" alt="" className="mobile-menu__logo-img" />
             <div>
               <div className="mobile-menu__logo-name">Ashivam</div>
               <div className="mobile-menu__logo-sub">Technologies</div>
             </div>
           </div>
+
           <ul className="mobile-menu__links">
-            {NAV_LINKS.map((link, i) => (
-              <li key={link.href} style={{ transitionDelay: `${i * 50}ms` }}>
-                <a
-                  href={link.href}
-                  className="mobile-menu__link"
-                  onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const secId = link.href.replace('#', '');
+              const isActive = activeSection === secId;
+              return (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className={`mobile-menu__link${isActive ? ' mobile-menu__link--active' : ''}`}
+                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
+                  >
+                    <span>{link.label}</span>
+                  </a>
+                </li>
+              );
+            })}
           </ul>
+
           <a
             href="#contact"
             className="btn btn-primary mobile-menu__cta"
             onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
           >
-            Let's Build Together
+            <span>Let's Build Together</span>
+            <ArrowRightIcon size={16} />
           </a>
-          <p className="mobile-menu__tagline">{COMPANY.tagline}</p>
+
+          <p className="mobile-menu__tagline">Headquarters: Agra, Uttar Pradesh, India</p>
         </div>
       </div>
 

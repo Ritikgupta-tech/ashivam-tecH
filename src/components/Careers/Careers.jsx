@@ -1,4 +1,5 @@
 import { CAREERS, COMPANY } from '../../data/content';
+import { ArrowRightIcon } from '../icons';
 import './Careers.css';
 
 export default function Careers() {
@@ -8,34 +9,31 @@ export default function Careers() {
         <div className="careers__inner">
           {/* Header */}
           <div className="careers__header">
-            <p className="section-label reveal">Join Us</p>
+            <p className="section-label reveal">Opportunities</p>
             <h2 id="careers-heading" className="reveal reveal--delay-1">
               Build Your Future{' '}
-              <span className="gradient-text">With Us</span>
+              <span className="gradient-text-gold">With Ashivam</span>
             </h2>
             <p className="careers__desc reveal reveal--delay-2">
-              Ashivam Technologies is building a collaborative technology team and welcomes
-              developers, designers, learners and motivated contributors. Many opportunities
-              are contribution-based or internship-style — perfect for those looking to grow,
-              learn and build real products.
+              Ashivam Technologies is building a collaborative software engineering culture in Agra, India, 
+              welcoming talented developers, architects, UI/UX designers, and innovative thinkers. 
+              We offer contribution-based and internship roles engineered for deep technical growth.
             </p>
             <div className="careers__ctas reveal reveal--delay-3">
               <a
-                href={`mailto:${COMPANY.email}`}
+                href={`mailto:${COMPANY.email}?subject=Application%20for%20Ashivam%20Technologies`}
                 className="btn btn-primary"
                 id="careers-cta-join"
               >
-                Join Our Team
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <span>Join Our Engineering Team</span>
+                <ArrowRightIcon size={16} />
               </a>
               <a
-                href={`mailto:${COMPANY.email}?subject=Open%20Opportunities`}
+                href={`mailto:${COMPANY.email}?subject=General%20Careers%20Inquiry`}
                 className="btn btn-outline"
                 id="careers-cta-view"
               >
-                View Open Opportunities
+                Inquire Positions
               </a>
             </div>
           </div>
@@ -50,7 +48,7 @@ export default function Careers() {
               >
                 <div className="career-item__left">
                   <div className={`career-item__status ${c.open ? 'career-item__status--open' : 'career-item__status--closed'}`}>
-                    {c.open ? 'Open' : 'Closed'}
+                    {c.open ? 'Open Position' : 'Position Filled'}
                   </div>
                   <div>
                     <h3 className="career-item__role">{c.role}</h3>
@@ -63,10 +61,8 @@ export default function Careers() {
                     className="career-item__apply"
                     aria-label={`Apply for ${c.role}`}
                   >
-                    Apply
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                      <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <span>Apply</span>
+                    <ArrowRightIcon size={13} />
                   </a>
                 )}
               </div>

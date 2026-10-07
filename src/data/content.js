@@ -10,7 +10,9 @@ export const COMPANY = {
     'We are a modern technology company building scalable software, digital products, and innovative experiences that move ideas forward.',
   email: 'contact@ashivamtechnologies.com',
   phone: '+91 XXXXX XXXXX',
-  location: 'India · Remote-First',
+  location: 'Agra, Uttar Pradesh, India',
+  headquarters: 'Agra, Uttar Pradesh, India',
+  headquartersShort: 'Agra • Uttar Pradesh • India',
   linkedin: 'https://linkedin.com/company/ashivam-technologies',
   github: 'https://github.com/ashivam-technologies',
   instagram: 'https://instagram.com/ashivamtechnologies',
@@ -20,40 +22,36 @@ export const COMPANY = {
 };
 
 export const STATS = [
-  { value: null, label: 'Active Projects', display: 'Growing', icon: '⚡' },
-  { value: null, label: 'Technologies Used', display: '15+', icon: '🔧' },
-  { value: null, label: 'Developers & Contributors', display: 'Building', icon: '👥' },
-  { value: null, label: 'Ideas in Development', display: 'Always', icon: '💡' },
+  { value: null, label: 'Active Projects', display: 'Growing', iconKey: 'Active Projects' },
+  { value: null, label: 'Technologies Used', display: '15+', iconKey: 'Technologies Used' },
+  { value: null, label: 'Developers & Contributors', display: 'Building', iconKey: 'Developers & Contributors' },
+  { value: null, label: 'Ideas in Development', display: 'Always', iconKey: 'Ideas in Development' },
 ];
 
 export const SERVICES = [
   {
     id: 'web',
-    icon: '🌐',
     title: 'Web Development',
     description:
       'Modern, responsive and scalable web applications built with the latest frontend and backend technologies.',
-    color: '#38bdf8',
+    color: '#e6c55c',
   },
   {
     id: 'mobile',
-    icon: '📱',
     title: 'Mobile App Development',
     description:
       'High-quality Android and cross-platform mobile experiences designed for performance and user delight.',
-    color: '#06b6d4',
+    color: '#3DDC84',
   },
   {
     id: 'software',
-    icon: '⚙️',
     title: 'Software Development',
     description:
       'Custom software solutions engineered around real business needs with clean architecture and maintainable code.',
-    color: '#0ea5e9',
+    color: '#60a5fa',
   },
   {
     id: 'uiux',
-    icon: '🎨',
     title: 'UI/UX Design',
     description:
       'Clean, intuitive and conversion-focused digital experiences that balance aesthetics with functionality.',
@@ -61,7 +59,6 @@ export const SERVICES = [
   },
   {
     id: 'backend',
-    icon: '🔗',
     title: 'Backend & API Development',
     description:
       'Secure, scalable APIs and robust backend architecture built for performance and long-term reliability.',
@@ -69,11 +66,10 @@ export const SERVICES = [
   },
   {
     id: 'digital',
-    icon: '💼',
     title: 'Digital Solutions',
     description:
       'Technology-driven solutions for organizations and emerging businesses ready to scale digitally.',
-    color: '#06b6d4',
+    color: '#a78bfa',
   },
 ];
 
@@ -82,59 +78,108 @@ export const SOLUTIONS = [
     id: 'edtech',
     title: 'Education Technology',
     description: 'Learning platforms, student portals and digital classroom experiences.',
-    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
-    icon: '📚',
+    gradient: 'linear-gradient(135deg, rgba(230, 197, 92, 0.15) 0%, rgba(197, 155, 39, 0.05) 100%)',
   },
   {
     id: 'business',
     title: 'Business Software',
     description: 'Tools and platforms that streamline business workflows and operations.',
-    gradient: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%)',
-    icon: '💼',
+    gradient: 'linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(56, 189, 248, 0.05) 100%)',
   },
   {
     id: 'mgmt',
     title: 'Management Systems',
     description: 'Smart management solutions for organizations and institutions.',
-    gradient: 'linear-gradient(135deg, #d4af37 0%, #f0c040 100%)',
-    icon: '🏛️',
+    gradient: 'linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(158, 121, 20, 0.05) 100%)',
   },
   {
     id: 'auto',
     title: 'Automation',
     description: 'Automated workflows and intelligent systems that save time and resources.',
-    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%)',
-    icon: '🤖',
+    gradient: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(14, 165, 233, 0.05) 100%)',
   },
   {
     id: 'platform',
     title: 'Digital Platforms',
     description: 'Scalable platforms connecting users, services and data at scale.',
-    gradient: 'linear-gradient(135deg, #38bdf8 0%, #7dd3fc 100%)',
-    icon: '🌐',
+    gradient: 'linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%)',
   },
   {
     id: 'apps',
     title: 'Innovative Applications',
     description: 'Creative apps and products that challenge the status quo and delight users.',
-    gradient: 'linear-gradient(135deg, #d4af37 0%, #38bdf8 100%)',
-    icon: '✨',
+    gradient: 'linear-gradient(135deg, rgba(230, 197, 92, 0.18) 0%, rgba(56, 189, 248, 0.08) 100%)',
+  },
+];
+
+export const TECH_LAYERS = [
+  {
+    id: 'frontend',
+    label: 'Frontend Engineering',
+    shortLabel: 'Frontend',
+    description: 'Modern, high-performance user interfaces and responsive architectures.',
+    items: [
+      { name: 'React', role: 'UI Framework', category: 'frontend' },
+      { name: 'TypeScript', role: 'Type Safety', category: 'frontend' },
+      { name: 'JavaScript', role: 'Core Web Engine', category: 'frontend' },
+    ],
+  },
+  {
+    id: 'backend',
+    label: 'Backend & Cloud',
+    shortLabel: 'Backend',
+    description: 'Robust server-side services, enterprise microservices and secure APIs.',
+    items: [
+      { name: 'Java', role: 'Enterprise Core', category: 'backend' },
+      { name: 'Spring Boot', role: 'Microservices & APIs', category: 'backend' },
+      { name: 'Python', role: 'Services & Automation', category: 'backend' },
+    ],
+  },
+  {
+    id: 'mobile',
+    label: 'Mobile Architecture',
+    shortLabel: 'Mobile',
+    description: 'Native and adaptive mobile apps engineered for speed and fluid interactions.',
+    items: [
+      { name: 'Android', role: 'Native Platform', category: 'mobile' },
+      { name: 'Kotlin', role: 'Modern Mobile Language', category: 'mobile' },
+    ],
+  },
+  {
+    id: 'database',
+    label: 'Data & Persistence',
+    shortLabel: 'Database',
+    description: 'Reliable relational and real-time cloud data storage infrastructures.',
+    items: [
+      { name: 'MySQL', role: 'Relational DB', category: 'database' },
+      { name: 'Firebase', role: 'Real-Time Cloud', category: 'database' },
+    ],
+  },
+  {
+    id: 'tools',
+    label: 'Tooling & Design',
+    shortLabel: 'Tools & Design',
+    description: 'Precision interface design, version control, and automated workflows.',
+    items: [
+      { name: 'Git', role: 'Version Control', category: 'tools' },
+      { name: 'Figma', role: 'UI/UX Architecture', category: 'design' },
+    ],
   },
 ];
 
 export const TECH_STACK = [
-  { name: 'Java', icon: '☕', category: 'backend' },
-  { name: 'Kotlin', icon: '🟣', category: 'mobile' },
-  { name: 'Android', icon: '🤖', category: 'mobile' },
-  { name: 'React', icon: '⚛️', category: 'frontend' },
-  { name: 'JavaScript', icon: '🟨', category: 'frontend' },
-  { name: 'TypeScript', icon: '🔷', category: 'frontend' },
-  { name: 'Spring Boot', icon: '🌿', category: 'backend' },
-  { name: 'MySQL', icon: '🗄️', category: 'database' },
-  { name: 'Firebase', icon: '🔥', category: 'database' },
-  { name: 'Python', icon: '🐍', category: 'backend' },
-  { name: 'Git', icon: '📂', category: 'tools' },
-  { name: 'Figma', icon: '🎨', category: 'design' },
+  { name: 'React', category: 'frontend', layer: 'Frontend' },
+  { name: 'TypeScript', category: 'frontend', layer: 'Frontend' },
+  { name: 'JavaScript', category: 'frontend', layer: 'Frontend' },
+  { name: 'Java', category: 'backend', layer: 'Backend' },
+  { name: 'Spring Boot', category: 'backend', layer: 'Backend' },
+  { name: 'Python', category: 'backend', layer: 'Backend' },
+  { name: 'Android', category: 'mobile', layer: 'Mobile' },
+  { name: 'Kotlin', category: 'mobile', layer: 'Mobile' },
+  { name: 'MySQL', category: 'database', layer: 'Database' },
+  { name: 'Firebase', category: 'database', layer: 'Database' },
+  { name: 'Git', category: 'tools', layer: 'Tools' },
+  { name: 'Figma', category: 'design', layer: 'Design' },
 ];
 
 export const PROJECTS = [
@@ -208,25 +253,21 @@ export const PROJECTS = [
 
 export const WHY_ASHIVAM = [
   {
-    icon: '⚡',
     title: 'Modern Engineering',
     description:
       'We focus on current technologies and scalable development practices that are built to grow with your product.',
   },
   {
-    icon: '💡',
     title: 'Creative Thinking',
     description:
       'We approach every challenge from both a technical and user perspective, finding solutions that truly resonate.',
   },
   {
-    icon: '✅',
     title: 'Quality First',
     description:
       'Clean architecture, thoughtful design and maintainable code are non-negotiable principles in everything we build.',
   },
   {
-    icon: '🚀',
     title: 'Future Ready',
     description:
       'Every solution is designed with tomorrow in mind — scalable, adaptable and ready for what comes next.',
@@ -242,7 +283,7 @@ export const TEAM = [
     linkedin: 'https://linkedin.com',
     github: 'https://github.com',
     initials: 'TM',
-    color: '#38bdf8',
+    color: '#e6c55c',
   },
   {
     id: 2,
@@ -252,7 +293,7 @@ export const TEAM = [
     linkedin: 'https://linkedin.com',
     github: 'https://github.com',
     initials: 'TM',
-    color: '#06b6d4',
+    color: '#3DDC84',
   },
   {
     id: 3,
@@ -272,7 +313,7 @@ export const TEAM = [
     linkedin: 'https://linkedin.com',
     github: 'https://github.com',
     initials: 'TM',
-    color: '#0ea5e9',
+    color: '#60a5fa',
   },
 ];
 
@@ -287,12 +328,12 @@ export const CAREERS = [
 ];
 
 export const CULTURE = [
-  { icon: '🌏', title: 'Remote Collaboration', desc: 'Work from wherever you thrive — our team spans cities and time zones.' },
-  { icon: '📖', title: 'Learning Culture', desc: 'We invest in growth — yours and the team\'s. Always be curious.' },
-  { icon: '💬', title: 'Open Communication', desc: 'Ideas flow freely. Every voice has value and every perspective matters.' },
-  { icon: '🤝', title: 'Team Ownership', desc: 'Own your work. Take pride in what you build. Collaborate on the rest.' },
-  { icon: '🔬', title: 'Innovation First', desc: 'We experiment, learn from failure, and ship things that make a difference.' },
-  { icon: '🕒', title: 'Flexible Contribution', desc: 'Contribute on your own schedule. We care about outcomes, not hours.' },
+  { title: 'Remote Collaboration', desc: 'Work from wherever you thrive — our team spans cities and time zones.' },
+  { title: 'Learning Culture', desc: 'We invest in growth — yours and the team\'s. Always be curious.' },
+  { title: 'Open Communication', desc: 'Ideas flow freely. Every voice has value and every perspective matters.' },
+  { title: 'Team Ownership', desc: 'Own your work. Take pride in what you build. Collaborate on the rest.' },
+  { title: 'Innovation First', desc: 'We experiment, learn from failure, and ship things that make a difference.' },
+  { title: 'Flexible Contribution', desc: 'Contribute on your own schedule. We care about outcomes, not hours.' },
 ];
 
 export const NAV_LINKS = [
@@ -300,6 +341,7 @@ export const NAV_LINKS = [
   { label: 'About', href: '#about' },
   { label: 'Services', href: '#services' },
   { label: 'Solutions', href: '#solutions' },
+  { label: 'Ecosystem', href: '#techstack' },
   { label: 'Projects', href: '#projects' },
   { label: 'Team', href: '#team' },
   { label: 'Careers', href: '#careers' },

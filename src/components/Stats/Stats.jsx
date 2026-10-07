@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { STATS } from '../../data/content';
+import { STAT_ICON_MAP } from '../icons';
 import './Stats.css';
 
 function useCountUp(target, duration = 1800, isVisible) {
@@ -24,6 +25,7 @@ function useCountUp(target, duration = 1800, isVisible) {
 }
 
 function StatCard({ stat, index, isVisible }) {
+  const IconComponent = STAT_ICON_MAP[stat.label];
   const count = useCountUp(
     typeof stat.value === 'number' ? stat.value : null,
     1800 + index * 200,
@@ -31,8 +33,10 @@ function StatCard({ stat, index, isVisible }) {
   );
 
   return (
-    <div className={`stat-card reveal reveal--scale reveal--delay-${index + 1}`}>
-      <div className="stat-card__icon" aria-hidden="true">{stat.icon}</div>
+    <div className={`stat-card reveal reveal--scale reveal--delay-${index + 1}`} role="article">
+      <div className="stat-card__icon-wrap" aria-hidden="true">
+        {IconComponent && <IconComponent size={22} className="stat-card__icon" />}
+      </div>
       <div className="stat-card__value">
         {typeof stat.value === 'number' ? count.toLocaleString() : stat.display}
         {typeof stat.value === 'number' && stat.suffix && (
@@ -66,15 +70,15 @@ export default function Stats() {
       <div className="stats__bg" aria-hidden="true" />
       <div className="container">
         <div className="stats__header">
-          <p className="section-label reveal">By The Numbers</p>
+          <p className="section-label reveal">Momentum & Scale</p>
           <h2 id="stats-heading" className="reveal reveal--delay-1">
-            <span className="gradient-text">Growing</span> Every Day
+            <span className="gradient-text-gold">Growing</span> Every Day
           </h2>
           <p className="stats__subtitle reveal reveal--delay-2">
-            We're a young and ambitious team building meaningful products and gaining momentum.
+            A committed technology team engineering scalable architectures and building momentum across domains.
           </p>
         </div>
-        <div className="stats__grid">
+        <div className="stats__grid" role="list">
           {STATS.map((stat, i) => (
             <StatCard key={stat.label} stat={stat} index={i} isVisible={isVisible} />
           ))}
