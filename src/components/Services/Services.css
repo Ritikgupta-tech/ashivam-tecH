@@ -26,8 +26,9 @@
 
 .services__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 
 /* Service Card */
@@ -35,6 +36,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   padding: 2.25rem 2rem;
   background: rgba(18, 24, 38, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -143,6 +147,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--clr-gold);
+  min-height: 44px;
   transition: gap var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
@@ -159,10 +164,17 @@
   transform: translateX(3px);
 }
 
+/* Touch Device Optimization */
+@media (hover: none) {
+  .service-card {
+    transform: none !important;
+  }
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .services__grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
   }
 }
@@ -173,6 +185,6 @@
   }
 
   .service-card {
-    padding: 1.75rem 1.5rem;
+    padding: 1.75rem 1.25rem;
   }
 }

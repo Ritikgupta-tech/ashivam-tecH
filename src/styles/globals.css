@@ -156,6 +156,7 @@ html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: var(--clr-gold) var(--clr-bg-2);
+  overflow-x: clip;
 }
 
 ::-webkit-scrollbar {
@@ -174,7 +175,7 @@ body {
   background-color: var(--clr-bg);
   color: var(--clr-text);
   line-height: 1.65;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -186,19 +187,22 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--clr-text);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Controlled, responsive heading clamp sizes */
-h1 { font-size: clamp(2.25rem, 5vw, 4rem); }
-h2 { font-size: clamp(1.85rem, 3.5vw, 3rem); }
-h3 { font-size: clamp(1.35rem, 2.2vw, 1.85rem); }
-h4 { font-size: clamp(1.1rem, 1.6vw, 1.4rem); }
+h1 { font-size: clamp(2rem, 5vw, 3.85rem); }
+h2 { font-size: clamp(1.75rem, 3.5vw, 2.85rem); }
+h3 { font-size: clamp(1.25rem, 2.2vw, 1.8rem); }
+h4 { font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
 h5 { font-size: var(--text-lg); }
 h6 { font-size: var(--text-base); }
 
 p {
   color: var(--clr-text-muted);
   line-height: 1.7;
+  overflow-wrap: break-word;
 }
 
 a {
@@ -226,15 +230,18 @@ ul, ol {
 
 /* ---------- Layout Utilities ---------- */
 .container {
-  width: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 clamp(1.25rem, 4vw, 3.5rem);
+  width: min(100% - 32px, var(--container-max));
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 2.5vw, 2rem);
+  box-sizing: border-box;
 }
 
 .section {
   padding: var(--section-padding);
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .section-label {
@@ -290,7 +297,6 @@ ul, ol {
   transform: translateY(-3px);
 }
 
-/* ---------- Buttons (Design System Foundation) ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -301,12 +307,21 @@ ul, ol {
   border-radius: var(--radius-full);
   font-size: 0.9375rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.2;
   transition: all var(--dur-fast) var(--ease-out);
   position: relative;
   overflow: hidden;
-  white-space: nowrap;
   user-select: none;
+  box-sizing: border-box;
+}
+
+@media (max-width: 360px) {
+  .btn {
+    padding: 0.65rem 1.15rem;
+    font-size: 0.85rem;
+    white-space: normal;
+    text-align: center;
+  }
 }
 
 .btn-primary {
@@ -360,6 +375,7 @@ ul, ol {
   z-index: -1;
   background: var(--clr-bg);
   pointer-events: none;
+  overflow: hidden;
 }
 
 .page-bg::before {
@@ -395,10 +411,16 @@ ul, ol {
 /* ---------- Reduced Motion (Accessibility) ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
   }
 }
 

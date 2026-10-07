@@ -41,8 +41,28 @@ export default function Navbar() {
 
   // Prevent background scrolling when mobile menu open
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [menuOpen]);
+
+  // Close menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [menuOpen]);
 
   const handleNavClick = (href) => {
@@ -70,7 +90,7 @@ export default function Navbar() {
             aria-label="Ashivam Technologies - Return to home"
           >
             <div className="navbar__logo-mark">
-              <img src="/logo.svg" alt="" className="navbar__logo-img" />
+              <img src="/logo.svg" alt="" className="navbar__logo-img" width="38" height="38" />
             </div>
             <div className="navbar__logo-text">
               <span className="navbar__logo-name">Ashivam</span>

@@ -12,8 +12,8 @@ export function useCustomCursor() {
   const rafRef = useRef(null);
 
   useEffect(() => {
-    // Only on non-touch desktop
-    if (window.matchMedia('(hover: none)').matches) return;
+    // Only on non-touch desktop with standard motion preferences
+    if (window.matchMedia('(hover: none) or (prefers-reduced-motion: reduce)').matches) return;
 
     const dot = dotRef.current;
     const ring = ringRef.current;

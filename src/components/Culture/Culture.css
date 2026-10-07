@@ -26,12 +26,16 @@
 
 .culture__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 
 .culture-card {
   position: relative;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   padding: 2.25rem 2rem;
   background: rgba(18, 24, 38, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -107,9 +111,15 @@
   transform: scaleX(1);
 }
 
+@media (hover: none) {
+  .culture-card {
+    transform: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .culture__grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
   }
 }
@@ -120,6 +130,6 @@
   }
 
   .culture-card {
-    padding: 1.75rem 1.5rem;
+    padding: 1.75rem 1.25rem;
   }
 }

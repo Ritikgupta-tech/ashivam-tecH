@@ -111,13 +111,30 @@
   .cta-section__buttons {
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
     margin: 0 auto;
+    gap: 0.75rem;
   }
 
   .cta-section__btn-primary,
   .cta-section__buttons .btn-outline {
     width: 100%;
     justify-content: center;
+  }
+
+  .cta-section__glass-elements {
+    margin-top: 2.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .cta-section__buttons {
+    max-width: 100%;
+  }
+
+  .cta-section__btn-primary,
+  .cta-section__buttons .btn-outline {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
 }

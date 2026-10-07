@@ -16,34 +16,46 @@ export default function Hero() {
   const parallaxRef = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
 
-  // Subtle ambient particle canvas (restrained, tech studio style)
+  // Optimized ambient particle canvas (pauses off-screen, scaled for mobile)
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const heroEl = heroRef.current;
+    if (!canvas || !heroEl) return;
     const ctx = canvas.getContext('2d');
     let animId;
+    let isVisible = true;
     let particles = [];
 
-    const resize = () => {
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const initParticles = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
+      const isMobile = canvas.width < 768;
+      const count = isMobile ? 16 : 42;
+      particles = [];
 
-    for (let i = 0; i < 45; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.2 + 0.4,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        opacity: Math.random() * 0.4 + 0.1,
-      });
-    }
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * (isMobile ? 1 : 1.2) + 0.4,
+          vx: (Math.random() - 0.5) * (isMobile ? 0.15 : 0.25),
+          vy: (Math.random() - 0.5) * (isMobile ? 0.15 : 0.25),
+          opacity: Math.random() * 0.4 + 0.1,
+        });
+      }
+    };
+
+    initParticles();
+    window.addEventListener('resize', initParticles);
 
     const draw = () => {
+      if (!isVisible) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const isMobile = canvas.width < 768;
+
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -58,35 +70,60 @@ export default function Hero() {
         ctx.fill();
       });
 
-      // Subtle particle connections
-      particles.forEach((a, i) => {
-        particles.slice(i + 1).forEach((b) => {
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 110) {
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(197, 155, 39, ${0.045 * (1 - dist / 110)})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
+      // Subtle particle connections (desktop only for performance)
+      if (!isMobile) {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(197, 155, 39, ${0.04 * (1 - dist / 100)})`;
+              ctx.lineWidth = 0.5;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
           }
-        });
-      });
+        }
+      }
 
-      animId = requestAnimationFrame(draw);
+      if (!isReduced) {
+        animId = requestAnimationFrame(draw);
+      }
     };
-    draw();
+
+    // Observer to pause canvas animation when Hero scrolls out of view
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible && !isReduced) {
+          cancelAnimationFrame(animId);
+          animId = requestAnimationFrame(draw);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(heroEl);
+
+    if (!isReduced) {
+      animId = requestAnimationFrame(draw);
+    } else {
+      draw(); // Single static render for reduced motion
+    }
 
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
+      observer.disconnect();
+      window.removeEventListener('resize', initParticles);
     };
   }, []);
 
-  // Soft mouse parallax for depth
+  // Soft mouse parallax for depth (desktop only)
   useEffect(() => {
+    if (window.matchMedia('(hover: none) or (prefers-reduced-motion: reduce)').matches) return;
+
     const handleMove = (e) => {
       const rect = heroRef.current?.getBoundingClientRect();
       if (!rect) return;

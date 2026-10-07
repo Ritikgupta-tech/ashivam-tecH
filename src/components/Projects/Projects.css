@@ -62,8 +62,9 @@
 /* Grid */
 .projects__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 
 .projects__empty {
@@ -77,6 +78,9 @@
 /* Project Card */
 .project-card {
   position: relative;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   background: rgba(18, 24, 38, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
@@ -268,9 +272,16 @@
   opacity: 0.85;
 }
 
+/* Touch Device Optimization */
+@media (hover: none) {
+  .project-card:active {
+    transform: translateY(-2px);
+  }
+}
+
 @media (max-width: 1024px) {
   .projects__grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
   }
 }

@@ -213,3 +213,36 @@
   0% { color: var(--clr-gold); text-shadow: 0 0 16px rgba(197, 155, 39, 0.4); }
   100% { color: inherit; text-shadow: none; }
 }
+
+/* ---------- Reduced Motion Accessibility ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal--left,
+  .reveal--right,
+  .reveal--scale,
+  .reveal--blur {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  .float-1,
+  .float-2,
+  .float-3,
+  .float-4,
+  .glow-pulse,
+  .glow-pulse-gold,
+  .shimmer-text,
+  .page-load-1,
+  .page-load-2,
+  .page-load-3,
+  .page-load-4,
+  .page-load-5,
+  .page-load-6,
+  .gradient-animate {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

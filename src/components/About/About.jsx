@@ -43,7 +43,7 @@ export default function About() {
             <div className="about__visual-inner">
               {/* Center logo glow */}
               <div className="about__visual-core">
-                <img src="/logo.svg" alt="Ashivam Technologies" className="about__visual-logo" />
+                <img src="/logo.svg" alt="Ashivam Technologies" className="about__visual-logo" width="96" height="96" loading="lazy" />
                 <div className="about__visual-ring about__visual-ring--1" aria-hidden="true" />
                 <div className="about__visual-ring about__visual-ring--2" aria-hidden="true" />
               </div>

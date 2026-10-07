@@ -5,6 +5,7 @@
 .hero {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -325,7 +326,7 @@
   .hero__ctas {
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
     gap: 0.75rem;
   }
 
@@ -341,6 +342,30 @@
     font-size: 0.75rem;
   }
 
+  .hero__scroll-indicator {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero__ctas {
+    max-width: 100%;
+  }
+
+  .hero__cta-primary,
+  .hero__cta-secondary {
+    padding: 0.75rem 1.15rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero {
+    padding: 5rem 0 2.5rem;
+    min-height: auto;
+  }
+
+  .hero__float-card,
   .hero__scroll-indicator {
     display: none;
   }
