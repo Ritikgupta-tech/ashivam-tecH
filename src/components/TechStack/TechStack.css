@@ -64,10 +64,13 @@
 /* Glass Network Container */
 .techstack__network-wrapper {
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: rgba(14, 19, 30, 0.72);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-xl);
-  padding: 2rem 2.25rem;
+  padding: 1.75rem clamp(1rem, 1.8vw, 1.75rem);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -80,6 +83,10 @@
   inset: 0;
   pointer-events: none;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .techstack__bus-svg {
@@ -138,7 +145,7 @@
   100% { cx: 1080px; opacity: 0; }
 }
 
-/* Status Bar */
+/* Header Row / Status Bar */
 .techstack__status-bar {
   position: relative;
   z-index: 2;
@@ -146,9 +153,12 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
   border-bottom: 1px solid var(--clr-border-subtle);
 }
 
@@ -156,6 +166,8 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .techstack__live-pulse {
@@ -165,6 +177,7 @@
   background: var(--clr-gold);
   box-shadow: 0 0 10px var(--clr-gold);
   animation: pulseDot 2s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
 @keyframes pulseDot {
@@ -178,6 +191,7 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   color: var(--clr-gold);
+  white-space: nowrap;
 }
 
 .techstack__flow-badge {
@@ -191,26 +205,38 @@
   padding: 0.35rem 0.85rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--clr-border-subtle);
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .techstack__flow-arrow {
   color: var(--clr-gold);
 }
 
-/* Layers Container: 5 Columns Desktop */
+/* Layers Container: 5 Columns Desktop with minmax(0, 1fr) */
 .techstack__layers {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.5rem, 0.85vw, 0.875rem);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: 1.75rem;
 }
 
+/* Column Architecture */
 .tech-layer {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   transition: opacity var(--dur-fast) ease;
 }
 
@@ -222,14 +248,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.25rem 0.5rem 0.5rem;
+  gap: 0.35rem;
+  padding: 0.25rem 0.35rem 0.5rem;
   border-bottom: 1px solid var(--clr-border-subtle);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .tech-layer__badge {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .tech-layer__index {
@@ -237,16 +270,21 @@
   font-size: 0.6875rem;
   color: var(--clr-gold);
   font-weight: 600;
+  flex: 0 0 auto;
 }
 
 .tech-layer__title {
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 650;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--clr-text);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .tech-layer__connector-pip {
@@ -254,12 +292,17 @@
   height: 5px;
   border-radius: 50%;
   background: var(--clr-border);
+  flex: 0 0 auto;
 }
 
 .tech-layer__items {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Individual Tech Node Card */
@@ -267,13 +310,18 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1rem;
+  gap: 0.625rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.75rem 0.75rem;
   background: rgba(18, 24, 38, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   cursor: pointer;
   outline: none;
+  overflow: hidden;
   transition:
     transform var(--dur-fast) var(--ease-out),
     background var(--dur-fast) ease,
@@ -304,12 +352,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
+  flex: 0 0 36px;
   transition: transform var(--dur-fast) ease;
 }
 
@@ -319,6 +367,10 @@
 
 .tech-node__icon {
   display: block;
+  width: 24px;
+  height: 24px;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .tech-node__icon-glow {
@@ -339,12 +391,13 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex-grow: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .tech-node__name {
   font-family: var(--font-primary);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--clr-text);
   line-height: 1.25;
@@ -354,7 +407,7 @@
 }
 
 .tech-node__role {
-  font-size: 0.72rem;
+  font-size: 0.6875rem;
   color: var(--clr-neutral-400);
   line-height: 1.3;
   margin-top: 2px;
@@ -368,7 +421,8 @@
   height: 4px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
+  flex: 0 0 4px;
+  margin-left: auto;
   transition: background var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 
@@ -377,13 +431,17 @@
   box-shadow: 0 0 6px var(--clr-gold);
 }
 
-/* Specs Bar (Bottom) */
+/* Bottom Architecture Specs Strip */
 .techstack__specs-bar {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding-top: 1.5rem;
   border-top: 1px solid var(--clr-border-subtle);
 }
@@ -392,6 +450,10 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .techstack__spec-code {
@@ -403,34 +465,45 @@
   border: 1px solid rgba(197, 155, 39, 0.25);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
+  flex: 0 0 auto;
 }
 
 .techstack__spec-text {
   font-size: 0.8125rem;
   color: var(--clr-neutral-400);
   line-height: 1.4;
+  min-width: 0;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ============================================================
    RESPONSIVE DESIGN SYSTEM
    ============================================================ */
 
-/* Large Tablets & Small Laptops (1024px - 1280px) */
-@media (max-width: 1200px) {
+/* Medium Desktops & Tablets Landscape (<= 1080px down to 860px) */
+@media (max-width: 1080px) {
   .techstack__layers {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.875rem;
+  }
+
+  .techstack__network-wrapper {
+    padding: 1.5rem 1.25rem;
   }
 }
 
-/* Medium Tablets (768px - 1024px) */
-@media (max-width: 992px) {
+/* Tablets Portrait (<= 860px down to 640px) */
+@media (max-width: 860px) {
   .techstack__network-wrapper {
-    padding: 1.5rem;
+    padding: 1.5rem 1.25rem;
   }
 
   .techstack__layers {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
   }
 
   .techstack__specs-bar {
@@ -443,8 +516,8 @@
   }
 }
 
-/* Small Tablets & Large Phones (480px - 768px) */
-@media (max-width: 768px) {
+/* Mobile & Small Tablets (<= 640px) */
+@media (max-width: 640px) {
   .techstack__controls {
     justify-content: flex-start;
     overflow-x: auto;
@@ -471,6 +544,11 @@
     width: 100%;
     overflow-x: auto;
     white-space: nowrap;
+    scrollbar-width: none;
+  }
+
+  .techstack__flow-badge::-webkit-scrollbar {
+    display: none;
   }
 
   .techstack__layers {
@@ -480,37 +558,39 @@
 
   .tech-layer__items {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0.65rem;
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
   }
 }
 
 /* Small Phones (<= 480px) */
 @media (max-width: 480px) {
   .techstack__network-wrapper {
-    padding: 1.25rem 1rem;
+    padding: 1.25rem 0.875rem;
     border-radius: var(--radius-lg);
   }
 
-  .tech-layer__items {
-    grid-template-columns: 1fr;
-  }
-
   .tech-node {
-    padding: 0.75rem 0.85rem;
+    padding: 0.65rem 0.75rem;
     min-height: 48px;
   }
 
   .tech-node__icon-wrap {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+  }
+
+  .tech-node__icon {
+    width: 20px;
+    height: 20px;
   }
 
   .tech-node__name {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
   }
 
   .tech-node__role {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 }

@@ -52,8 +52,9 @@ function TechCard({ item, activeFilter }) {
     }
   };
 
-  const isDimmed = activeFilter !== 'all' && item.category !== activeFilter;
-  const isHighlighted = activeFilter !== 'all' && item.category === activeFilter;
+  const isMatch = activeFilter === 'all' || item.category === activeFilter || (activeFilter === 'tools' && (item.category === 'tools' || item.category === 'design'));
+  const isDimmed = !isMatch;
+  const isHighlighted = activeFilter !== 'all' && isMatch;
 
   return (
     <div
@@ -66,7 +67,7 @@ function TechCard({ item, activeFilter }) {
       aria-label={`${item.name} — ${item.role}`}
     >
       <div className="tech-node__icon-wrap">
-        {IconComponent && <IconComponent size={28} className="tech-node__icon" />}
+        {IconComponent && <IconComponent size={24} className="tech-node__icon" />}
         <div className="tech-node__icon-glow" aria-hidden="true" />
       </div>
       <div className="tech-node__content">
