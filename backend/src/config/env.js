@@ -5,6 +5,8 @@ const isProd = process.env.NODE_ENV === "production";
 const parseOrigins = () => {
   const defaultOrigins = isProd
     ? [
+        "https://ashivam.com",
+        "https://www.ashivam.com",
         "https://ashivam-tec-h.vercel.app",
         "https://ashivamtechnologies.com",
         "https://www.ashivamtechnologies.com",
@@ -12,11 +14,12 @@ const parseOrigins = () => {
     : [
         "http://localhost:5173",
         "http://localhost:3000",
+        "https://ashivam.com",
         "https://ashivam-tec-h.vercel.app",
       ];
 
-  const clientUrl = process.env.CLIENT_URL?.trim();
-  const allowedOriginsEnv = process.env.ALLOWED_ORIGINS?.trim();
+  const clientUrl = (process.env.CLIENT_URL || process.env.FRONTEND_URL)?.trim();
+  const allowedOriginsEnv = (process.env.ALLOWED_ORIGINS || process.env.CORS_ORIGIN)?.trim();
 
   const customOrigins = [];
   if (clientUrl) {
@@ -81,9 +84,13 @@ const env = {
   smtpPassword: process.env.SMTP_PASSWORD || "",
   emailFrom:
     process.env.EMAIL_FROM ||
-    "Ashivam Technologies <no-reply@ashivamtechnologies.com>",
+    (process.env.COMPANY_EMAIL
+      ? `Ashivam Technologies <${process.env.COMPANY_EMAIL}>`
+      : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
   notificationRecipient:
-    process.env.NOTIFICATION_RECIPIENT || "admin@ashivamtechnologies.com",
+    process.env.NOTIFICATION_RECIPIENT ||
+    process.env.COMPANY_EMAIL ||
+    "admin@ashivamtechnologies.com",
 
   isSmtpConfigured: Boolean(
     process.env.SMTP_HOST &&
