@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 import Job from "./job.model.js";
 import Application from "./application.model.js";
+import env from "../../config/env.js";
+import { sendEmail } from "../notification/email.service.js";
 import { escapeRegex } from "../../utils/query.js";
 
 const validateObjectId = (id, message) => {
@@ -175,11 +177,34 @@ export const createApplication = async (
     throw error;
   }
 
-  return Application.create({
+  const application = await Application.create({
     ...data,
     job: jobId,
     resume,
   });
+
+  // Background non-blocking notifications
+  if (env.notificationRecipient) {
+    sendEmail({
+      to: env.notificationRecipient,
+      subject: `[Ashivam Careers] New application for ${job.title} from ${data.firstName} ${data.lastName}`,
+      text: `A new job application has been submitted on the Ashivam Technologies website.\n\nPosition: ${job.title}\nCandidate: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nResume File: ${resume.originalName || "Uploaded"}\n`,
+    }).catch((err) => {
+      console.warn("[Career Alert] Background dispatch error:", err.message);
+    });
+  }
+
+  if (data.email) {
+    sendEmail({
+      to: data.email,
+      subject: `Application Received - Ashivam Technologies [${job.title}]`,
+      text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Talent Acquisition\nhttps://ashivamtechnologies.com`,
+    }).catch((err) => {
+      console.warn("[Career Confirmation] Background dispatch error:", err.message);
+    });
+  }
+
+  return application;
 };
 
 export const listApplications = async ({

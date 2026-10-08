@@ -1,11 +1,19 @@
 import "dotenv/config";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const parseOrigins = () => {
-  const defaultOrigins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://ashivam-tec-h.vercel.app",
-  ];
+  const defaultOrigins = isProd
+    ? [
+        "https://ashivam-tec-h.vercel.app",
+        "https://ashivamtechnologies.com",
+        "https://www.ashivamtechnologies.com",
+      ]
+    : [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://ashivam-tec-h.vercel.app",
+      ];
 
   const clientUrl = process.env.CLIENT_URL?.trim();
   const allowedOriginsEnv = process.env.ALLOWED_ORIGINS?.trim();
@@ -18,7 +26,14 @@ const parseOrigins = () => {
     customOrigins.push(...allowedOriginsEnv.split(",").map((s) => s.trim()));
   }
 
-  const combined = Array.from(new Set([...defaultOrigins, ...customOrigins])).filter(Boolean);
+  let combined = Array.from(new Set([...defaultOrigins, ...customOrigins])).filter(Boolean);
+
+  if (isProd) {
+    combined = combined.filter(
+      (origin) => !origin.includes("localhost") && !origin.includes("127.0.0.1")
+    );
+  }
+
   return combined;
 };
 
@@ -78,8 +93,24 @@ const env = {
   ),
 };
 
-if (env.isProduction && !process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is mandatory in production mode.");
+if (env.isProduction) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is mandatory in production mode.");
+  }
+  if (process.env.JWT_SECRET.length < 32) {
+    throw new Error("JWT_SECRET must be at least 32 characters in production mode.");
+  }
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI environment variable is mandatory in production mode.");
+  }
+  if (
+    process.env.MONGODB_URI.includes("127.0.0.1") ||
+    process.env.MONGODB_URI.includes("localhost")
+  ) {
+    throw new Error(
+      "Localhost/127.0.0.1 MongoDB URI cannot be used in production mode. A real MongoDB Atlas connection string is required."
+    );
+  }
 }
 
 export default env;
