@@ -18,8 +18,13 @@ dist-ssr/
 .env.*
 !.env.example
 
-# Exclude backend entirely
-backend/
+# Backend artifacts and secrets
+backend/node_modules/
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/uploads/
+backend/logs/
 
 # Editor & OS files
 .vscode/
@@ -28,4 +33,3 @@ backend/
 Thumbs.db
 
 .vercel
-.env*
