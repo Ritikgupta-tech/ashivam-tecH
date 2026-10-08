@@ -86,9 +86,9 @@
 
 .about__visual-logo {
   width: 96px;
-  height: 96px;
+  height: 53px;
+  aspect-ratio: 308 / 170;
   object-fit: contain;
-  border-radius: 18px;
   filter: drop-shadow(0 0 28px rgba(197, 155, 39, 0.45));
 }
 
@@ -112,7 +112,7 @@
   animation: spinSlow 50s linear infinite reverse;
 }
 
-/* Pillar cards with SVG icons */
+/* Pillar cards with SVG icons (Desktop: Circular Cardinal Constellation) */
 .about__pillar {
   position: absolute;
   display: flex;
@@ -131,6 +131,7 @@
   white-space: nowrap;
   transition: all var(--dur-fast) var(--ease-out);
   cursor: default;
+  z-index: 3;
 }
 
 .about__pillar:hover {
@@ -155,42 +156,146 @@
   letter-spacing: -0.01em;
 }
 
-/* Responsive */
+/* Responsive (Mobile & Tablet: Diagonal Constellation with GUARANTEED Zero Overlap) */
 @media (max-width: 992px) {
   .about__inner {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2.75rem;
   }
 
   .about__visual {
-    min-height: 320px;
+    min-height: 340px;
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
   }
 
   .about__visual-inner {
-    width: min(300px, 88vw);
-    height: min(300px, 88vw);
-  }
-}
-
-@media (max-width: 480px) {
-  .about__visual-inner {
-    width: min(260px, 88vw);
-    height: min(260px, 88vw);
+    width: min(340px, 92vw);
+    height: 310px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .about__visual-ring--1 { width: 170px; height: 170px; }
-  .about__visual-ring--2 { width: 250px; height: 250px; }
-
-  .about__pillar {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.75rem;
+  .about__visual-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
   }
 
   .about__visual-logo {
-    width: 72px;
-    height: 72px;
+    width: 76px;
+    height: 42px;
+    filter: drop-shadow(0 0 20px rgba(245, 203, 92, 0.5));
+  }
+
+  .about__visual-ring--1 {
+    width: 170px;
+    height: 170px;
+  }
+
+  .about__visual-ring--2 {
+    width: 250px;
+    height: 250px;
+  }
+
+  /* Reposition Pillars to 4 Diagonal Corners on Mobile to Keep Midline 100% Free of Overlap */
+  .about__pillar {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.78rem;
+    gap: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .about__pillar:nth-child(2) {
+    /* Innovation - Top Left */
+    top: 3%;
+    left: 2%;
+    right: auto;
+    bottom: auto;
+    transform: none;
+  }
+
+  .about__pillar:nth-child(3) {
+    /* Engineering - Top Right */
+    top: 3%;
+    right: 2%;
+    left: auto;
+    bottom: auto;
+    transform: none;
+  }
+
+  .about__pillar:nth-child(4) {
+    /* Design - Bottom Left */
+    bottom: 3%;
+    left: 2%;
+    right: auto;
+    top: auto;
+    transform: none;
+  }
+
+  .about__pillar:nth-child(5) {
+    /* Impact - Bottom Right */
+    bottom: 3%;
+    right: 2%;
+    left: auto;
+    top: auto;
+    transform: none;
+  }
+}
+
+/* Narrow mobile (<= 380px) */
+@media (max-width: 380px) {
+  .about__visual-inner {
+    width: 100%;
+    height: 280px;
+  }
+
+  .about__visual-logo {
+    width: 66px;
+    height: 37px;
+  }
+
+  .about__visual-ring--1 {
+    width: 140px;
+    height: 140px;
+  }
+
+  .about__visual-ring--2 {
+    width: 210px;
+    height: 210px;
+  }
+
+  .about__pillar {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+    gap: 0.35rem;
+  }
+
+  .about__pillar:nth-child(2) {
+    top: 1%;
+    left: 1%;
+  }
+
+  .about__pillar:nth-child(3) {
+    top: 1%;
+    right: 1%;
+  }
+
+  .about__pillar:nth-child(4) {
+    bottom: 1%;
+    left: 1%;
+  }
+
+  .about__pillar:nth-child(5) {
+    bottom: 1%;
+    right: 1%;
   }
 }
