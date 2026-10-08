@@ -178,28 +178,21 @@ export default function Hero() {
 
       {/* Main Content */}
       <div className="hero__content container">
-        {/* Gold Eyebrow */}
-        <div className="hero__eyebrow page-load-2">
-          <span className="hero__eyebrow-line" aria-hidden="true" />
-          <span className="hero__eyebrow-text">ASHIVAM TECHNOLOGIES</span>
-          <span className="hero__eyebrow-pill">AGRA • INDIA</span>
-        </div>
-
         {/* Large Headline */}
-        <h1 id="hero-heading" className="hero__headline page-load-3">
+        <h1 id="hero-heading" className="hero__headline page-load-2">
           Infinite Possibilities.
           <br />
           <span className="gradient-text-gold">Engineered with Precision.</span>
         </h1>
 
         {/* Supporting Text */}
-        <p className="hero__description page-load-4">
+        <p className="hero__description page-load-3">
           We are a modern technology and software engineering company crafting scalable digital products,
           enterprise architectures, and innovative platforms that move ideas into reality.
         </p>
 
         {/* CTAs */}
-        <div className="hero__ctas page-load-5">
+        <div className="hero__ctas page-load-4">
           <button
             className="btn btn-primary hero__cta-primary"
             onClick={() => scrollToSection('contact')}
@@ -218,7 +211,7 @@ export default function Hero() {
         </div>
 
         {/* Trust Badges */}
-        <div className="hero__trust page-load-6">
+        <div className="hero__trust page-load-5">
           <div className="hero__trust-item">
             <span className="hero__trust-dot" aria-hidden="true" />
             <span>Modern Tech Stack</span>

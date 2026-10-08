@@ -5,19 +5,27 @@
 .ashivam-logo {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.75rem;
   text-decoration: none;
   line-height: 1;
   position: relative;
   vertical-align: middle;
-  border-radius: var(--radius-sm, 8px);
   transition: opacity var(--dur-fast, 180ms) ease, transform var(--dur-fast, 180ms) ease;
 }
 
 .ashivam-logo--theme-badge {
   background: #ffffff;
   padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm, 8px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(212, 175, 55, 0.2);
+}
+
+.ashivam-logo--theme-badge .ashivam-logo__name {
+  color: #111827;
+}
+
+.ashivam-logo--theme-badge .ashivam-logo__sub {
+  color: var(--clr-gold, #c59b27);
 }
 
 .ashivam-logo--theme-transparent {
@@ -26,21 +34,53 @@
   box-shadow: none;
 }
 
-.ashivam-logo__image {
+.ashivam-logo__symbol {
   display: block;
   height: var(--logo-height, 38px);
   width: auto;
-  max-width: 100%;
-  aspect-ratio: var(--logo-aspect, 670 / 140);
+  aspect-ratio: 308 / 170;
   object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(197, 155, 39, 0.4));
+  transition: filter var(--dur-fast, 180ms) ease;
 }
 
-.ashivam-logo--stacked .ashivam-logo__image {
-  aspect-ratio: 390 / 287;
+.ashivam-logo:hover .ashivam-logo__symbol {
+  filter: drop-shadow(0 0 16px rgba(245, 203, 92, 0.7));
 }
 
-.ashivam-logo--symbol .ashivam-logo__image {
-  aspect-ratio: 320 / 184;
+.ashivam-logo__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.ashivam-logo__name {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: calc(var(--logo-height, 38px) * 0.48);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.ashivam-logo__sub {
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: calc(var(--logo-height, 38px) * 0.22);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f5cb5c;
+  margin-top: 2px;
+}
+
+/* Stacked variant */
+.ashivam-logo--stacked {
+  flex-direction: column;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.ashivam-logo--stacked .ashivam-logo__text {
+  align-items: center;
 }
 
 /* Accessible focus styling */

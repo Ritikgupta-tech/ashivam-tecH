@@ -90,7 +90,7 @@ export default function Navbar() {
             aria-label="Ashivam Technologies - Return to home"
           >
             <div className="navbar__logo-mark">
-              <img src="/logo.svg" alt="" className="navbar__logo-img" width="38" height="38" />
+              <img src="/logo-symbol.png" alt="" className="navbar__logo-img" width="44" height="25" />
             </div>
             <div className="navbar__logo-text">
               <span className="navbar__logo-name">Ashivam</span>
@@ -120,27 +120,31 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* CTA on Far Right */}
-          <a
-            href="#contact"
-            className="navbar__cta btn btn-primary"
-            onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
-          >
-            <span>Let's Build Together</span>
-            <ArrowRightIcon size={15} className="navbar__cta-arrow" />
-          </a>
+          {/* Actions on Far Right */}
+          <div className="navbar__actions">
+            <a
+              href="#contact"
+              className="navbar__cta btn btn-primary"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
+              aria-label="Let's Build Together - Contact Ashivam Technologies"
+            >
+              <span className="navbar__cta-full">Let's Build Together</span>
+              <span className="navbar__cta-compact">Let's Talk</span>
+              <ArrowRightIcon size={14} className="navbar__cta-arrow" />
+            </a>
 
-          {/* Hamburger (Mobile) */}
-          <button
-            className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <span className="navbar__ham-line" />
-            <span className="navbar__ham-line" />
-            <span className="navbar__ham-line" />
-          </button>
+            {/* Hamburger (Mobile & Tablet) */}
+            <button
+              className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
+              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="navbar__ham-line" />
+              <span className="navbar__ham-line" />
+              <span className="navbar__ham-line" />
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -154,7 +158,7 @@ export default function Navbar() {
       >
         <div className="mobile-menu__content">
           <div className="mobile-menu__logo">
-            <img src="/logo.svg" alt="" className="mobile-menu__logo-img" />
+            <img src="/logo-symbol.png" alt="" className="mobile-menu__logo-img" width="44" height="25" />
             <div>
               <div className="mobile-menu__logo-name">Ashivam</div>
               <div className="mobile-menu__logo-sub">Technologies</div>
@@ -188,7 +192,7 @@ export default function Navbar() {
             <ArrowRightIcon size={16} />
           </a>
 
-          <p className="mobile-menu__tagline">Headquarters: Agra, Uttar Pradesh, India</p>
+          <p className="mobile-menu__tagline">Ashivam Technologies • Enterprise Engineering</p>
         </div>
       </div>
 
