@@ -1,7 +1,8 @@
 # REST API SPECIFICATION — ASHIVAM TECHNOLOGIES
 
 **Base URL:** `http://localhost:5000/api/v1` (Development)  
-**Production URL:** `https://ashivam-backend.onrender.com/api/v1` *(or configured hosting target)*  
+**Production URL:** `https://ashivam-tech.onrender.com/api/v1` (Live Production)  
+**Frontend URL:** `https://ashivam-tec-h.vercel.app` (Live Production)  
 **API Version:** `v1`  
 **Authentication Scheme:** HTTP Bearer Token (`Authorization: Bearer <token>`)  
 **Standard Response Headers:**
@@ -37,9 +38,10 @@
 
 ## 2. Public API Endpoints
 
-### 2.1. System Health & Probes
-- `GET /`
-  - Returns service identification and root metadata.
+### 2.1. Discovery & System Health Probes
+- `GET /` and `GET /api/v1`
+  - Returns service identification, operational status, and endpoint directory catalog.
+  - Status codes: `200 OK`.
 - `GET /api/v1/health`
   - Returns database connection status and server uptime.
   - Status codes: `200 OK` (DB connected), `503 Service Unavailable` (DB down).
