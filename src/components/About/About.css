@@ -89,7 +89,7 @@
   height: 53px;
   aspect-ratio: 308 / 170;
   object-fit: contain;
-  filter: drop-shadow(0 0 28px rgba(212, 175, 55, 0.5));
+  filter: drop-shadow(0 0 28px rgba(197, 155, 39, 0.45));
 }
 
 .about__visual-ring {

@@ -2,10 +2,10 @@ import './Logo.css';
 
 /**
  * Official Ashivam Technologies Logo Component
- * Pure Metallic Gold Brand Identity:
+ * Uses the authentic brand identity:
  * - Pure gold infinity emblem
- * - Metallic gold Ashivam wordmark (#D4AF37 base, #F5D76E highlight, #A67C00 shadow)
- * - Metallic gold TECHNOLOGIES subline
+ * - Crisp white Ashivam wordmark
+ * - Luminous gold TECHNOLOGIES subline
  * 
  * Supports horizontal lockup, stacked lockup, and mark-only mode.
  */

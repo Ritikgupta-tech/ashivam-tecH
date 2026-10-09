@@ -36,7 +36,7 @@
   padding: 2.5rem 2rem;
   box-shadow: 
     0 20px 40px -15px rgba(0, 0, 0, 0.7),
-    0 0 50px -10px rgba(212, 175, 55, 0.15);
+    0 0 50px -10px rgba(42, 168, 224, 0.15);
   position: relative;
   z-index: 1;
 }
@@ -53,8 +53,8 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(245, 215, 110, 0.2), rgba(212, 175, 55, 0.25));
-  border: 1px solid rgba(212, 175, 55, 0.45);
+  background: linear-gradient(135deg, rgba(42, 168, 224, 0.2), rgba(212, 175, 55, 0.2));
+  border: 1px solid rgba(212, 175, 55, 0.4);
   color: #d4af37;
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
   font-weight: 700;
@@ -126,8 +126,8 @@
 }
 
 .admin-form-input:focus {
-  border-color: #D4AF37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  border-color: #2aa8e0;
+  box-shadow: 0 0 0 3px rgba(42, 168, 224, 0.2);
   background: rgba(7, 15, 29, 0.95);
 }
 
@@ -244,5 +244,5 @@
 }
 
 .admin-login-back-link:hover {
-  color: #F5D76E;
+  color: #2aa8e0;
 }

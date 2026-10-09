@@ -76,15 +76,9 @@
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 2.2vw, 1.25rem);
   font-weight: 800;
-  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: #D4AF37;
+  color: #ffffff;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  text-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
-  display: inline-block;
 }
 
 .navbar__logo-sub {
@@ -93,11 +87,9 @@
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #F5D76E;
+  color: #f5cb5c;
   white-space: nowrap;
   margin-top: 1px;
-  text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
-  display: inline-block;
 }
 
 /* Centered Desktop Links */
@@ -279,14 +271,8 @@
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: #D4AF37;
+  color: #ffffff;
   line-height: 1.1;
-  text-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
-  display: inline-block;
 }
 
 .mobile-menu__logo-sub {
@@ -295,11 +281,9 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #F5D76E;
+  color: #f5cb5c;
   line-height: 1;
   margin-top: 2px;
-  text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
-  display: inline-block;
 }
 
 .mobile-menu__links {
