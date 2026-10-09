@@ -96,10 +96,10 @@ export const validateFileSignature = (buffer, mimeType = "", extension = "") => 
  * Strips path separators, control characters, quotes, and dangerous extensions.
  */
 export const sanitizeDownloadFilename = (originalName = "resume.pdf") => {
-  const base = path.basename(String(originalName)).replace(/\0/g, "");
+  const base = path.win32.basename(String(originalName)).replace(/\0/g, "");
   const safe = base.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const ext = path.extname(safe).toLowerCase();
-  const nameWithoutExt = path.basename(safe, ext) || "document";
+  const ext = path.win32.extname(safe).toLowerCase();
+  const nameWithoutExt = path.win32.basename(safe, ext).replace(/^\.+/, "") || "document";
   const allowedExts = [".pdf", ".doc", ".docx"];
   const finalExt = allowedExts.includes(ext) ? ext : ".pdf";
   return `${nameWithoutExt.slice(0, 80)}${finalExt}`;
