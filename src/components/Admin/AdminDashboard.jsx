@@ -1342,7 +1342,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('inquiries')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">Inquiries</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>View 💬</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>View 💬</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.inquiries ?? 0}</span>
                       {tabData?.overview?.breakdown?.inquiries && (
@@ -1363,7 +1363,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('careers')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">Active Jobs</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Manage 💼</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Manage 💼</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.jobs ?? 0}</span>
                       {tabData?.overview?.breakdown?.jobs && (
@@ -1381,7 +1381,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('careers')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">Applications</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Review 📄</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Review 📄</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.applications ?? 0}</span>
                       {tabData?.overview?.breakdown?.applications && (
@@ -1399,7 +1399,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('internships')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">Internships</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Pipeline 🎓</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Pipeline 🎓</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.internships ?? 0}</span>
                       {tabData?.overview?.breakdown?.internships && (
@@ -1417,7 +1417,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('employees')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">Employees</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Directory 👥</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Directory 👥</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.employees ?? 0}</span>
                       {tabData?.overview?.breakdown?.employees && (
@@ -1435,7 +1435,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('documents')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">HR Documents</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Files 📁</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Files 📁</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.hrDocuments ?? 0}</span>
                       {tabData?.overview?.breakdown?.hrDocuments && (
@@ -1453,7 +1453,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('content')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">CMS Blocks</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Manage 📝</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Manage 📝</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.content ?? 0}</span>
                       {tabData?.overview?.breakdown?.content && (
@@ -1471,7 +1471,7 @@ export default function AdminDashboard() {
                     <div className="admin-stat-card" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('media')}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="admin-stat-label">Media Assets</span>
-                        <span style={{ fontSize: '0.8rem', color: '#2aa8e0' }}>Library 🖼️</span>
+                        <span style={{ fontSize: '0.8rem', color: '#F5D76E' }}>Library 🖼️</span>
                       </div>
                       <span className="admin-stat-value">{tabData?.overview?.media ?? 0}</span>
                     </div>
@@ -3670,7 +3670,7 @@ export default function AdminDashboard() {
                   href={selectedIntern.portfolioUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#2aa8e0', textDecoration: 'underline', fontSize: '0.9rem' }}
+                  style={{ color: '#F5D76E', textDecoration: 'underline', fontSize: '0.9rem' }}
                 >
                   {selectedIntern.portfolioUrl} ↗
                 </a>

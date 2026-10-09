@@ -56,12 +56,12 @@
   width: 44px;
   height: 25px;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(197, 155, 39, 0.4));
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.42));
   transition: filter var(--dur-fast) ease, transform var(--dur-fast) ease;
 }
 
 .navbar__logo:hover .navbar__logo-img {
-  filter: drop-shadow(0 0 16px rgba(245, 203, 92, 0.7));
+  filter: drop-shadow(0 0 18px rgba(245, 215, 110, 0.75));
   transform: scale(1.03);
 }
 
@@ -76,9 +76,15 @@
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 2.2vw, 1.25rem);
   font-weight: 800;
-  color: #ffffff;
+  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: #D4AF37;
   letter-spacing: -0.01em;
   white-space: nowrap;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+  display: inline-block;
 }
 
 .navbar__logo-sub {
@@ -87,9 +93,11 @@
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #f5cb5c;
+  color: #F5D76E;
   white-space: nowrap;
   margin-top: 1px;
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+  display: inline-block;
 }
 
 /* Centered Desktop Links */
@@ -264,15 +272,21 @@
   width: 44px;
   height: 25px;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(197, 155, 39, 0.45));
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.42));
 }
 
 .mobile-menu__logo-name {
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 800;
-  color: #ffffff;
+  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: #D4AF37;
   line-height: 1.1;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+  display: inline-block;
 }
 
 .mobile-menu__logo-sub {
@@ -281,9 +295,11 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #f5cb5c;
+  color: #F5D76E;
   line-height: 1;
   margin-top: 2px;
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+  display: inline-block;
 }
 
 .mobile-menu__links {

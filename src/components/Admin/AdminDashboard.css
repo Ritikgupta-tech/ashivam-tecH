@@ -33,8 +33,9 @@
   width: 36px;
   height: 36px;
   border-radius: 9px;
-  background: linear-gradient(135deg, rgba(42, 168, 224, 0.25), rgba(212, 175, 55, 0.25));
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: linear-gradient(135deg, rgba(245, 215, 110, 0.2), rgba(212, 175, 55, 0.25));
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.2);
   color: #d4af37;
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
   font-weight: 700;
@@ -54,7 +55,12 @@
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
   font-size: 1.05rem;
   font-weight: 700;
-  color: #ffffff;
+  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: #D4AF37;
+  letter-spacing: -0.01em;
 }
 
 .admin-role-badge {
@@ -182,9 +188,9 @@
 }
 
 .admin-nav-item.active {
-  background: rgba(42, 168, 224, 0.12);
-  color: #2aa8e0;
-  border-left: 3px solid #2aa8e0;
+  background: rgba(212, 175, 55, 0.12);
+  color: #F5D76E;
+  border-left: 3px solid #D4AF37;
   font-weight: 600;
 }
 
@@ -536,8 +542,8 @@
 
 .admin-search-input:focus {
   outline: none;
-  border-color: #2aa8e0;
-  box-shadow: 0 0 0 2px rgba(42, 168, 224, 0.2);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
 }
 
 .admin-filter-select {
@@ -552,7 +558,7 @@
 
 .admin-filter-select:focus {
   outline: none;
-  border-color: #2aa8e0;
+  border-color: #D4AF37;
 }
 
 /* Detail Card & Metadata */
@@ -801,13 +807,15 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2aa8e0, #1e3a8a);
-  color: #ffffff;
+  background: linear-gradient(135deg, #D4AF37, #7A5800);
+  border: 1px solid rgba(245, 215, 110, 0.4);
+  color: #060B15;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
 }
 
 .admin-profile-meta {
@@ -823,7 +831,8 @@
 
 .admin-profile-role {
   font-size: 0.85rem;
-  color: #2aa8e0;
+  color: #F5D76E;
+  font-weight: 600;
 }
 
 .admin-tags-wrap {

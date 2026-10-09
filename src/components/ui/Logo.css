@@ -1,5 +1,5 @@
 /* ============================================================
-   OFFICIAL ASHIVAM TECHNOLOGIES LOGO STYLES
+   OFFICIAL ASHIVAM TECHNOLOGIES LOGO STYLES — PURE GOLD BRANDING
    ============================================================ */
 
 .ashivam-logo {
@@ -14,18 +14,23 @@
 }
 
 .ashivam-logo--theme-badge {
-  background: #ffffff;
-  padding: 0.35rem 0.75rem;
+  background: rgba(18, 24, 38, 0.95);
+  padding: 0.4rem 0.85rem;
   border-radius: var(--radius-sm, 8px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(245, 215, 110, 0.2);
 }
 
 .ashivam-logo--theme-badge .ashivam-logo__name {
-  color: #111827;
+  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: #D4AF37;
 }
 
 .ashivam-logo--theme-badge .ashivam-logo__sub {
-  color: var(--clr-gold, #c59b27);
+  color: #F5D76E;
 }
 
 .ashivam-logo--theme-transparent {
@@ -40,12 +45,13 @@
   width: auto;
   aspect-ratio: 308 / 170;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(197, 155, 39, 0.4));
-  transition: filter var(--dur-fast, 180ms) ease;
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.42));
+  transition: filter var(--dur-fast, 180ms) ease, transform var(--dur-fast, 180ms) ease;
 }
 
 .ashivam-logo:hover .ashivam-logo__symbol {
-  filter: drop-shadow(0 0 16px rgba(245, 203, 92, 0.7));
+  filter: drop-shadow(0 0 18px rgba(245, 215, 110, 0.75));
+  transform: scale(1.02);
 }
 
 .ashivam-logo__text {
@@ -58,8 +64,14 @@
   font-family: var(--font-display, 'Syne', sans-serif);
   font-size: calc(var(--logo-height, 38px) * 0.48);
   font-weight: 800;
-  color: #ffffff;
+  background: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: #D4AF37;
   letter-spacing: -0.01em;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+  display: inline-block;
 }
 
 .ashivam-logo__sub {
@@ -68,8 +80,10 @@
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #f5cb5c;
+  color: #F5D76E;
   margin-top: 2px;
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+  display: inline-block;
 }
 
 /* Stacked variant */
@@ -85,6 +99,6 @@
 
 /* Accessible focus styling */
 .ashivam-logo:focus-visible {
-  outline: 2px solid var(--clr-gold, #c59b27);
+  outline: 2px solid #D4AF37;
   outline-offset: 4px;
 }

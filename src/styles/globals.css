@@ -25,13 +25,16 @@
   --clr-neutral-800: #1e293b;
   --clr-neutral-900: #0f172a;
 
-  /* Brand Accent: Authentic Gold (Sampled from Official Logo) */
-  --clr-gold-light: #e6c55c;
-  --clr-gold: #c59b27;
-  --clr-gold-dark: #9e7914;
-  --clr-gold-glow: rgba(197, 155, 39, 0.16);
-  --clr-gold-subtle: rgba(197, 155, 39, 0.08);
-  --clr-gold-border: rgba(197, 155, 39, 0.28);
+  /* Brand Accent: Pure Metallic Gold Palette */
+  --clr-gold-rich: #D4AF37;
+  --clr-gold-highlight: #F5D76E;
+  --clr-gold-shadow: #A67C00;
+  --clr-gold-light: #F5D76E;
+  --clr-gold: #D4AF37;
+  --clr-gold-dark: #A67C00;
+  --clr-gold-glow: rgba(212, 175, 55, 0.2);
+  --clr-gold-subtle: rgba(212, 175, 55, 0.08);
+  --clr-gold-border: rgba(212, 175, 55, 0.28);
 
   /* Semantic Brand Roles */
   --clr-primary: var(--clr-gold);
@@ -77,12 +80,13 @@
   --clr-error-bg: rgba(239, 68, 68, 0.12);
   --clr-info: #3b82f6;
 
-  /* Gradients (Restrained & Sophisticated) */
-  --grad-primary: linear-gradient(135deg, #e6c55c 0%, #c59b27 100%);
-  --grad-gold: linear-gradient(135deg, #e6c55c 0%, #c59b27 100%);
+  /* Gradients (Restrained & Sophisticated Metallic Gold) */
+  --grad-primary: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  --grad-gold: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
+  --grad-gold-metallic: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
   --grad-hero: linear-gradient(180deg, #090d15 0%, #0d131f 60%, #090d15 100%);
   --grad-text: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-  --grad-gold-text: linear-gradient(135deg, #e6c55c 0%, #c59b27 100%);
+  --grad-gold-text: linear-gradient(135deg, #FFF1B0 0%, #F5D76E 25%, #D4AF37 55%, #A67C00 100%);
   --grad-card: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
 
   /* Shadows (Depth-focused, eliminating neon blurs) */

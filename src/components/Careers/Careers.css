@@ -116,9 +116,9 @@
   border-radius: 9999px;
   font-size: 0.725rem;
   font-weight: 500;
-  background: rgba(42, 168, 224, 0.12);
-  border: 1px solid rgba(42, 168, 224, 0.25);
-  color: #38bdf8;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #F5D76E;
 }
 
 .career-card__badge-type {
@@ -545,8 +545,8 @@
 .career-field-input:focus,
 .career-field-select:focus,
 .career-field-textarea:focus {
-  border-color: #2aa8e0;
-  box-shadow: 0 0 0 3px rgba(42, 168, 224, 0.18);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .career-field-textarea {
