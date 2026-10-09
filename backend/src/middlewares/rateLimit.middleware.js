@@ -13,6 +13,8 @@ export const globalLimiter = rateLimit({
     res.status(429).json({
       success: false,
       message: "Too many requests from this IP. Please try again later.",
+      errors: {},
+      requestId: req.id,
     });
   },
 });
@@ -31,6 +33,8 @@ export const loginLimiter = rateLimit({
     res.status(429).json({
       success: false,
       message: "Too many login attempts. Please try again later.",
+      errors: {},
+      requestId: req.id,
     });
   },
 });
@@ -48,6 +52,8 @@ export const publicFormLimiter = rateLimit({
     res.status(429).json({
       success: false,
       message: "Too many submissions. Please try again later.",
+      errors: {},
+      requestId: req.id,
     });
   },
 });

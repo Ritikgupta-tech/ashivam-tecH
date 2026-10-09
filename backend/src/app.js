@@ -1,9 +1,11 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+import path from "path";
 
 import env from "./config/env.js";
 import requestIdMiddleware from "./middlewares/requestId.middleware.js";
+import requestLoggerMiddleware from "./middlewares/logger.middleware.js";
 import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 import healthRoutes from "./routes/health.routes.js";
@@ -35,6 +37,11 @@ app.disable("x-powered-by");
  * Request Correlation ID
  */
 app.use(requestIdMiddleware);
+
+/*
+ * Request Observability & Structured Logging
+ */
+app.use(requestLoggerMiddleware);
 
 /*
  * Security headers via Helmet
@@ -97,14 +104,33 @@ app.use(
 );
 
 /*
- * Static uploads directory (safe file serving, index traversal denied)
+ * Public static uploads (only genuinely public website media is served statically)
  */
 app.use(
-  "/uploads",
-  express.static("uploads", {
+  "/uploads/media",
+  express.static(path.resolve(process.cwd(), "uploads", "media"), {
     index: false,
     dotfiles: "deny",
   })
+);
+
+/*
+ * Explicit block for private upload directories (resumes, employee docs, hr docs)
+ */
+app.use(
+  [
+    "/uploads/resumes",
+    "/uploads/employee-documents",
+    "/uploads/hr-documents",
+  ],
+  (req, res) => {
+    return res.status(404).json({
+      success: false,
+      message: "Resource not found",
+      errors: {},
+      requestId: req.id,
+    });
+  }
 );
 
 /*

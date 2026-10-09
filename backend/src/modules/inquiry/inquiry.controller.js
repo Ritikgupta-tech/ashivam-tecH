@@ -20,6 +20,7 @@ export const create = async (req, res, next) => {
         success: false,
         message: "Validation failed",
         errors: validation.errors,
+        requestId: req.id,
       });
     }
 
@@ -31,6 +32,7 @@ export const create = async (req, res, next) => {
       data: {
         inquiry,
       },
+      requestId: req.id,
     });
   } catch (error) {
     next(error);
@@ -49,6 +51,7 @@ export const getAll = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: result,
+      requestId: req.id,
     });
   } catch (error) {
     next(error);
@@ -63,6 +66,8 @@ export const getOne = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: "Inquiry not found",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -71,6 +76,7 @@ export const getOne = async (req, res, next) => {
       data: {
         inquiry,
       },
+      requestId: req.id,
     });
   } catch (error) {
     next(error);
@@ -86,6 +92,7 @@ export const update = async (req, res, next) => {
         success: false,
         message: "Validation failed",
         errors: validation.errors,
+        requestId: req.id,
       });
     }
 
@@ -100,6 +107,7 @@ export const update = async (req, res, next) => {
       data: {
         inquiry,
       },
+      requestId: req.id,
     });
   } catch (error) {
     next(error);
@@ -113,6 +121,7 @@ export const remove = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Inquiry deleted successfully",
+      requestId: req.id,
     });
   } catch (error) {
     next(error);

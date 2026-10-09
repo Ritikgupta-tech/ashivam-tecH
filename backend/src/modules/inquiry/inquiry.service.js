@@ -2,17 +2,30 @@ import mongoose from "mongoose";
 import Inquiry from "./inquiry.model.js";
 import env from "../../config/env.js";
 import { sendEmail } from "../notification/email.service.js";
+import {
+  inquiryConfirmationTemplate,
+  inquiryAdminAlertTemplate,
+} from "../notification/email.templates.js";
 import { escapeRegex } from "../../utils/query.js";
 
 export const createInquiry = async (data) => {
   const inquiry = await Inquiry.create(data);
+  const refNum = inquiry.referenceNumber || inquiry._id.toString();
 
   // Background non-blocking notification to admin
   if (env.notificationRecipient) {
     sendEmail({
       to: env.notificationRecipient,
       subject: `[Ashivam Inquiries] New message from ${data.name}: ${data.subject || "General Inquiry"}`,
-      text: `A new inquiry has been submitted on the Ashivam Technologies website.\n\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || "N/A"}\nSubject: ${data.subject || "N/A"}\n\nMessage:\n${data.message}\n`,
+      text: `A new inquiry has been submitted on the Ashivam Technologies website.\n\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || "N/A"}\nSubject: ${data.subject || "General Inquiry"}\nReference: ${refNum}\n\nMessage:\n${data.message}\n`,
+      html: inquiryAdminAlertTemplate({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        subject: data.subject,
+        message: data.message,
+        referenceNumber: refNum,
+      }),
     }).catch((err) => {
       console.warn("[Inquiry Alert] Background dispatch error:", err.message);
     });
@@ -22,8 +35,13 @@ export const createInquiry = async (data) => {
   if (data.email) {
     sendEmail({
       to: data.email,
-      subject: `Inquiry Received - Ashivam Technologies [${inquiry.referenceNumber || inquiry._id}]`,
-      text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${inquiry.referenceNumber || inquiry._id}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\nhttps://ashivamtechnologies.com`,
+      subject: `Inquiry Received - Ashivam Technologies [${refNum}]`,
+      text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\nhttps://ashivam.com`,
+      html: inquiryConfirmationTemplate({
+        name: data.name,
+        subject: data.subject,
+        referenceNumber: refNum,
+      }),
     }).catch((err) => {
       console.warn("[Inquiry Confirmation] Background dispatch error:", err.message);
     });

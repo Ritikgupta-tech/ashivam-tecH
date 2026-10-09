@@ -21,7 +21,14 @@ export const validateJob = (body = {}) => {
   const errors = {};
 
   const title = String(body.title ?? "").trim();
-  const slug = String(body.slug ?? "").trim().toLowerCase();
+  let slug = String(body.slug ?? "").trim().toLowerCase();
+  if (!slug && title) {
+    slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+  }
+
   const department = String(body.department ?? "").trim();
   const location = String(body.location ?? "").trim();
   const employmentType = String(
@@ -54,19 +61,29 @@ export const validateJob = (body = {}) => {
       "Description is required and cannot exceed 10000 characters";
   }
 
-  const requirements = Array.isArray(body.requirements)
-    ? body.requirements.map((item) => String(item).trim()).filter(Boolean)
-    : [];
+  const parseList = (val) => {
+    if (Array.isArray(val)) {
+      return val.map((item) => String(item).trim()).filter(Boolean);
+    }
+    if (typeof val === "string") {
+      return val
+        .split(/[\n,]+/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+    return [];
+  };
 
-  const responsibilities = Array.isArray(body.responsibilities)
-    ? body.responsibilities
-        .map((item) => String(item).trim())
-        .filter(Boolean)
-    : [];
+  const requirements = parseList(body.requirements);
+  const qualifications = parseList(body.qualifications);
+  const responsibilities = parseList(body.responsibilities);
+  const skills = parseList(body.skills);
 
-  const skills = Array.isArray(body.skills)
-    ? body.skills.map((item) => String(item).trim()).filter(Boolean)
-    : [];
+  if (requirements.length === 0 && qualifications.length > 0) {
+    requirements.push(...qualifications);
+  } else if (qualifications.length === 0 && requirements.length > 0) {
+    qualifications.push(...requirements);
+  }
 
   return {
     isValid: Object.keys(errors).length === 0,
@@ -82,12 +99,13 @@ export const validateJob = (body = {}) => {
         : null,
       description,
       requirements,
+      qualifications,
       responsibilities,
       skills,
       salary: body.salary
         ? String(body.salary).trim()
         : null,
-      applicationDeadline: body.applicationDeadline || null,
+      applicationDeadline: body.applicationDeadline ? new Date(body.applicationDeadline) : null,
       isActive:
         body.isActive === undefined
           ? true

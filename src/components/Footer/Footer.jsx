@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { COMPANY, NAV_LINKS, SERVICES } from '../../data/content';
 import { CheckIcon, ArrowRightIcon } from '../icons';
 import Logo from '../ui/Logo';
@@ -63,13 +64,19 @@ export default function Footer() {
             ) : (
               <form className="footer__newsletter-form" onSubmit={handleSubscribe} noValidate>
                 <div className="footer__input-wrap">
+                  <label htmlFor="footer-newsletter-email" className="footer__sr-only">
+                    Business email address
+                  </label>
                   <input
+                    id="footer-newsletter-email"
+                    name="email"
                     type="email"
                     placeholder="Enter your business email"
                     value={newsletterEmail}
                     onChange={(e) => { setNewsletterEmail(e.target.value); setError(''); }}
                     className={`footer__input${error ? ' footer__input--error' : ''}`}
                     aria-label="Newsletter email address"
+                    autoComplete="email"
                   />
                   <button type="submit" className="footer__subscribe-btn" aria-label="Subscribe to newsletter">
                     <span>Subscribe</span>
@@ -198,6 +205,8 @@ export default function Footer() {
             <a href="#about" className="footer__legal-link">Terms of Service</a>
             <span className="footer__legal-sep">·</span>
             <a href="#about" className="footer__legal-link">Security</a>
+            <span className="footer__legal-sep">·</span>
+            <Link to="/admin/login" className="footer__legal-link">Admin Portal</Link>
           </div>
 
           <button

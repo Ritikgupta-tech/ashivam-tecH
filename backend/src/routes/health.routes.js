@@ -17,6 +17,7 @@ router.get("/", (req, res) => {
     database: databaseConnected ? "connected" : "disconnected",
     uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
+    requestId: req.id,
   });
 });
 
@@ -25,6 +26,7 @@ router.get("/liveness", (req, res) => {
     success: true,
     status: "alive",
     timestamp: new Date().toISOString(),
+    requestId: req.id,
   });
 });
 

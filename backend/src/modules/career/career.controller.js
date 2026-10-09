@@ -1,3 +1,5 @@
+import path from "path";
+
 import {
   createJob,
   listPublicJobs,
@@ -10,6 +12,7 @@ import {
   getApplicationById,
   updateApplication,
   deleteApplication,
+  getApplicationResumeFile,
 } from "./career.service.js";
 
 import {
@@ -17,6 +20,11 @@ import {
   validateApplication,
   validateApplicationUpdate,
 } from "./career.validator.js";
+
+import {
+  validateFileSignature,
+  sanitizeDownloadFilename,
+} from "../../services/storage.service.js";
 
 const MAX_RESUME_SIZE = 5 * 1024 * 1024;
 
@@ -53,6 +61,8 @@ export const getPublicJobById = async (
       return res.status(404).json({
         success: false,
         message: "Job not found",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -80,6 +90,7 @@ export const createJobHandler = async (
         success: false,
         message: "Validation failed",
         errors: validation.errors,
+        requestId: req.id,
       });
     }
 
@@ -135,6 +146,7 @@ export const updateJobHandler = async (
         success: false,
         message: "Validation failed",
         errors: validation.errors,
+        requestId: req.id,
       });
     }
 
@@ -185,6 +197,7 @@ export const applyForJob = async (
         success: false,
         message: "Validation failed",
         errors: validation.errors,
+        requestId: req.id,
       });
     }
 
@@ -192,6 +205,8 @@ export const applyForJob = async (
       return res.status(400).json({
         success: false,
         message: "Resume is required",
+        errors: { resume: "Resume file is required" },
+        requestId: req.id,
       });
     }
 
@@ -199,6 +214,8 @@ export const applyForJob = async (
       return res.status(400).json({
         success: false,
         message: "Resume size cannot exceed 5MB",
+        errors: { resume: "Resume size exceeds maximum allowed 5MB limit" },
+        requestId: req.id,
       });
     }
 
@@ -207,19 +224,28 @@ export const applyForJob = async (
         success: false,
         message:
           "Only PDF, DOC and DOCX resumes are allowed",
+        errors: { resume: "Unsupported file type" },
+        requestId: req.id,
+      });
+    }
+
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    if (!validateFileSignature(req.file.buffer, req.file.mimetype, ext)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid file signature. File content does not match allowed PDF, DOC, or DOCX formats",
+        errors: {
+          resume: "Invalid file content signature",
+        },
+        requestId: req.id,
       });
     }
 
     const application = await createApplication(
       req.params.jobId,
       validation.data,
-      {
-        originalName: req.file.originalname,
-        fileName: req.file.filename,
-        path: req.file.path,
-        mimeType: req.file.mimetype,
-        size: req.file.size,
-      }
+      req.file
     );
 
     return res.status(201).json({
@@ -273,6 +299,8 @@ export const getApplication = async (
       return res.status(404).json({
         success: false,
         message: "Application not found",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -301,6 +329,7 @@ export const updateApplicationHandler = async (
         success: false,
         message: "Validation failed",
         errors: validation.errors,
+        requestId: req.id,
       });
     }
 
@@ -339,3 +368,44 @@ export const deleteApplicationHandler = async (
     next(error);
   }
 };
+
+export const downloadApplicationResumeHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { id } = req.params;
+    const fileResult = await getApplicationResumeFile(id);
+
+    const safeFilename = sanitizeDownloadFilename(fileResult.originalName);
+
+    res.setHeader(
+      "Content-Type",
+      fileResult.mimeType || "application/octet-stream"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${safeFilename}"`
+    );
+    res.setHeader("X-Content-Type-Options", "nosniff");
+
+    if (fileResult.contentLength) {
+      res.setHeader("Content-Length", fileResult.contentLength);
+    }
+
+    fileResult.stream.on("error", (streamError) => {
+      if (!res.headersSent) {
+        next(streamError);
+      } else {
+        res.end();
+      }
+    });
+
+    fileResult.stream.pipe(res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downloadApplicationResume = downloadApplicationResumeHandler;

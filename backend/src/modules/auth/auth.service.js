@@ -33,6 +33,7 @@ export const loginAdmin = async (username, password) => {
       id: admin._id,
       username: admin.username,
       name: admin.name,
+      email: admin.email || null,
       role: admin.role,
       permissions: admin.permissions,
       lastLoginAt: admin.lastLoginAt,
@@ -42,6 +43,6 @@ export const loginAdmin = async (username, password) => {
 
 export const getAdminById = async (adminId) => {
   return Admin.findById(adminId).select(
-    "_id username name role permissions isActive lastLoginAt"
+    "_id username name email role permissions isActive lastLoginAt"
   );
 };

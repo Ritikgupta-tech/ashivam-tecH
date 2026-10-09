@@ -23,40 +23,16 @@ import {
   getApplication,
   updateApplicationHandler,
   deleteApplicationHandler,
+  downloadApplicationResumeHandler,
 } from "./career.controller.js";
 
 const router = Router();
 
-const uploadDirectory = path.resolve(
-  process.cwd(),
-  "uploads",
-  "resumes"
-);
-
-fs.mkdirSync(uploadDirectory, {
-  recursive: true,
-});
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDirectory);
-  },
-
-  filename: (_req, file, cb) => {
-    const extension = path.extname(file.originalname);
-
-    const safeName = `${Date.now()}-${Math.round(
-      Math.random() * 1e9
-    )}${extension}`;
-
-    cb(null, safeName);
-  },
-});
-
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024,
+    files: 1,
   },
   fileFilter: (_req, file, cb) => {
     const allowedExts = [".pdf", ".doc", ".docx"];
@@ -146,6 +122,22 @@ router.get(
   requireRole("Superadmin", "Admin"),
   requirePermission("careers"),
   getApplication
+);
+
+router.get(
+  "/admin/applications/:id/resume",
+  authenticate,
+  requireRole("Superadmin", "Admin"),
+  requirePermission("careers"),
+  downloadApplicationResumeHandler
+);
+
+router.get(
+  "/admin/applications/:id/download",
+  authenticate,
+  requireRole("Superadmin", "Admin"),
+  requirePermission("careers"),
+  downloadApplicationResumeHandler
 );
 
 router.patch(

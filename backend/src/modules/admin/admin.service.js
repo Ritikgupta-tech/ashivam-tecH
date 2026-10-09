@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import Admin from "../../models/admin.model.js";
 
 const ADMIN_PROJECTION =
-  "_id username name role permissions isActive lastLoginAt createdAt updatedAt";
+  "_id username name email role permissions isActive lastLoginAt createdAt updatedAt";
 
 const normalizeUsername = (username) =>
   username.trim().toLowerCase();
@@ -44,18 +44,26 @@ export const getAdmin = async (adminId) => {
 export const createAdmin = async ({
   username,
   name,
+  email,
   password,
   role = "Admin",
   permissions = [],
 }) => {
   const normalizedUsername = normalizeUsername(username);
+  const normalizedEmail = email && typeof email === "string" ? email.trim().toLowerCase() : null;
 
-  const existingAdmin = await Admin.findOne({
-    username: normalizedUsername,
-  });
+  const duplicateCheck = [{ username: normalizedUsername }];
+  if (normalizedEmail) {
+    duplicateCheck.push({ email: normalizedEmail });
+  }
+
+  const existingAdmin = await Admin.findOne({ $or: duplicateCheck });
 
   if (existingAdmin) {
-    const error = new Error("Username already exists");
+    const isUsernameMatch = existingAdmin.username === normalizedUsername;
+    const error = new Error(
+      isUsernameMatch ? "Username already exists" : "Email already exists"
+    );
     error.statusCode = 409;
     throw error;
   }
@@ -65,6 +73,7 @@ export const createAdmin = async ({
   const admin = await Admin.create({
     username: normalizedUsername,
     name: name.trim(),
+    email: normalizedEmail,
     passwordHash,
     role,
     permissions,
@@ -83,6 +92,22 @@ export const updateAdmin = async (adminId, updates) => {
 
   if (updates.name !== undefined) {
     admin.name = updates.name.trim();
+  }
+
+  if (updates.email !== undefined) {
+    const normalizedEmail = updates.email && typeof updates.email === "string" ? updates.email.trim().toLowerCase() : null;
+    if (normalizedEmail) {
+      const existingWithEmail = await Admin.findOne({
+        email: normalizedEmail,
+        _id: { $ne: adminId },
+      });
+      if (existingWithEmail) {
+        const error = new Error("Email already in use by another administrator");
+        error.statusCode = 409;
+        throw error;
+      }
+    }
+    admin.email = normalizedEmail;
   }
 
   if (updates.password !== undefined) {

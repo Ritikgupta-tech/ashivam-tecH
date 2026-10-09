@@ -59,9 +59,10 @@ const CONTACT_INFO = [
   },
 ];
 
-function FloatingField({ id, label, type = 'text', value, onChange, error, required, children }) {
+function FloatingField({ id, name, label, type = 'text', value, onChange, error, required, children }) {
   const [focused, setFocused] = useState(false);
   const active = focused || value;
+  const fieldName = name || (id ? id.replace(/^contact-/, '') : undefined);
 
   return (
     <div className={`form-field${active ? ' form-field--active' : ''}${error ? ' form-field--error' : ''}`}>
@@ -69,6 +70,7 @@ function FloatingField({ id, label, type = 'text', value, onChange, error, requi
       {children || (
         <input
           id={id}
+          name={fieldName}
           type={type}
           value={value}
           onChange={onChange}
@@ -85,15 +87,17 @@ function FloatingField({ id, label, type = 'text', value, onChange, error, requi
   );
 }
 
-function SelectField({ id, label, value, onChange, error, required, options }) {
+function SelectField({ id, name, label, value, onChange, error, required, options }) {
   const [focused, setFocused] = useState(false);
   const active = focused || value;
+  const fieldName = name || (id ? id.replace(/^contact-/, '') : undefined);
 
   return (
     <div className={`form-field${active ? ' form-field--active' : ''}${error ? ' form-field--error' : ''}`}>
       <label htmlFor={id} className="form-field__label">{label}{required && <span aria-hidden="true"> *</span>}</label>
       <select
         id={id}
+        name={fieldName}
         value={value}
         onChange={onChange}
         onFocus={() => setFocused(true)}
@@ -206,17 +210,18 @@ export default function Contact() {
             aria-label="Contact and inquiry form"
           >
             <div className="contact__form-row">
-              <FloatingField id="contact-name" label="Full Name" value={form.name} onChange={set('name')} error={errors.name} required />
-              <FloatingField id="contact-email" label="Business Email" type="email" value={form.email} onChange={set('email')} error={errors.email} required />
+              <FloatingField id="contact-name" name="name" label="Full Name" value={form.name} onChange={set('name')} error={errors.name} required />
+              <FloatingField id="contact-email" name="email" label="Business Email" type="email" value={form.email} onChange={set('email')} error={errors.email} required />
             </div>
-            <FloatingField id="contact-company" label="Company / Organization" value={form.company} onChange={set('company')} error={errors.company} />
+            <FloatingField id="contact-company" name="company" label="Company / Organization" value={form.company} onChange={set('company')} error={errors.company} />
             <div className="contact__form-row">
-              <SelectField id="contact-project-type" label="Project Classification" value={form.projectType} onChange={set('projectType')} error={errors.projectType} options={PROJECT_TYPES} />
-              <SelectField id="contact-budget" label="Investment Range" value={form.budget} onChange={set('budget')} error={errors.budget} options={BUDGET_RANGES} />
+              <SelectField id="contact-project-type" name="projectType" label="Project Classification" value={form.projectType} onChange={set('projectType')} error={errors.projectType} options={PROJECT_TYPES} />
+              <SelectField id="contact-budget" name="budget" label="Investment Range" value={form.budget} onChange={set('budget')} error={errors.budget} options={BUDGET_RANGES} />
             </div>
-            <FloatingField id="contact-message" label="Project Overview & Requirements" value={form.message} onChange={set('message')} error={errors.message} required>
+            <FloatingField id="contact-message" name="message" label="Project Overview & Requirements" value={form.message} onChange={set('message')} error={errors.message} required>
               <textarea
                 id="contact-message"
+                name="message"
                 value={form.message}
                 onChange={set('message')}
                 className="form-field__input form-field__textarea"

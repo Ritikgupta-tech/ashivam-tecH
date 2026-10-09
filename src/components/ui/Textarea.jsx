@@ -31,7 +31,7 @@ const Textarea = forwardRef(function Textarea(
       <textarea
         ref={ref}
         id={textareaId}
-        name={name}
+        name={name || textareaId}
         rows={rows}
         required={required}
         aria-invalid={!!error}

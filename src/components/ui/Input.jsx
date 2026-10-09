@@ -31,7 +31,7 @@ const Input = forwardRef(function Input(
       <input
         ref={ref}
         id={inputId}
-        name={name}
+        name={name || inputId}
         type={type}
         required={required}
         aria-invalid={!!error}

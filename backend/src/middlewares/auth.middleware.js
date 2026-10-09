@@ -9,6 +9,8 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Authentication required",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -18,6 +20,8 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Authentication required",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -29,6 +33,8 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Account not found",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -36,6 +42,8 @@ export const authenticate = async (req, res, next) => {
       return res.status(403).json({
         success: false,
         message: "Account is inactive",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -43,6 +51,7 @@ export const authenticate = async (req, res, next) => {
       id: admin._id.toString(),
       username: admin.username,
       name: admin.name,
+      email: admin.email || null,
       role: admin.role,
       permissions: admin.permissions,
       lastLoginAt: admin.lastLoginAt,
@@ -54,6 +63,8 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Access token expired",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -61,6 +72,8 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Invalid access token",
+        errors: {},
+        requestId: req.id,
       });
     }
 

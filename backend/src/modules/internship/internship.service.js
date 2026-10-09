@@ -1,5 +1,11 @@
 import Internship from "./internship.model.js";
 import Admin from "../../models/admin.model.js";
+import env from "../../config/env.js";
+import { sendEmail } from "../notification/email.service.js";
+import {
+  internshipConfirmationTemplate,
+  internshipAdminAlertTemplate,
+} from "../notification/email.templates.js";
 
 import { ACTIVE_INTERNSHIP_STATUSES } from "./internship.constants.js";
 
@@ -40,7 +46,41 @@ export const createInternship = async (data) => {
     );
   }
 
-  return Internship.create(data);
+  const created = await Internship.create(data);
+
+  // Background non-blocking notifications
+  if (env.notificationRecipient) {
+    sendEmail({
+      to: env.notificationRecipient,
+      subject: `[Ashivam Internship] New application for ${data.domain} from ${data.name}`,
+      text: `A new student internship application has been submitted on the Ashivam Technologies website.\n\nDomain: ${data.domain}\nStudent Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCollege: ${data.college || "N/A"}\nCourse: ${data.course || "N/A"}\nDuration: ${data.duration || "N/A"}\n`,
+      html: internshipAdminAlertTemplate({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        college: data.college,
+        domain: data.domain,
+      }),
+    }).catch((err) => {
+      console.warn("[Internship Alert] Background dispatch error:", err.message);
+    });
+  }
+
+  if (data.email) {
+    sendEmail({
+      to: data.email,
+      subject: `Internship Application Received - Ashivam Technologies [${data.domain}]`,
+      text: `Hello ${data.name},\n\nThank you for applying for the ${data.domain} internship at Ashivam Technologies. We have successfully received your application.\n\nOur academic programs team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Academic Programs\nhttps://ashivamtechnologies.com`,
+      html: internshipConfirmationTemplate({
+        name: data.name,
+        domain: data.domain,
+      }),
+    }).catch((err) => {
+      console.warn("[Internship Confirmation] Background dispatch error:", err.message);
+    });
+  }
+
+  return created;
 };
 
 export const listInternships = async ({

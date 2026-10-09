@@ -63,6 +63,11 @@ const jobSchema = new mongoose.Schema(
       default: [],
     },
 
+    qualifications: {
+      type: [String],
+      default: [],
+    },
+
     responsibilities: {
       type: [String],
       default: [],

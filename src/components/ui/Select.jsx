@@ -33,7 +33,7 @@ const Select = forwardRef(function Select(
       <select
         ref={ref}
         id={selectId}
-        name={name}
+        name={name || selectId}
         required={required}
         aria-invalid={!!error}
         aria-describedby={describedBy}

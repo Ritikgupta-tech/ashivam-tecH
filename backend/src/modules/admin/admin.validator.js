@@ -14,15 +14,32 @@ const PERMISSIONS = [
   "notifications",
 ];
 
-export const validateCreateAdmin = (body = {}) => {
-  const { username, name, password, role, permissions } = body;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!username || typeof username !== "string") {
+export const validateCreateAdmin = (body = {}) => {
+  const { username, name, email, password, role, permissions } = body;
+
+  if (!username || typeof username !== "string" || !username.trim()) {
     return "Username is required";
   }
 
-  if (!name || typeof name !== "string") {
+  const cleanUsername = username.trim();
+  if (cleanUsername.length < 3 || cleanUsername.length > 50) {
+    return "Username must be between 3 and 50 characters";
+  }
+
+  if (!/^[a-zA-Z0-9._-]+$/.test(cleanUsername)) {
+    return "Username may only contain letters, numbers, dots, underscores, and dashes";
+  }
+
+  if (!name || typeof name !== "string" || !name.trim()) {
     return "Name is required";
+  }
+
+  if (email !== undefined && email !== null && email !== "") {
+    if (typeof email !== "string" || !EMAIL_REGEX.test(email.trim())) {
+      return "Please provide a valid email address";
+    }
   }
 
   if (!password || typeof password !== "string") {
@@ -49,13 +66,19 @@ export const validateCreateAdmin = (body = {}) => {
 };
 
 export const validateUpdateAdmin = (body = {}) => {
-  const { name, password, role, permissions } = body;
+  const { name, email, password, role, permissions } = body;
 
   if (
     name !== undefined &&
     (typeof name !== "string" || !name.trim())
   ) {
     return "Name must be a valid string";
+  }
+
+  if (email !== undefined && email !== null && email !== "") {
+    if (typeof email !== "string" || !EMAIL_REGEX.test(email.trim())) {
+      return "Please provide a valid email address";
+    }
   }
 
   if (password !== undefined) {

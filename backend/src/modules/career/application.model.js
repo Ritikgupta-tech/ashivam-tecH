@@ -73,9 +73,20 @@ const applicationSchema = new mongoose.Schema(
         required: true,
       },
 
+      storageProvider: {
+        type: String,
+        enum: ["s3", "local"],
+        default: "local",
+      },
+
+      storageKey: {
+        type: String,
+        default: null,
+      },
+
       path: {
         type: String,
-        required: true,
+        default: null,
       },
 
       mimeType: {

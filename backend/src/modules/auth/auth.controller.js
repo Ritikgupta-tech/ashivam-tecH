@@ -11,6 +11,8 @@ export const login = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Username and password are required",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -18,6 +20,8 @@ export const login = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Username and password are required",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -27,6 +31,8 @@ export const login = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -34,6 +40,7 @@ export const login = async (req, res, next) => {
       success: true,
       message: "Login successful",
       data: result,
+      requestId: req.id,
     });
   } catch (error) {
     next(error);
@@ -48,6 +55,8 @@ export const getCurrentAdmin = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Account is no longer available",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -58,11 +67,13 @@ export const getCurrentAdmin = async (req, res, next) => {
           id: admin._id,
           username: admin.username,
           name: admin.name,
+          email: admin.email || null,
           role: admin.role,
           permissions: admin.permissions,
           lastLoginAt: admin.lastLoginAt,
         },
       },
+      requestId: req.id,
     });
   } catch (error) {
     next(error);

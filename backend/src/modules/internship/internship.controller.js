@@ -28,7 +28,8 @@ const validationFailed = (res, errors) =>
   res.status(400).json({
     success: false,
     message: "Validation failed",
-    errors,
+    errors: errors || {},
+    requestId: res.req?.id,
   });
 
 export const create = async (req, res, next) => {

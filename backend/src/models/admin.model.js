@@ -20,6 +20,16 @@ const adminSchema = new mongoose.Schema(
       maxlength: 100,
     },
 
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      maxlength: 120,
+      default: null,
+      sparse: true,
+      index: true,
+    },
+
     passwordHash: {
       type: String,
       required: true,

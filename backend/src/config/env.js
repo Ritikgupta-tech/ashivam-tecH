@@ -45,7 +45,9 @@ const allowedOriginsList = parseOrigins();
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   isProduction: process.env.NODE_ENV === "production",
-  isTest: process.env.NODE_ENV === "test",
+  isTest:
+    process.env.NODE_ENV === "test" ||
+    Boolean(process.env.NODE_TEST_CONTEXT),
 
   port: Number(process.env.PORT) || 5000,
 
@@ -98,6 +100,18 @@ const env = {
       process.env.SMTP_USER &&
       process.env.SMTP_PASSWORD
   ),
+
+  // Persistent Object Storage Configuration
+  storageProvider:
+    process.env.STORAGE_PROVIDER ||
+    (isProd ? "s3" : "local"),
+  s3Bucket: (process.env.S3_BUCKET || "").trim(),
+  s3Region: (process.env.S3_REGION || "us-east-1").trim(),
+  s3Endpoint: (process.env.S3_ENDPOINT || "").trim(),
+  s3ForcePathStyle:
+    String(process.env.S3_FORCE_PATH_STYLE).toLowerCase() === "true",
+  s3AccessKeyId: (process.env.S3_ACCESS_KEY_ID || "").trim(),
+  s3SecretAccessKey: (process.env.S3_SECRET_ACCESS_KEY || "").trim(),
 };
 
 if (env.isProduction) {
@@ -117,6 +131,23 @@ if (env.isProduction) {
     throw new Error(
       "Localhost/127.0.0.1 MongoDB URI cannot be used in production mode. A real MongoDB Atlas connection string is required."
     );
+  }
+  if (env.storageProvider === "local") {
+    throw new Error(
+      "STORAGE_PROVIDER cannot be 'local' in production mode. S3-compatible persistent object storage must be configured on ephemeral hosting platforms."
+    );
+  }
+  if (env.storageProvider === "s3") {
+    if (!process.env.S3_BUCKET) {
+      throw new Error(
+        "S3_BUCKET environment variable is mandatory in production mode for durable file storage."
+      );
+    }
+    if (!process.env.S3_ACCESS_KEY_ID || !process.env.S3_SECRET_ACCESS_KEY) {
+      throw new Error(
+        "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY environment variables are mandatory in production mode."
+      );
+    }
   }
 }
 

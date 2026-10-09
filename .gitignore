@@ -35,3 +35,6 @@ backend/logs/
 Thumbs.db
 
 .vercel
+
+.vercel
+.env*

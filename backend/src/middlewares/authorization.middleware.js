@@ -4,6 +4,8 @@ export const requireRole = (...allowedRoles) => {
       return res.status(401).json({
         success: false,
         message: "Authentication required",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -11,6 +13,8 @@ export const requireRole = (...allowedRoles) => {
       return res.status(403).json({
         success: false,
         message: "Insufficient permissions",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -24,6 +28,8 @@ export const requirePermission = (permission) => {
       return res.status(401).json({
         success: false,
         message: "Authentication required",
+        errors: {},
+        requestId: req.id,
       });
     }
 
@@ -35,6 +41,8 @@ export const requirePermission = (permission) => {
       return res.status(403).json({
         success: false,
         message: "Insufficient permissions",
+        errors: {},
+        requestId: req.id,
       });
     }
 
