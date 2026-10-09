@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCustomCursor } from '../hooks/useCursor';
 import Navbar from '../components/Navbar/Navbar';
@@ -20,6 +22,20 @@ import '../App.css';
 export default function HomePage() {
   useScrollReveal();
   const { dotRef, ringRef } = useCustomCursor();
+  const location = useLocation();
+
+  useEffect(() => {
+    const sectionName = location.pathname.replace(/^\//, '').toLowerCase();
+    if (sectionName) {
+      const el = document.getElementById(sectionName);
+      if (el) {
+        const timer = setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.pathname]);
 
   return (
     <>
