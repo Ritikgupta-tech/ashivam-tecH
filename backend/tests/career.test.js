@@ -32,7 +32,7 @@ let dbConnected = false;
 
 before(async () => {
   try {
-    await mongoose.connect(env.mongodbUri);
+    await mongoose.connect(env.mongodbUri, { serverSelectionTimeoutMS: 2500 });
     dbConnected = true;
 
     // 1. Create Superadmin for tests
@@ -281,7 +281,12 @@ test("Career API - GET /api/v1/career/admin/applications/:id/resume rejects inva
   assert.ok(response.body.message.includes("Invalid application ID"));
 });
 
-test("Career API - GET /api/v1/career/admin/applications/:id/resume rejects path traversal in ID with 400 or 404", async () => {
+test("Career API - GET /api/v1/career/admin/applications/:id/resume rejects path traversal in ID with 400 or 404", async (t) => {
+  if (!dbConnected) {
+    t.skip("Database connection not available for integration check");
+    return;
+  }
+
   const response = await request(app)
     .get("/api/v1/career/admin/applications/..%2f..%2fetc%2fpasswd/resume")
     .set("Authorization", `Bearer ${superadminToken}`);

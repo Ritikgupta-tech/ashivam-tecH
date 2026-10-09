@@ -23,12 +23,24 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci
 
+      - name: Run Frontend Tests
+        run: npm test
+
       - name: Production Build
         run: npm run build
 
   backend-verify:
     name: Backend Test Suite & Security Audit
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+    env:
+      NODE_ENV: test
+      MONGODB_URI: mongodb://127.0.0.1:27017/ashivam_technologies_ci
+      JWT_SECRET: ashivam-ci-test-jwt-secret-key-32-chars-minimum!
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

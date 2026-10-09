@@ -226,7 +226,7 @@ const TEST_ADMIN_PASSWORD = "ValidAdminPass2026!";
 
 before(async () => {
   try {
-    await mongoose.connect(env.mongodbUri);
+    await mongoose.connect(env.mongodbUri, { serverSelectionTimeoutMS: 2500 });
     const passwordHash = await bcrypt.hash(TEST_ADMIN_PASSWORD, 10);
     const testAdmin = await Admin.create({
       username: TEST_ADMIN_USERNAME,
