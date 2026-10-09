@@ -102,9 +102,13 @@ const env = {
   ),
 
   // Persistent Object Storage Configuration
-  storageProvider:
+  // Uses S3 if S3 credentials and bucket are provided, otherwise defaults to local filesystem
+  storageProvider: (
     process.env.STORAGE_PROVIDER ||
-    (isProd ? "s3" : "local"),
+    (process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY
+      ? "s3"
+      : "local")
+  ).toLowerCase(),
   s3Bucket: (process.env.S3_BUCKET || "").trim(),
   s3Region: (process.env.S3_REGION || "us-east-1").trim(),
   s3Endpoint: (process.env.S3_ENDPOINT || "").trim(),
@@ -132,20 +136,21 @@ if (env.isProduction) {
       "Localhost/127.0.0.1 MongoDB URI cannot be used in production mode. A real MongoDB Atlas connection string is required."
     );
   }
-  if (env.storageProvider === "local") {
-    throw new Error(
-      "STORAGE_PROVIDER cannot be 'local' in production mode. S3-compatible persistent object storage must be configured on ephemeral hosting platforms."
-    );
-  }
   if (env.storageProvider === "s3") {
     if (!process.env.S3_BUCKET) {
       throw new Error(
-        "S3_BUCKET environment variable is mandatory in production mode for durable file storage."
+        "S3_BUCKET environment variable is mandatory when STORAGE_PROVIDER is 's3'."
       );
     }
     if (!process.env.S3_ACCESS_KEY_ID || !process.env.S3_SECRET_ACCESS_KEY) {
       throw new Error(
-        "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY environment variables are mandatory in production mode."
+        "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY environment variables are mandatory when STORAGE_PROVIDER is 's3'."
+      );
+    }
+  } else if (env.storageProvider === "local") {
+    if (!env.isTest) {
+      console.warn(
+        "[Storage] Notice: Running with local filesystem storage. For multi-instance persistent object storage, configure S3_BUCKET, S3_ACCESS_KEY_ID, and S3_SECRET_ACCESS_KEY."
       );
     }
   }

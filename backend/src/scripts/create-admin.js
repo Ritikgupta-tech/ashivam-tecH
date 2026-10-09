@@ -9,22 +9,25 @@ const createAdmin = async () => {
     await mongoose.connect(env.mongodbUri);
 
     const username = (process.env.INITIAL_ADMIN_USERNAME || "superadmin").trim().toLowerCase();
-    
-    if (env.isProduction && !process.env.INITIAL_ADMIN_PASSWORD) {
-      throw new Error("INITIAL_ADMIN_PASSWORD is strictly required when running in production mode.");
-    }
-    
-    const password = process.env.INITIAL_ADMIN_PASSWORD || "Admin@Ashivam2026!";
-
-    if (password.length < 12) {
-      throw new Error("Admin password must be at least 12 characters.");
-    }
 
     const existingAdmin = await Admin.findOne({ username });
 
     if (existingAdmin) {
       console.log(`[Seed] Admin user "${username}" already exists.`);
       return;
+    }
+
+    if (env.isProduction && !process.env.INITIAL_ADMIN_PASSWORD) {
+      console.log(
+        "[Seed] Notice: INITIAL_ADMIN_PASSWORD is not set. Skipping automatic Superadmin account creation in production."
+      );
+      return;
+    }
+
+    const password = process.env.INITIAL_ADMIN_PASSWORD || "Admin@Ashivam2026!";
+
+    if (password.length < 12) {
+      throw new Error("Admin password must be at least 12 characters.");
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
