@@ -134,17 +134,31 @@ app.use(
 );
 
 /*
- * Root Discovery
+ * Root Discovery & API v1 Base Discovery
  */
-app.get("/", (req, res) => {
+const apiDiscoveryHandler = (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Ashivam Technologies Official API",
     version: "v1",
+    status: "operational",
+    endpoints: {
+      health: "/api/v1/health",
+      auth: "/api/v1/auth",
+      career: "/api/v1/career",
+      inquiries: "/api/v1/inquiries",
+      internships: "/api/v1/internships",
+      dashboard: "/api/v1/dashboard",
+      content: "/api/v1/content",
+      media: "/api/v1/media",
+      settings: "/api/v1/settings",
+    },
     documentation: "/api/v1/health",
     requestId: req.id,
   });
-});
+};
+
+app.get(["/", "/api/v1", "/api/v1/"], apiDiscoveryHandler);
 
 /*
  * API v1 Routes
