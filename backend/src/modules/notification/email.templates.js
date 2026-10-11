@@ -156,6 +156,7 @@ export const inquiryAdminAlertTemplate = ({
   subject,
   message,
   referenceNumber,
+  reviewUrl,
 }) =>
   baseTemplate({
     title: `New Inquiry: ${escapeHtml(subject || "General Inquiry")}`,
@@ -173,6 +174,8 @@ export const inquiryAdminAlertTemplate = ({
         <p style="margin:0;white-space:pre-wrap;color:#334155;">${escapeHtml(message)}</p>
       </div>
     `,
+    actionUrl: reviewUrl,
+    actionText: reviewUrl ? "Review in Admin Portal" : undefined,
   });
 
 /**
@@ -181,12 +184,23 @@ export const inquiryAdminAlertTemplate = ({
 export const careerConfirmationTemplate = ({
   firstName,
   jobTitle,
+  applicationReference,
 }) =>
   baseTemplate({
     title: `Application Received — ${escapeHtml(jobTitle)}`,
     contentHtml: `
       <p>Hello <strong>${escapeHtml(firstName)}</strong>,</p>
       <p>Thank you for your interest in joining Ashivam Technologies! We have successfully received your application for the <strong>${escapeHtml(jobTitle)}</strong> position.</p>
+      ${
+        applicationReference
+          ? `
+            <div style="margin:16px 0;padding:12px 16px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;">
+              <span style="font-size:12px;color:#64748b;display:block;text-transform:uppercase;font-weight:600;">Application Reference</span>
+              <code style="font-size:14px;color:#0f172a;font-weight:600;">${escapeHtml(applicationReference)}</code>
+            </div>
+          `
+          : ""
+      }
       <p>Our talent acquisition team will review your qualifications and reach out if your background aligns with our open positions.</p>
       <p>Best regards,<br/><strong>Ashivam Technologies Talent Acquisition</strong></p>
     `,
@@ -201,19 +215,28 @@ export const careerAdminAlertTemplate = ({
   phone,
   jobTitle,
   resumeFileName,
+  applicationReference,
+  reviewUrl,
 }) =>
   baseTemplate({
     title: `New Job Application: ${escapeHtml(jobTitle)}`,
     contentHtml: `
       <p style="margin-top:0;">A new candidate applied for an open role:</p>
       <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">
-        <tr><td style="padding:8px 0;color:#64748b;width:120px;"><strong>Position:</strong></td><td style="padding:8px 0;color:#0f172a;"><strong>${escapeHtml(jobTitle)}</strong></td></tr>
+        <tr><td style="padding:8px 0;color:#64748b;width:140px;"><strong>Position:</strong></td><td style="padding:8px 0;color:#0f172a;"><strong>${escapeHtml(jobTitle)}</strong></td></tr>
         <tr><td style="padding:8px 0;color:#64748b;"><strong>Candidate:</strong></td><td style="padding:8px 0;color:#0f172a;">${escapeHtml(candidateName)}</td></tr>
         <tr><td style="padding:8px 0;color:#64748b;"><strong>Email:</strong></td><td style="padding:8px 0;color:#0f172a;"><a href="mailto:${escapeHtml(email)}" style="color:#2563eb;">${escapeHtml(email)}</a></td></tr>
         <tr><td style="padding:8px 0;color:#64748b;"><strong>Phone:</strong></td><td style="padding:8px 0;color:#0f172a;">${escapeHtml(phone)}</td></tr>
-        <tr><td style="padding:8px 0;color:#64748b;"><strong>Resume File:</strong></td><td style="padding:8px 0;color:#0f172a;">${escapeHtml(resumeFileName || "Uploaded")}</td></tr>
+        ${
+          applicationReference
+            ? `<tr><td style="padding:8px 0;color:#64748b;"><strong>Reference:</strong></td><td style="padding:8px 0;color:#0f172a;"><code>${escapeHtml(applicationReference)}</code></td></tr>`
+            : ""
+        }
+        <tr><td style="padding:8px 0;color:#64748b;"><strong>Resume File:</strong></td><td style="padding:8px 0;color:#0f172a;">${escapeHtml(resumeFileName || "Uploaded")} <em>(Retained in secure storage; access via admin portal)</em></td></tr>
       </table>
     `,
+    actionUrl: reviewUrl,
+    actionText: reviewUrl ? "Review in Admin Portal" : undefined,
   });
 
 /**

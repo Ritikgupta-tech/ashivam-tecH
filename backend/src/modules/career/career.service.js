@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 import Job from "./job.model.js";
 import Application from "./application.model.js";
 import env from "../../config/env.js";
-import { sendEmail } from "../notification/email.service.js";
+import {
+  sendEmail,
+  sanitizeEmailHeader,
+} from "../notification/email.service.js";
 import {
   careerConfirmationTemplate,
   careerAdminAlertTemplate,
@@ -184,6 +187,8 @@ export const deleteJob = async (id) => {
   return job;
 };
 
+const inFlightApplications = new Set();
+
 export const createApplication = async (
   jobId,
   data,
@@ -191,41 +196,50 @@ export const createApplication = async (
 ) => {
   validateObjectId(jobId, "Invalid job ID");
 
-  const job = await Job.findOne({
-    _id: jobId,
-    isActive: true,
-  });
-
-  if (!job) {
-    const error = new Error("Job is not available");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  if (
-    job.applicationDeadline &&
-    new Date() > job.applicationDeadline
-  ) {
-    const error = new Error(
-      "Application deadline has passed"
-    );
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const existingApplication =
-    await Application.findOne({
-      job: jobId,
-      email: data.email,
-    });
-
-  if (existingApplication) {
-    const error = new Error(
-      "You have already applied for this position"
-    );
+  const appKey = `${jobId.toString()}:::${(data.email || "").trim().toLowerCase()}`;
+  if (inFlightApplications.has(appKey)) {
+    const error = new Error("You have already applied for this position");
     error.statusCode = 409;
     throw error;
   }
+  inFlightApplications.add(appKey);
+
+  try {
+    const job = await Job.findOne({
+      _id: jobId,
+      isActive: true,
+    });
+
+    if (!job) {
+      const error = new Error("Job is not available");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (
+      job.applicationDeadline &&
+      new Date() > job.applicationDeadline
+    ) {
+      const error = new Error(
+        "Application deadline has passed"
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const existingApplication =
+      await Application.findOne({
+        job: jobId,
+        email: data.email,
+      });
+
+    if (existingApplication) {
+      const error = new Error(
+        "You have already applied for this position"
+      );
+      error.statusCode = 409;
+      throw error;
+    }
 
   let resumeData;
   if (fileOrResume && fileOrResume.buffer) {
@@ -294,31 +308,46 @@ export const createApplication = async (
   }
 
   // Background non-blocking notifications
-  if (env.notificationRecipient) {
+  const appRef = application._id.toString();
+  const alertRecipient = env.alertEmail || env.notificationRecipient;
+  const adminReviewUrl = env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined;
+
+  // Workflow 2: Career Application Notification (Admin Alert)
+  if (alertRecipient) {
+    const safeJobTitle = sanitizeEmailHeader(job.title);
+    const safeCandidateName = `${sanitizeEmailHeader(data.firstName)} ${sanitizeEmailHeader(data.lastName)}`.trim();
+
     sendEmail({
-      to: env.notificationRecipient,
-      subject: `[Ashivam Careers] New application for ${job.title} from ${data.firstName} ${data.lastName}`,
-      text: `A new job application has been submitted on the Ashivam Technologies website.\n\nPosition: ${job.title}\nCandidate: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nResume File: ${resumeData.originalName || "Uploaded"}\n`,
+      to: alertRecipient,
+      replyTo: data.email,
+      subject: `[Ashivam Careers] New application for ${safeJobTitle}: ${safeCandidateName} [${appRef}]`,
+      text: `A new job application has been submitted on the Ashivam Technologies website.\n\nPosition: ${job.title}\nCandidate: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nApplication Reference: ${appRef}\nResume File: ${resumeData.originalName || "Uploaded"} (Saved in secure storage; review via admin portal)\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
       html: careerAdminAlertTemplate({
         candidateName: `${data.firstName} ${data.lastName}`,
         email: data.email,
         phone: data.phone,
         jobTitle: job.title,
         resumeFileName: resumeData.originalName || "Uploaded",
+        applicationReference: appRef,
+        reviewUrl: adminReviewUrl,
       }),
     }).catch((err) => {
       console.warn("[Career Alert] Background dispatch error:", err.message);
     });
   }
 
+  // Workflow 3: Candidate Application Confirmation
   if (data.email) {
+    const safeJobTitle = sanitizeEmailHeader(job.title);
+
     sendEmail({
       to: data.email,
-      subject: `Application Received - Ashivam Technologies [${job.title}]`,
-      text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Talent Acquisition\nhttps://ashivamtechnologies.com`,
+      subject: `Application Received - Ashivam Technologies [${safeJobTitle}] [${appRef}]`,
+      text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nApplication Reference: ${appRef}\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our open positions.\n\nBest regards,\nAshivam Technologies Talent Acquisition\nhttps://ashivam.com`,
       html: careerConfirmationTemplate({
         firstName: data.firstName,
         jobTitle: job.title,
+        applicationReference: appRef,
       }),
     }).catch((err) => {
       console.warn("[Career Confirmation] Background dispatch error:", err.message);
@@ -326,6 +355,9 @@ export const createApplication = async (
   }
 
   return formatApplicationResponse(application);
+} finally {
+  inFlightApplications.delete(appKey);
+}
 };
 
 export const listApplications = async ({

@@ -139,6 +139,17 @@ test("Email Service - sendEmail rejects invalid parameters", async () => {
     },
     { message: "Email subject is required" }
   );
+
+  await assert.rejects(
+    async () => {
+      await sendEmail({
+        to: "valid@example.com",
+        subject: "Subject",
+        replyTo: "invalid-reply-to-email",
+      });
+    },
+    { message: "Invalid Reply-To email address" }
+  );
 });
 
 test("Email Service - sendEmail handles unconfigured SMTP in simulated mode", async () => {
@@ -152,7 +163,124 @@ test("Email Service - sendEmail handles unconfigured SMTP in simulated mode", as
   assert.equal(typeof result.delivered, "boolean");
   if (!result.delivered) {
     assert.equal(result.reason, "smtp_not_configured");
+    assert.equal(result.simulated, true);
+    assert.equal(result.accepted, false);
     assert.ok(result.messageId.startsWith("simulated-"));
+  }
+});
+
+test("Email Service - sendEmail with mocked transporter dispatches real message", async () => {
+  const sentMailLog = [];
+  const mockTransporter = {
+    sendMail: async (mailOptions) => {
+      sentMailLog.push(mailOptions);
+      return {
+        messageId: "<mock-msg-12345@ashivam.com>",
+        response: "250 2.0.0 OK: message queued",
+      };
+    },
+  };
+
+  import("../src/modules/notification/email.service.js").then((mod) => {
+    mod.setTransporter(mockTransporter);
+  });
+  const { setTransporter, resetTransporter } = await import(
+    "../src/modules/notification/email.service.js"
+  );
+
+  setTransporter(mockTransporter);
+
+  try {
+    const result = await sendEmail({
+      to: "recipient@example.com",
+      replyTo: "user@example.com",
+      subject: "Mocked Delivery Test",
+      text: "Plain text content",
+      html: "<p>HTML content</p>",
+    });
+
+    assert.equal(result.delivered, true);
+    assert.equal(result.simulated, false);
+    assert.equal(result.accepted, true);
+    assert.equal(result.messageId, "<mock-msg-12345@ashivam.com>");
+    assert.equal(sentMailLog.length, 1);
+    assert.equal(sentMailLog[0].to, "recipient@example.com");
+    assert.equal(sentMailLog[0].replyTo, "user@example.com");
+    assert.equal(sentMailLog[0].subject, "Mocked Delivery Test");
+  } finally {
+    resetTransporter();
+  }
+});
+
+test("Email Service - sendEmail gracefully handles transporter failure without throwing", async () => {
+  const mockFailingTransporter = {
+    sendMail: async () => {
+      const err = new Error("535 5.7.8 Authentication credentials invalid");
+      err.code = "EAUTH";
+      throw err;
+    },
+  };
+
+  const { setTransporter, resetTransporter } = await import(
+    "../src/modules/notification/email.service.js"
+  );
+
+  setTransporter(mockFailingTransporter);
+
+  try {
+    const result = await sendEmail({
+      to: "recipient@example.com",
+      subject: "Failing Delivery Test",
+      text: "Content",
+    });
+
+    assert.equal(result.delivered, false);
+    assert.equal(result.simulated, false);
+    assert.equal(result.accepted, false);
+    assert.equal(result.messageId, null);
+    assert.equal(result.code, "EAUTH");
+    assert.ok(result.error.includes("Authentication credentials invalid"));
+  } finally {
+    resetTransporter();
+  }
+});
+
+test("Email Service - verifyEmailTransport checks mocked transport verification", async () => {
+  const { setTransporter, resetTransporter } = await import(
+    "../src/modules/notification/email.service.js"
+  );
+
+  // Success case
+  const mockPassingTransporter = {
+    verify: async () => true,
+  };
+  setTransporter(mockPassingTransporter);
+  try {
+    const passingCheck = await verifyEmailTransport();
+    assert.equal(passingCheck.configured, true);
+    assert.equal(passingCheck.verified, true);
+    assert.equal(passingCheck.simulated, false);
+  } finally {
+    resetTransporter();
+  }
+
+  // Failure case
+  const mockFailingTransporter = {
+    verify: async () => {
+      const err = new Error("Connection timed out");
+      err.code = "ETIMEDOUT";
+      throw err;
+    },
+  };
+  setTransporter(mockFailingTransporter);
+  try {
+    const failingCheck = await verifyEmailTransport();
+    assert.equal(failingCheck.configured, true);
+    assert.equal(failingCheck.verified, false);
+    assert.equal(failingCheck.simulated, false);
+    assert.equal(failingCheck.code, "ETIMEDOUT");
+  } finally {
+    resetTransporter();
   }
 });
 

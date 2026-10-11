@@ -1,53 +1,94 @@
 import mongoose from "mongoose";
 import Inquiry from "./inquiry.model.js";
 import env from "../../config/env.js";
-import { sendEmail } from "../notification/email.service.js";
+import {
+  sendEmail,
+  sanitizeEmailHeader,
+} from "../notification/email.service.js";
 import {
   inquiryConfirmationTemplate,
   inquiryAdminAlertTemplate,
 } from "../notification/email.templates.js";
 import { escapeRegex } from "../../utils/query.js";
 
+const inFlightInquiries = new Map();
+
 export const createInquiry = async (data) => {
-  const inquiry = await Inquiry.create(data);
-  const refNum = inquiry.referenceNumber || inquiry._id.toString();
+  const normEmail = (data.email || "").trim().toLowerCase();
+  const normMsg = (data.message || "").trim();
+  const dedupKey = `${normEmail}:::${normMsg}`;
 
-  // Background non-blocking notification to admin
-  if (env.notificationRecipient) {
-    sendEmail({
-      to: env.notificationRecipient,
-      subject: `[Ashivam Inquiries] New message from ${data.name}: ${data.subject || "General Inquiry"}`,
-      text: `A new inquiry has been submitted on the Ashivam Technologies website.\n\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || "N/A"}\nSubject: ${data.subject || "General Inquiry"}\nReference: ${refNum}\n\nMessage:\n${data.message}\n`,
-      html: inquiryAdminAlertTemplate({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        subject: data.subject,
-        message: data.message,
-        referenceNumber: refNum,
-      }),
-    }).catch((err) => {
-      console.warn("[Inquiry Alert] Background dispatch error:", err.message);
-    });
+  // 1. In-flight race-condition protection (absorbs concurrent double-clicks)
+  if (inFlightInquiries.has(dedupKey)) {
+    return inFlightInquiries.get(dedupKey);
   }
 
-  // Background non-blocking confirmation to applicant
-  if (data.email) {
-    sendEmail({
-      to: data.email,
-      subject: `Inquiry Received - Ashivam Technologies [${refNum}]`,
-      text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\nhttps://ashivam.com`,
-      html: inquiryConfirmationTemplate({
-        name: data.name,
-        subject: data.subject,
-        referenceNumber: refNum,
-      }),
-    }).catch((err) => {
-      console.warn("[Inquiry Confirmation] Background dispatch error:", err.message);
-    });
+  // 2. Persistent deduplication (suppresses retries within 60s for identical email + message)
+  const recentDuplicate = await Inquiry.findOne({
+    email: normEmail,
+    message: data.message,
+    createdAt: { $gte: new Date(Date.now() - 60000) },
+  });
+
+  if (recentDuplicate) {
+    return recentDuplicate;
   }
 
-  return inquiry;
+  const creationTask = (async () => {
+    try {
+      const inquiry = await Inquiry.create(data);
+      const refNum = inquiry.referenceNumber || inquiry._id.toString();
+      const alertRecipient = env.alertEmail || env.notificationRecipient;
+      const adminReviewUrl = env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined;
+
+      // Background non-blocking notification to admin (Workflow 1: Contact Inquiry Notification)
+      if (alertRecipient) {
+        const safeName = sanitizeEmailHeader(data.name);
+        const safeSubject = sanitizeEmailHeader(data.subject || "General Inquiry");
+
+        sendEmail({
+          to: alertRecipient,
+          replyTo: data.email,
+          subject: `[Ashivam Inquiries] New message from ${safeName}: ${safeSubject} [${refNum}]`,
+          text: `A new inquiry has been submitted on the Ashivam Technologies website.\n\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || "N/A"}\nSubject: ${data.subject || "General Inquiry"}\nReference: ${refNum}\n\nMessage:\n${data.message}\n`,
+          html: inquiryAdminAlertTemplate({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            subject: data.subject,
+            message: data.message,
+            referenceNumber: refNum,
+            reviewUrl: adminReviewUrl,
+          }),
+        }).catch((err) => {
+          console.warn("[Inquiry Alert] Background dispatch error:", err.message);
+        });
+      }
+
+      // Background non-blocking confirmation to applicant
+      if (data.email) {
+        sendEmail({
+          to: data.email,
+          subject: `Inquiry Received - Ashivam Technologies [${refNum}]`,
+          text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\nhttps://ashivam.com`,
+          html: inquiryConfirmationTemplate({
+            name: data.name,
+            subject: data.subject,
+            referenceNumber: refNum,
+          }),
+        }).catch((err) => {
+          console.warn("[Inquiry Confirmation] Background dispatch error:", err.message);
+        });
+      }
+
+      return inquiry;
+    } finally {
+      inFlightInquiries.delete(dedupKey);
+    }
+  })();
+
+  inFlightInquiries.set(dedupKey, creationTask);
+  return creationTask;
 };
 
 export const getInquiryById = async (id) => {

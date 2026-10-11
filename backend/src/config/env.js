@@ -79,25 +79,39 @@ const env = {
     Number(process.env.GLOBAL_RATE_WINDOW_MS) || 15 * 60 * 1000,
 
   // SMTP Settings
-  smtpHost: process.env.SMTP_HOST || "",
+  smtpHost: (process.env.SMTP_HOST || "").trim(),
   smtpPort: Number(process.env.SMTP_PORT) || 587,
-  smtpSecure: String(process.env.SMTP_SECURE).toLowerCase() === "true",
-  smtpUser: process.env.SMTP_USER || "",
+  smtpSecure:
+    process.env.SMTP_SECURE !== undefined
+      ? String(process.env.SMTP_SECURE).toLowerCase() === "true"
+      : Number(process.env.SMTP_PORT) === 465,
+  smtpUser: (process.env.SMTP_USER || "").trim(),
   smtpPassword: process.env.SMTP_PASSWORD || "",
-  emailFrom:
-    process.env.EMAIL_FROM ||
+  smtpFrom:
+    (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
-      ? `Ashivam Technologies <${process.env.COMPANY_EMAIL}>`
+      ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
       : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
+  emailFrom:
+    (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").trim() ||
+    (process.env.COMPANY_EMAIL
+      ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
+      : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
+  alertEmail:
+    (process.env.ALERT_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
+    "admin@ashivamtechnologies.com",
   notificationRecipient:
-    process.env.NOTIFICATION_RECIPIENT ||
-    process.env.COMPANY_EMAIL ||
+    (process.env.ALERT_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
     "admin@ashivamtechnologies.com",
 
+  smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 10000,
+  smtpGreetingTimeoutMs: Number(process.env.SMTP_GREETING_TIMEOUT_MS) || 10000,
+  smtpSocketTimeoutMs: Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 15000,
+
   isSmtpConfigured: Boolean(
-    process.env.SMTP_HOST &&
+    (process.env.SMTP_HOST || "").trim() &&
       process.env.SMTP_PORT &&
-      process.env.SMTP_USER &&
+      (process.env.SMTP_USER || "").trim() &&
       process.env.SMTP_PASSWORD
   ),
 

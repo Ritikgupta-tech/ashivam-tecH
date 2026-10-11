@@ -5,6 +5,10 @@ import {
   connectDatabase,
   disconnectDatabase,
 } from "./db/database.js";
+import {
+  getSafeSmtpStatus,
+  verifyEmailTransport,
+} from "./modules/notification/email.service.js";
 
 const startServer = async () => {
   process.on("uncaughtException", (error) => {
@@ -25,6 +29,28 @@ const startServer = async () => {
 
   const server = app.listen(env.port, () => {
     console.log(`[Ashivam Backend] Operational on port ${env.port} (${env.nodeEnv})`);
+
+    const smtpStatus = getSafeSmtpStatus();
+    if (smtpStatus.configured) {
+      console.log(
+        `[Email Service] SMTP configured (host: ${smtpStatus.host}, port: ${smtpStatus.port}, secure: ${smtpStatus.secure}, from: ${smtpStatus.from})`
+      );
+      if (!env.isTest) {
+        verifyEmailTransport()
+          .then((verification) => {
+            if (verification.verified) {
+              console.log("[Email Service] SMTP connection and authentication verified successfully.");
+            } else {
+              console.warn(`[Email Service] SMTP startup verification warning: ${verification.message}`);
+            }
+          })
+          .catch(() => {});
+      }
+    } else if (!env.isTest) {
+      console.log(
+        "[Email Service] SMTP is unconfigured. Operating in simulated dispatch mode."
+      );
+    }
   });
 
   const shutdown = async (signal) => {

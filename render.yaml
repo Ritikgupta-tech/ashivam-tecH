@@ -41,6 +41,10 @@ services:
         sync: false
       - key: SMTP_PASSWORD
         sync: false
+      - key: SMTP_FROM
+        value: Ashivam Technologies <no-reply@ashivamtechnologies.com>
+      - key: ALERT_EMAIL
+        value: contact@ashivamtechnologies.com
       - key: EMAIL_FROM
         value: Ashivam Technologies <no-reply@ashivamtechnologies.com>
       - key: NOTIFICATION_RECIPIENT
