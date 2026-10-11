@@ -32,3 +32,13 @@ test("Error Handling - 404 handler returns standardized envelope", async () => {
   assert.ok(response.body.message.includes("Route not found"));
   assert.ok(response.headers["x-request-id"]);
 });
+
+test("Proxy Trust - Safely processes X-Forwarded-For headers from reverse proxy without rate limit crash", async () => {
+  const response = await request(app)
+    .get("/api/v1/health/liveness")
+    .set("X-Forwarded-For", "203.0.113.195, 10.0.0.1");
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.status, "alive");
+});
+

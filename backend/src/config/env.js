@@ -18,7 +18,11 @@ const parseOrigins = () => {
         "https://ashivam-tec-h.vercel.app",
       ];
 
-  const clientUrl = (process.env.CLIENT_URL || process.env.FRONTEND_URL)?.trim();
+  const clientUrl = (
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_ORIGIN
+  )?.trim();
   const allowedOriginsEnv = (process.env.ALLOWED_ORIGINS || process.env.CORS_ORIGIN)?.trim();
 
   const customOrigins = [];
@@ -51,7 +55,11 @@ const env = {
 
   port: Number(process.env.PORT) || 5000,
 
-  clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  clientUrl:
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_ORIGIN ||
+    "http://localhost:5173",
   allowedOrigins: allowedOriginsList,
 
   mongodbUri:
@@ -78,6 +86,26 @@ const env = {
   globalRateWindowMs:
     Number(process.env.GLOBAL_RATE_WINDOW_MS) || 15 * 60 * 1000,
 
+  // Reverse Proxy Configuration (Render / Cloudflare)
+  trustProxy:
+    process.env.TRUST_PROXY !== undefined
+      ? (!isNaN(Number(process.env.TRUST_PROXY))
+          ? Number(process.env.TRUST_PROXY)
+          : process.env.TRUST_PROXY === "true"
+            ? 1
+            : process.env.TRUST_PROXY === "false"
+              ? false
+              : process.env.TRUST_PROXY)
+      : (isProd ? 1 : false),
+
+  // Email Delivery Configuration (Supports Resend HTTPS API, Brevo HTTPS API, or SMTP)
+  emailProvider: (
+    process.env.EMAIL_PROVIDER ||
+    (process.env.RESEND_API_KEY ? "resend" : process.env.BREVO_API_KEY ? "brevo" : "smtp")
+  ).toLowerCase(),
+  resendApiKey: (process.env.RESEND_API_KEY || "").trim(),
+  brevoApiKey: (process.env.BREVO_API_KEY || "").trim(),
+
   // SMTP Settings
   smtpHost: (process.env.SMTP_HOST || "").trim(),
   smtpPort: Number(process.env.SMTP_PORT) || 587,
@@ -88,20 +116,20 @@ const env = {
   smtpUser: (process.env.SMTP_USER || "").trim(),
   smtpPassword: process.env.SMTP_PASSWORD || "",
   smtpFrom:
-    (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").trim() ||
+    (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
       : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
   emailFrom:
-    (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").trim() ||
+    (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
       : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
   alertEmail:
-    (process.env.ALERT_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
+    (process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
     "admin@ashivamtechnologies.com",
   notificationRecipient:
-    (process.env.ALERT_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
+    (process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
     "admin@ashivamtechnologies.com",
 
   smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 10000,
@@ -109,10 +137,20 @@ const env = {
   smtpSocketTimeoutMs: Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 15000,
 
   isSmtpConfigured: Boolean(
-    (process.env.SMTP_HOST || "").trim() &&
+    (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) ||
+    (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) ||
+    ((process.env.SMTP_HOST || "").trim() &&
       process.env.SMTP_PORT &&
       (process.env.SMTP_USER || "").trim() &&
-      process.env.SMTP_PASSWORD
+      process.env.SMTP_PASSWORD)
+  ),
+  isEmailConfigured: Boolean(
+    (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) ||
+    (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) ||
+    ((process.env.SMTP_HOST || "").trim() &&
+      process.env.SMTP_PORT &&
+      (process.env.SMTP_USER || "").trim() &&
+      process.env.SMTP_PASSWORD)
   ),
 
   // Persistent Object Storage Configuration

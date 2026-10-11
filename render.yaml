@@ -23,6 +23,8 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 1h
+      - key: TRUST_PROXY
+        value: 1
       - key: LOGIN_RATE_LIMIT
         value: 5
       - key: LOGIN_RATE_WINDOW_MS
@@ -31,6 +33,12 @@ services:
         value: 10
       - key: GLOBAL_RATE_LIMIT
         value: 100
+      - key: EMAIL_PROVIDER
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT

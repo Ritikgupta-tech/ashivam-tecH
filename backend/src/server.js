@@ -1,4 +1,13 @@
 import "dotenv/config";
+import dns from "node:dns";
+
+// Prioritize IPv4 DNS resolution to prevent ENETUNREACH errors on cloud container networks without IPv6 routes
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {
+  // safe fallback for older Node runtimes
+}
+
 import app from "./app.js";
 import env from "./config/env.js";
 import {
@@ -30,25 +39,29 @@ const startServer = async () => {
   const server = app.listen(env.port, () => {
     console.log(`[Ashivam Backend] Operational on port ${env.port} (${env.nodeEnv})`);
 
-    const smtpStatus = getSafeSmtpStatus();
-    if (smtpStatus.configured) {
+    const emailStatus = getSafeSmtpStatus();
+    if (emailStatus.configured) {
       console.log(
-        `[Email Service] SMTP configured (host: ${smtpStatus.host}, port: ${smtpStatus.port}, secure: ${smtpStatus.secure}, from: ${smtpStatus.from})`
+        `[Email Service] Provider: ${emailStatus.provider.toUpperCase()} | Configured (from: ${emailStatus.from})`
       );
       if (!env.isTest) {
         verifyEmailTransport()
           .then((verification) => {
             if (verification.verified) {
-              console.log("[Email Service] SMTP connection and authentication verified successfully.");
+              console.log(
+                `[Email Service] ${emailStatus.provider.toUpperCase()} connection & authentication verified successfully.`
+              );
             } else {
-              console.warn(`[Email Service] SMTP startup verification warning: ${verification.message}`);
+              console.warn(
+                `[Email Service] Transport verification warning: ${verification.message}`
+              );
             }
           })
           .catch(() => {});
       }
     } else if (!env.isTest) {
       console.log(
-        "[Email Service] SMTP is unconfigured. Operating in simulated dispatch mode."
+        "[Email Service] Email transport is unconfigured. Operating in simulated dispatch mode."
       );
     }
   });

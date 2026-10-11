@@ -34,6 +34,14 @@ const app = express();
 app.disable("x-powered-by");
 
 /*
+ * Reverse Proxy Trust Configuration (Render / Cloudflare)
+ * Accurately extracts client IP and resolves ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
+ */
+if (env.trustProxy !== false) {
+  app.set("trust proxy", env.trustProxy);
+}
+
+/*
  * Request Correlation ID
  */
 app.use(requestIdMiddleware);

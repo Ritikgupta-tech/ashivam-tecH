@@ -153,19 +153,32 @@ test("Email Service - sendEmail rejects invalid parameters", async () => {
 });
 
 test("Email Service - sendEmail handles unconfigured SMTP in simulated mode", async () => {
-  const result = await sendEmail({
-    to: "client@example.com",
-    subject: "Simulated Test",
-    text: "Testing simulation fallback",
-  });
+  const env = (await import("../src/config/env.js")).default;
+  const originalKey = env.resendApiKey;
+  const originalBrevo = env.brevoApiKey;
+  const originalSmtp = env.smtpHost;
 
-  assert.ok(result);
-  assert.equal(typeof result.delivered, "boolean");
-  if (!result.delivered) {
+  env.resendApiKey = "";
+  env.brevoApiKey = "";
+  env.smtpHost = "";
+
+  try {
+    const result = await sendEmail({
+      to: "client@example.com",
+      subject: "Simulated Test",
+      text: "Testing simulation fallback",
+    });
+
+    assert.ok(result);
+    assert.equal(typeof result.delivered, "boolean");
     assert.equal(result.reason, "smtp_not_configured");
     assert.equal(result.simulated, true);
     assert.equal(result.accepted, false);
     assert.ok(result.messageId.startsWith("simulated-"));
+  } finally {
+    env.resendApiKey = originalKey;
+    env.brevoApiKey = originalBrevo;
+    env.smtpHost = originalSmtp;
   }
 });
 
@@ -285,8 +298,183 @@ test("Email Service - verifyEmailTransport checks mocked transport verification"
 });
 
 test("Email Service - verifyEmailTransport responds safely when SMTP is unconfigured", async () => {
-  const check = await verifyEmailTransport();
-  assert.ok(check);
-  assert.equal(typeof check.verified, "boolean");
-  assert.equal(typeof check.message, "string");
+  const env = (await import("../src/config/env.js")).default;
+  const originalKey = env.resendApiKey;
+  const originalBrevo = env.brevoApiKey;
+  const originalSmtp = env.smtpHost;
+
+  env.resendApiKey = "";
+  env.brevoApiKey = "";
+  env.smtpHost = "";
+
+  try {
+    const check = await verifyEmailTransport();
+    assert.ok(check);
+    assert.equal(typeof check.verified, "boolean");
+    assert.equal(typeof check.message, "string");
+    assert.equal(check.simulated, true);
+  } finally {
+    env.resendApiKey = originalKey;
+    env.brevoApiKey = originalBrevo;
+    env.smtpHost = originalSmtp;
+  }
 });
+
+test("Email Service - sendEmail dispatches via Resend HTTPS API when configured", async () => {
+  const env = (await import("../src/config/env.js")).default;
+  const originalFetch = globalThis.fetch;
+  const originalKey = env.resendApiKey;
+  const originalProvider = env.emailProvider;
+
+  env.resendApiKey = "re_test_mock_secret_key";
+  env.emailProvider = "resend";
+
+  let capturedUrl = null;
+  let capturedOptions = null;
+
+  globalThis.fetch = async (url, options) => {
+    capturedUrl = url;
+    capturedOptions = options;
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: "resend-mock-id-abc123xyz" }),
+    };
+  };
+
+  try {
+    const result = await sendEmail({
+      to: "recipient@example.com",
+      subject: "Resend HTTPS Test",
+      text: "Content via Resend HTTPS API",
+      replyTo: "support@example.com",
+    });
+
+    assert.equal(result.delivered, true);
+    assert.equal(result.simulated, false);
+    assert.equal(result.accepted, true);
+    assert.equal(result.provider, "resend");
+    assert.equal(result.messageId, "resend-mock-id-abc123xyz");
+    assert.equal(capturedUrl, "https://api.resend.com/emails");
+
+    const sentBody = JSON.parse(capturedOptions.body);
+    assert.deepEqual(sentBody.to, ["recipient@example.com"]);
+    assert.equal(sentBody.reply_to, "support@example.com");
+    assert.equal(sentBody.subject, "Resend HTTPS Test");
+    assert.equal(capturedOptions.headers["Authorization"], "Bearer re_test_mock_secret_key");
+  } finally {
+    globalThis.fetch = originalFetch;
+    env.resendApiKey = originalKey;
+    env.emailProvider = originalProvider;
+  }
+});
+
+test("Email Service - sendEmail handles Resend HTTP error gracefully without throwing", async () => {
+  const env = (await import("../src/config/env.js")).default;
+  const originalFetch = globalThis.fetch;
+  const originalKey = env.resendApiKey;
+  const originalProvider = env.emailProvider;
+
+  env.resendApiKey = "re_test_invalid_key";
+  env.emailProvider = "resend";
+
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 401,
+    statusText: "Unauthorized",
+    json: async () => ({ message: "API key is invalid", name: "validation_error" }),
+  });
+
+  try {
+    const result = await sendEmail({
+      to: "recipient@example.com",
+      subject: "Failing Resend Test",
+      text: "Content",
+    });
+
+    assert.equal(result.delivered, false);
+    assert.equal(result.simulated, false);
+    assert.equal(result.accepted, false);
+    assert.equal(result.provider, "resend");
+    assert.ok(result.error.includes("API key is invalid"));
+  } finally {
+    globalThis.fetch = originalFetch;
+    env.resendApiKey = originalKey;
+    env.emailProvider = originalProvider;
+  }
+});
+
+test("Email Service - sendEmail dispatches via Brevo HTTPS API when configured", async () => {
+  const env = (await import("../src/config/env.js")).default;
+  const originalFetch = globalThis.fetch;
+  const originalKey = env.brevoApiKey;
+  const originalProvider = env.emailProvider;
+
+  env.brevoApiKey = "xkeysib-mock-12345";
+  env.emailProvider = "brevo";
+
+  let capturedUrl = null;
+  let capturedOptions = null;
+
+  globalThis.fetch = async (url, options) => {
+    capturedUrl = url;
+    capturedOptions = options;
+    return {
+      ok: true,
+      status: 201,
+      json: async () => ({ messageId: "<brevo-test-msg-id@smtp-relay.brevo.com>" }),
+    };
+  };
+
+  try {
+    const result = await sendEmail({
+      to: "client@example.com",
+      subject: "Brevo Test",
+      html: "<p>Brevo body</p>",
+      replyTo: "help@example.com",
+    });
+
+    assert.equal(result.delivered, true);
+    assert.equal(result.provider, "brevo");
+    assert.equal(result.messageId, "<brevo-test-msg-id@smtp-relay.brevo.com>");
+    assert.equal(capturedUrl, "https://api.brevo.com/v3/smtp/email");
+
+    const sentBody = JSON.parse(capturedOptions.body);
+    assert.deepEqual(sentBody.to, [{ email: "client@example.com" }]);
+    assert.deepEqual(sentBody.replyTo, { email: "help@example.com" });
+    assert.equal(capturedOptions.headers["api-key"], "xkeysib-mock-12345");
+  } finally {
+    globalThis.fetch = originalFetch;
+    env.brevoApiKey = originalKey;
+    env.emailProvider = originalProvider;
+  }
+});
+
+test("Email Service - verifyEmailTransport validates Resend credentials via HTTPS probe", async () => {
+  const env = (await import("../src/config/env.js")).default;
+  const originalFetch = globalThis.fetch;
+  const originalKey = env.resendApiKey;
+  const originalProvider = env.emailProvider;
+
+  env.resendApiKey = "re_valid_key_123";
+  env.emailProvider = "resend";
+
+  globalThis.fetch = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ data: [] }),
+  });
+
+  try {
+    const check = await verifyEmailTransport();
+    assert.equal(check.configured, true);
+    assert.equal(check.verified, true);
+    assert.equal(check.provider, "resend");
+    assert.ok(check.message.includes("Resend HTTPS API authenticated"));
+  } finally {
+    globalThis.fetch = originalFetch;
+    env.resendApiKey = originalKey;
+    env.emailProvider = originalProvider;
+  }
+});
+
