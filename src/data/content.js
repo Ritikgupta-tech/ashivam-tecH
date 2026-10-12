@@ -343,7 +343,6 @@ export const NAV_LINKS = [
   { label: 'Solutions', href: '#solutions' },
   { label: 'Ecosystem', href: '#techstack' },
   { label: 'Projects', href: '#projects' },
-  { label: 'Team', href: '#team' },
   { label: 'Careers', href: '#careers' },
   { label: 'Contact', href: '#contact' },
 ];

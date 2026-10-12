@@ -11,7 +11,6 @@ import Solutions from '../components/Solutions/Solutions';
 import TechStack from '../components/TechStack/TechStack';
 import Projects from '../components/Projects/Projects';
 import WhyAshivam from '../components/WhyAshivam/WhyAshivam';
-import Team from '../components/Team/Team';
 import Careers from '../components/Careers/Careers';
 import Culture from '../components/Culture/Culture';
 import CTA from '../components/CTA/CTA';
@@ -58,7 +57,6 @@ export default function HomePage() {
           <TechStack />
           <Projects />
           <WhyAshivam />
-          <Team />
           <Careers />
           <Culture />
           <CTA />

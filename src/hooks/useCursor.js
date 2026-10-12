@@ -45,7 +45,7 @@ export function useCustomCursor() {
 
     const handleOver = (e) => {
       const target = e.target;
-      if (target.closest('a, button, input, select, textarea, [role="button"], [data-cursor], .service-card, .solution-card, .project-card, .team-card, .career-item, .contact-info-card')) {
+      if (target.closest('a, button, input, select, textarea, [role="button"], [data-cursor], .service-card, .solution-card, .project-card, .career-item, .contact-info-card')) {
         ring.classList.add('cursor-ring--active');
       } else {
         ring.classList.remove('cursor-ring--active');

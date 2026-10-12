@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { NAV_LINKS, COMPANY } from '../../data/content';
-import { ArrowRightIcon } from '../icons';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -120,20 +119,8 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Actions on Far Right */}
+          {/* Mobile & Tablet Hamburger Toggle */}
           <div className="navbar__actions">
-            <a
-              href="#contact"
-              className="navbar__cta btn btn-primary"
-              onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
-              aria-label="Let's Build Together - Contact Ashivam Technologies"
-            >
-              <span className="navbar__cta-full">Let's Build Together</span>
-              <span className="navbar__cta-compact">Let's Talk</span>
-              <ArrowRightIcon size={14} className="navbar__cta-arrow" />
-            </a>
-
-            {/* Hamburger (Mobile & Tablet) */}
             <button
               className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -182,15 +169,6 @@ export default function Navbar() {
               );
             })}
           </ul>
-
-          <a
-            href="#contact"
-            className="btn btn-primary mobile-menu__cta"
-            onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
-          >
-            <span>Let's Build Together</span>
-            <ArrowRightIcon size={16} />
-          </a>
 
           <p className="mobile-menu__tagline">Ashivam Technologies • Enterprise Engineering</p>
         </div>

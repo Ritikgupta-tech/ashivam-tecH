@@ -99,7 +99,7 @@
 
   /* Typography */
   --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-display: 'Manrope', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Typography Scales */
@@ -428,4 +428,29 @@ ul, ol {
 ::selection {
   background: rgba(197, 155, 39, 0.28);
   color: #ffffff;
+}
+
+/* ---------- Premium UI — Card Micro-Interactions ---------- */
+/* Generic hover lift for all card types not already styled per-component */
+.service-card,
+.solution-card,
+.project-card,
+.career-item,
+.contact-info-card,
+.culture-card {
+  will-change: transform, box-shadow;
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) ease,
+    border-color var(--dur-base) ease;
+}
+
+.service-card:hover,
+.solution-card:hover,
+.project-card:hover,
+.career-item:hover,
+.contact-info-card:hover,
+.culture-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
 }
