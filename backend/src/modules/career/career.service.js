@@ -310,7 +310,7 @@ export const createApplication = async (
   // Background non-blocking notifications
   const appRef = application._id.toString();
   const alertRecipient = env.alertEmail || env.notificationRecipient;
-  const adminReviewUrl = env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined;
+  const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
 
   // Workflow 2: Career Application Notification (Admin Alert)
   if (alertRecipient) {
@@ -343,7 +343,7 @@ export const createApplication = async (
     sendEmail({
       to: data.email,
       subject: `Application Received - Ashivam Technologies [${safeJobTitle}] [${appRef}]`,
-      text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nApplication Reference: ${appRef}\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our open positions.\n\nBest regards,\nAshivam Technologies Talent Acquisition\nhttps://ashivam.com`,
+      text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nApplication Reference: ${appRef}\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our open positions.\n\nBest regards,\nAshivam Technologies Talent Acquisition\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
       html: careerConfirmationTemplate({
         firstName: data.firstName,
         jobTitle: job.title,

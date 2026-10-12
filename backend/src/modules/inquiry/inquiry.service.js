@@ -39,7 +39,7 @@ export const createInquiry = async (data) => {
       const inquiry = await Inquiry.create(data);
       const refNum = inquiry.referenceNumber || inquiry._id.toString();
       const alertRecipient = env.alertEmail || env.notificationRecipient;
-      const adminReviewUrl = env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined;
+      const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
 
       // Background non-blocking notification to admin (Workflow 1: Contact Inquiry Notification)
       if (alertRecipient) {
@@ -70,7 +70,7 @@ export const createInquiry = async (data) => {
         sendEmail({
           to: data.email,
           subject: `Inquiry Received - Ashivam Technologies [${refNum}]`,
-          text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\nhttps://ashivam.com`,
+          text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
           html: inquiryConfirmationTemplate({
             name: data.name,
             subject: data.subject,

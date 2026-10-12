@@ -49,17 +49,21 @@ export const createInternship = async (data) => {
   const created = await Internship.create(data);
 
   // Background non-blocking notifications
-  if (env.notificationRecipient) {
+  const alertRecipient = env.alertEmail || env.notificationRecipient;
+  const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
+
+  if (alertRecipient) {
     sendEmail({
-      to: env.notificationRecipient,
+      to: alertRecipient,
       subject: `[Ashivam Internship] New application for ${data.domain} from ${data.name}`,
-      text: `A new student internship application has been submitted on the Ashivam Technologies website.\n\nDomain: ${data.domain}\nStudent Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCollege: ${data.college || "N/A"}\nCourse: ${data.course || "N/A"}\nDuration: ${data.duration || "N/A"}\n`,
+      text: `A new student internship application has been submitted on the Ashivam Technologies website.\n\nDomain: ${data.domain}\nStudent Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCollege: ${data.college || "N/A"}\nCourse: ${data.course || "N/A"}\nDuration: ${data.duration || "N/A"}\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
       html: internshipAdminAlertTemplate({
         name: data.name,
         email: data.email,
         phone: data.phone,
         college: data.college,
         domain: data.domain,
+        reviewUrl: adminReviewUrl,
       }),
     }).catch((err) => {
       console.warn("[Internship Alert] Background dispatch error:", err.message);
@@ -70,7 +74,7 @@ export const createInternship = async (data) => {
     sendEmail({
       to: data.email,
       subject: `Internship Application Received - Ashivam Technologies [${data.domain}]`,
-      text: `Hello ${data.name},\n\nThank you for applying for the ${data.domain} internship at Ashivam Technologies. We have successfully received your application.\n\nOur academic programs team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Academic Programs\nhttps://ashivamtechnologies.com`,
+      text: `Hello ${data.name},\n\nThank you for applying for the ${data.domain} internship at Ashivam Technologies. We have successfully received your application.\n\nOur academic programs team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Academic Programs\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
       html: internshipConfirmationTemplate({
         name: data.name,
         domain: data.domain,

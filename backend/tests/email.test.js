@@ -478,3 +478,88 @@ test("Email Service - verifyEmailTransport validates Resend credentials via HTTP
   }
 });
 
+test("Email Templates - all templates render bulletproof action buttons with valid HTTPS URLs", async () => {
+  const env = (await import("../src/config/env.js")).default;
+  const clientBase = env.clientUrl || "https://ashivam-tec-h.vercel.app";
+  const adminBase = env.adminUrl || `${clientBase}/admin`;
+
+  // 1. Inquiry Confirmation
+  const inqConfirm = inquiryConfirmationTemplate({
+    name: "Aarav",
+    subject: "Web Development",
+    referenceNumber: "INQ-100",
+  });
+  assert.ok(inqConfirm.includes(`<table border="0" cellspacing="0" cellpadding="0"`));
+  assert.ok(inqConfirm.includes(`href="${clientBase}"`));
+  assert.ok(inqConfirm.includes("Visit Our Website"));
+
+  // 2. Inquiry Admin Alert
+  const inqAlert = inquiryAdminAlertTemplate({
+    name: "Aarav",
+    email: "aarav@example.com",
+    subject: "Consulting",
+    message: "Need help",
+    referenceNumber: "INQ-100",
+  });
+  assert.ok(inqAlert.includes(`<table border="0" cellspacing="0" cellpadding="0"`));
+  assert.ok(inqAlert.includes(`href="${adminBase}"`));
+  assert.ok(inqAlert.includes("Review in Admin Portal"));
+
+  // 3. Career Confirmation
+  const carConfirm = careerConfirmationTemplate({
+    firstName: "Priya",
+    jobTitle: "Senior Architect",
+    applicationReference: "APP-200",
+  });
+  assert.ok(carConfirm.includes(`<table border="0" cellspacing="0" cellpadding="0"`));
+  assert.ok(carConfirm.includes(`href="${clientBase.replace(/\/+$/, "")}/careers"`));
+  assert.ok(carConfirm.includes("Explore More Careers"));
+
+  // 4. Career Admin Alert
+  const carAlert = careerAdminAlertTemplate({
+    candidateName: "Priya Sharma",
+    email: "priya@example.com",
+    phone: "9876543210",
+    jobTitle: "Senior Architect",
+    resumeFileName: "priya_resume.pdf",
+    applicationReference: "APP-200",
+  });
+  assert.ok(carAlert.includes(`<table border="0" cellspacing="0" cellpadding="0"`));
+  assert.ok(carAlert.includes(`href="${adminBase}"`));
+  assert.ok(carAlert.includes("Review in Admin Portal"));
+
+  // 5. Internship Confirmation
+  const intConfirm = internshipConfirmationTemplate({
+    name: "Rohan",
+    domain: "Cloud Computing",
+  });
+  assert.ok(intConfirm.includes(`<table border="0" cellspacing="0" cellpadding="0"`));
+  assert.ok(intConfirm.includes(`href="${clientBase.replace(/\/+$/, "")}/careers"`));
+  assert.ok(intConfirm.includes("View Internship Programs"));
+
+  // 6. Internship Admin Alert
+  const intAlert = internshipAdminAlertTemplate({
+    name: "Rohan",
+    email: "rohan@example.com",
+    phone: "9876543210",
+    college: "Tech University",
+    domain: "Cloud Computing",
+  });
+  assert.ok(intAlert.includes(`<table border="0" cellspacing="0" cellpadding="0"`));
+  assert.ok(intAlert.includes(`href="${adminBase}"`));
+  assert.ok(intAlert.includes("Review in Admin Portal"));
+
+  // 7. Generic Notification & Security Templates
+  const notif = notificationEmailTemplate({
+    title: "System Notification",
+    message: "Notice body",
+  });
+  assert.ok(notif.includes(`href="${adminBase}"`));
+
+  const secAlert = securityEmailTemplate({
+    title: "Security Event",
+    message: "An anomaly was detected.",
+  });
+  assert.ok(secAlert.includes(`href="${adminBase}"`));
+});
+

@@ -46,6 +46,53 @@ const parseOrigins = () => {
 
 const allowedOriginsList = parseOrigins();
 
+export const DEPLOYED_VERCEL_URL = "https://ashivam-tec-h.vercel.app";
+
+const resolveClientUrl = () => {
+  const configured = (
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_ORIGIN ||
+    ""
+  ).trim().replace(/\/+$/, "");
+
+  if (!configured) {
+    return isProd ? DEPLOYED_VERCEL_URL : "http://localhost:5173";
+  }
+
+  // If configured as ashivam.com or ashivamtechnologies.com (which have no active DNS records yet),
+  // automatically fall back in production to the working Vercel deployment so email links never break!
+  if (
+    isProd &&
+    !process.env.FORCE_CUSTOM_DOMAIN &&
+    /https?:\/\/(www\.)?ashivam(\.com|technologies\.com)$/i.test(configured)
+  ) {
+    return DEPLOYED_VERCEL_URL;
+  }
+
+  return configured;
+};
+
+const resolveAdminUrl = (clientBaseUrl) => {
+  const configured = (process.env.ADMIN_URL || "").trim().replace(/\/+$/, "");
+
+  if (configured) {
+    if (
+      isProd &&
+      !process.env.FORCE_CUSTOM_DOMAIN &&
+      /https?:\/\/(www\.)?ashivam(\.com|technologies\.com)\/admin/i.test(configured)
+    ) {
+      return `${DEPLOYED_VERCEL_URL}/admin`;
+    }
+    return configured;
+  }
+
+  return `${clientBaseUrl}/admin`;
+};
+
+const resolvedClientUrl = resolveClientUrl();
+const resolvedAdminUrl = resolveAdminUrl(resolvedClientUrl);
+
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   isProduction: process.env.NODE_ENV === "production",
@@ -55,11 +102,8 @@ const env = {
 
   port: Number(process.env.PORT) || 5000,
 
-  clientUrl:
-    process.env.CLIENT_URL ||
-    process.env.FRONTEND_URL ||
-    process.env.CLIENT_ORIGIN ||
-    "http://localhost:5173",
+  clientUrl: resolvedClientUrl,
+  adminUrl: resolvedAdminUrl,
   allowedOrigins: allowedOriginsList,
 
   mongodbUri:

@@ -1,3 +1,5 @@
+import env from "../../config/env.js";
+
 /**
  * Escapes HTML entities to prevent Cross-Site Scripting (XSS) and HTML injection in emails.
  */
@@ -25,16 +27,20 @@ export const sanitizeUrl = (url = "") => {
 
 /**
  * Common HTML wrapper for all Ashivam Technologies transactional emails.
+ * Uses bulletproof table-based buttons and dynamic live URLs.
  */
 const baseTemplate = ({
   title,
   contentHtml,
   actionUrl,
   actionText = "View Details",
+  websiteUrl = env.clientUrl || "https://ashivam-tec-h.vercel.app",
 }) => {
   const safeTitle = escapeHtml(title);
   const safeActionUrl = sanitizeUrl(actionUrl);
   const safeActionText = escapeHtml(actionText);
+  const safeWebsiteUrl = sanitizeUrl(websiteUrl) || "https://ashivam-tec-h.vercel.app";
+  const displayDomain = safeWebsiteUrl.replace(/^https?:\/\//i, "").replace(/\/.*$/, "");
 
   return `<!DOCTYPE html>
 <html>
@@ -62,16 +68,20 @@ const baseTemplate = ({
       ${
         safeActionUrl
           ? `
-            <div style="margin-top:28px;margin-bottom:8px;">
-              <a
-                href="${safeActionUrl}"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="display:inline-block;padding:11px 22px;background:#0f172a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;"
-              >
-                ${safeActionText}
-              </a>
-            </div>
+            <table border="0" cellspacing="0" cellpadding="0" style="margin-top:24px;margin-bottom:12px;">
+              <tr>
+                <td align="center" style="border-radius:6px;background-color:#0f172a;">
+                  <a
+                    href="${safeActionUrl}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style="display:inline-block;padding:12px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;line-height:1.2;"
+                  >
+                    ${safeActionText} &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
           `
           : ""
       }
@@ -79,7 +89,7 @@ const baseTemplate = ({
 
     <div style="padding:18px 28px;background:#f8fafc;color:#64748b;font-size:12px;border-top:1px solid #f1f5f9;line-height:1.5;">
       <p style="margin:0;">This is an automated transmission from Ashivam Technologies. Please do not reply directly to this email unless directed otherwise.</p>
-      <p style="margin:6px 0 0 0;color:#94a3b8;">Agra, Uttar Pradesh, India | <a href="https://ashivam.com" style="color:#3b82f6;text-decoration:none;">ashivam.com</a></p>
+      <p style="margin:6px 0 0 0;color:#94a3b8;">Agra, Uttar Pradesh, India | <a href="${safeWebsiteUrl}" target="_blank" rel="noopener noreferrer" style="color:#3b82f6;text-decoration:none;">${displayDomain}</a></p>
     </div>
   </div>
 </body>
@@ -98,8 +108,9 @@ export const notificationEmailTemplate = ({
   baseTemplate({
     title,
     contentHtml: `<p style="margin:0;">${escapeHtml(message).replace(/\n/g, "<br/>")}</p>`,
-    actionUrl,
-    actionText,
+    actionUrl: actionUrl || env.adminUrl || `${env.clientUrl}/admin`,
+    actionText: actionText || "View Details",
+    websiteUrl: env.clientUrl,
   });
 
 /**
@@ -118,8 +129,9 @@ export const securityEmailTemplate = ({
       </div>
       <p style="margin:0;">${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
     `,
-    actionUrl,
+    actionUrl: actionUrl || env.adminUrl || `${env.clientUrl}/admin`,
     actionText: "Review Security Event",
+    websiteUrl: env.clientUrl,
   });
 
 /**
@@ -129,6 +141,7 @@ export const inquiryConfirmationTemplate = ({
   name,
   subject,
   referenceNumber,
+  websiteUrl,
 }) =>
   baseTemplate({
     title: "We Received Your Inquiry",
@@ -142,8 +155,9 @@ export const inquiryConfirmationTemplate = ({
       <p>Our client solutions team is reviewing your requirements and will get back to you shortly.</p>
       <p>Best regards,<br/><strong>Ashivam Technologies Client Relations</strong></p>
     `,
-    actionUrl: "https://ashivam.com",
+    actionUrl: websiteUrl || env.clientUrl || "https://ashivam-tec-h.vercel.app",
     actionText: "Visit Our Website",
+    websiteUrl: websiteUrl || env.clientUrl,
   });
 
 /**
@@ -157,8 +171,9 @@ export const inquiryAdminAlertTemplate = ({
   message,
   referenceNumber,
   reviewUrl,
-}) =>
-  baseTemplate({
+}) => {
+  const effectiveReviewUrl = reviewUrl || env.adminUrl || `${env.clientUrl}/admin`;
+  return baseTemplate({
     title: `New Inquiry: ${escapeHtml(subject || "General Inquiry")}`,
     contentHtml: `
       <p style="margin-top:0;">A new client inquiry was submitted on the website:</p>
@@ -174,9 +189,11 @@ export const inquiryAdminAlertTemplate = ({
         <p style="margin:0;white-space:pre-wrap;color:#334155;">${escapeHtml(message)}</p>
       </div>
     `,
-    actionUrl: reviewUrl,
-    actionText: reviewUrl ? "Review in Admin Portal" : undefined,
+    actionUrl: effectiveReviewUrl,
+    actionText: "Review in Admin Portal",
+    websiteUrl: env.clientUrl,
   });
+};
 
 /**
  * Career application confirmation email template.
@@ -185,8 +202,11 @@ export const careerConfirmationTemplate = ({
   firstName,
   jobTitle,
   applicationReference,
-}) =>
-  baseTemplate({
+  careersUrl,
+}) => {
+  const effectiveCareersUrl =
+    careersUrl || `${(env.clientUrl || "https://ashivam-tec-h.vercel.app").replace(/\/+$/, "")}/careers`;
+  return baseTemplate({
     title: `Application Received — ${escapeHtml(jobTitle)}`,
     contentHtml: `
       <p>Hello <strong>${escapeHtml(firstName)}</strong>,</p>
@@ -204,7 +224,11 @@ export const careerConfirmationTemplate = ({
       <p>Our talent acquisition team will review your qualifications and reach out if your background aligns with our open positions.</p>
       <p>Best regards,<br/><strong>Ashivam Technologies Talent Acquisition</strong></p>
     `,
+    actionUrl: effectiveCareersUrl,
+    actionText: "Explore More Careers",
+    websiteUrl: env.clientUrl,
   });
+};
 
 /**
  * Career application admin alert email template.
@@ -217,8 +241,9 @@ export const careerAdminAlertTemplate = ({
   resumeFileName,
   applicationReference,
   reviewUrl,
-}) =>
-  baseTemplate({
+}) => {
+  const effectiveReviewUrl = reviewUrl || env.adminUrl || `${env.clientUrl}/admin`;
+  return baseTemplate({
     title: `New Job Application: ${escapeHtml(jobTitle)}`,
     contentHtml: `
       <p style="margin-top:0;">A new candidate applied for an open role:</p>
@@ -235,9 +260,11 @@ export const careerAdminAlertTemplate = ({
         <tr><td style="padding:8px 0;color:#64748b;"><strong>Resume File:</strong></td><td style="padding:8px 0;color:#0f172a;">${escapeHtml(resumeFileName || "Uploaded")} <em>(Retained in secure storage; access via admin portal)</em></td></tr>
       </table>
     `,
-    actionUrl: reviewUrl,
-    actionText: reviewUrl ? "Review in Admin Portal" : undefined,
+    actionUrl: effectiveReviewUrl,
+    actionText: "Review in Admin Portal",
+    websiteUrl: env.clientUrl,
   });
+};
 
 /**
  * Internship application confirmation email template.
@@ -245,8 +272,11 @@ export const careerAdminAlertTemplate = ({
 export const internshipConfirmationTemplate = ({
   name,
   domain,
-}) =>
-  baseTemplate({
+  websiteUrl,
+}) => {
+  const effectiveUrl =
+    websiteUrl || `${(env.clientUrl || "https://ashivam-tec-h.vercel.app").replace(/\/+$/, "")}/careers`;
+  return baseTemplate({
     title: `Internship Application Received — ${escapeHtml(domain)}`,
     contentHtml: `
       <p>Hello <strong>${escapeHtml(name)}</strong>,</p>
@@ -254,7 +284,11 @@ export const internshipConfirmationTemplate = ({
       <p>We are reviewing your submission and academic profile. If selected for the interview round, our team will contact you via email or phone.</p>
       <p>Best regards,<br/><strong>Ashivam Technologies Academic Programs</strong></p>
     `,
+    actionUrl: effectiveUrl,
+    actionText: "View Internship Programs",
+    websiteUrl: websiteUrl || env.clientUrl,
   });
+};
 
 /**
  * Internship application admin alert email template.
@@ -265,8 +299,10 @@ export const internshipAdminAlertTemplate = ({
   phone,
   college,
   domain,
-}) =>
-  baseTemplate({
+  reviewUrl,
+}) => {
+  const effectiveReviewUrl = reviewUrl || env.adminUrl || `${env.clientUrl}/admin`;
+  return baseTemplate({
     title: `New Internship Application: ${escapeHtml(domain)}`,
     contentHtml: `
       <p style="margin-top:0;">A new internship application was received:</p>
@@ -278,4 +314,8 @@ export const internshipAdminAlertTemplate = ({
         <tr><td style="padding:8px 0;color:#64748b;"><strong>College:</strong></td><td style="padding:8px 0;color:#0f172a;">${escapeHtml(college)}</td></tr>
       </table>
     `,
+    actionUrl: effectiveReviewUrl,
+    actionText: "Review in Admin Portal",
+    websiteUrl: env.clientUrl,
   });
+};

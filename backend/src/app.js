@@ -6,7 +6,7 @@ import path from "path";
 import env from "./config/env.js";
 import requestIdMiddleware from "./middlewares/requestId.middleware.js";
 import requestLoggerMiddleware from "./middlewares/logger.middleware.js";
-import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
+import { globalLimiter, healthLimiter } from "./middlewares/rateLimit.middleware.js";
 
 import healthRoutes from "./routes/health.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
@@ -171,7 +171,7 @@ app.get(["/", "/api/v1", "/api/v1/"], apiDiscoveryHandler);
 /*
  * API v1 Routes
  */
-app.use("/api/v1/health", healthRoutes);
+app.use(["/health", "/api/v1/health"], healthLimiter, healthRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/inquiries", inquiryRoutes);
