@@ -12,6 +12,8 @@ import {
   ArrowRightIcon,
   CheckIcon,
 } from '../components/icons';
+import TechStack from '../components/TechStack/TechStack';
+import Projects from '../components/Projects/Projects';
 import './SolutionsPage.css';
 
 const SOLUTIONS_DATA = [
@@ -251,6 +253,12 @@ export default function SolutionsPage() {
             </div>
           </div>
         </section>
+
+        {/* Full Interactive Technology Ecosystem */}
+        <TechStack />
+
+        {/* Engineered Products, Case Studies & Deliverables */}
+        <Projects />
 
         {/* Engineering Philosophy Banner */}
         <section className="solutions-banner section">

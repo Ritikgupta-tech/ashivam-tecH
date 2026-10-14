@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import Careers from '../components/Careers/Careers';
+import Culture from '../components/Culture/Culture';
 import { LightbulbIcon, ShieldIcon, RocketIcon } from '../components/icons';
 import './CareersPage.css';
 
@@ -71,6 +72,9 @@ export default function CareersPage() {
         <div className="careers-board-wrapper">
           <Careers />
         </div>
+
+        {/* Detailed Engineering Culture & Workplace Values */}
+        <Culture />
       </main>
 
       <Footer />

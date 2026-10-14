@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { SERVICES } from '../../data/content';
 import { SERVICE_ICON_MAP, ArrowRightIcon } from '../icons';
 import './Services.css';
@@ -82,6 +83,13 @@ export default function Services() {
           {SERVICES.map((s, i) => (
             <ServiceCard key={s.id} service={s} index={i} />
           ))}
+        </div>
+
+        <div className="services__actions text-center reveal reveal--delay-3" style={{ marginTop: '2.75rem', display: 'flex', justifyContent: 'center' }}>
+          <Link to="/solutions" className="btn btn-secondary">
+            <span>Explore Full Solutions & Tech Stack</span>
+            <ArrowRightIcon size={14} />
+          </Link>
         </div>
       </div>
     </section>

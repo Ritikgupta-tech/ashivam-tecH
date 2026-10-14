@@ -8,12 +8,8 @@ import About from '../components/About/About';
 import Stats from '../components/Stats/Stats';
 import Services from '../components/Services/Services';
 import Solutions from '../components/Solutions/Solutions';
-import TechStack from '../components/TechStack/TechStack';
-import Projects from '../components/Projects/Projects';
 import WhyAshivam from '../components/WhyAshivam/WhyAshivam';
-import Careers from '../components/Careers/Careers';
-import Culture from '../components/Culture/Culture';
-import CTA from '../components/CTA/CTA';
+import CareersTeaser from '../components/CareersTeaser/CareersTeaser';
 import Contact from '../components/Contact/Contact';
 import Footer from '../components/Footer/Footer';
 import '../App.css';
@@ -48,18 +44,14 @@ export default function HomePage() {
       {/* App */}
       <div className="app">
         <Navbar />
-        <main>
+        <main id="main-content">
           <Hero />
           <About />
           <Stats />
           <Services />
           <Solutions />
-          <TechStack />
-          <Projects />
           <WhyAshivam />
-          <Careers />
-          <Culture />
-          <CTA />
+          <CareersTeaser />
           <Contact />
         </main>
         <Footer />
