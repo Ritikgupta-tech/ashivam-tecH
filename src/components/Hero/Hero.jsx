@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { COMPANY } from '../../data/content';
 import { WebIcon, DesignIcon, ApiIcon, MobileIcon, ArrowRightIcon } from '../icons';
 import './Hero.css';
@@ -191,23 +192,23 @@ export default function Hero() {
           enterprise architectures, and innovative platforms that move ideas into reality.
         </p>
 
-        {/* CTAs */}
+        {/* CTAs: Primary to Solutions, Secondary to Careers */}
         <div className="hero__ctas page-load-4">
-          <button
+          <Link
+            to="/solutions"
             className="btn btn-primary hero__cta-primary"
-            onClick={() => scrollToSection('contact')}
-            id="hero-cta-start"
+            id="hero-cta-solutions"
           >
-            Let's Build Together
+            <span>Explore Solutions</span>
             <ArrowRightIcon size={16} className="hero__btn-arrow" />
-          </button>
-          <button
+          </Link>
+          <Link
+            to="/careers"
             className="btn btn-outline hero__cta-secondary"
-            onClick={() => scrollToSection('projects')}
-            id="hero-cta-explore"
+            id="hero-cta-careers"
           >
-            Explore Our Work
-          </button>
+            <span>Explore Careers</span>
+          </Link>
         </div>
 
         {/* Trust Badges */}

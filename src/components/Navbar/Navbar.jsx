@@ -1,33 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
-import { NAV_LINKS, COMPANY } from '../../data/content';
+import { Link, useLocation } from 'react-router-dom';
+import { ShieldIcon, ArrowRightIcon } from '../icons';
 import './Navbar.css';
+
+const PRIMARY_NAV = [
+  { label: 'Industries', path: '/industries' },
+  { label: 'Solutions', path: '/solutions' },
+  { label: 'Careers', path: '/careers' },
+];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
   const navRef = useRef(null);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
+  // Track page scroll for background glassmorphism
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-
-      // Active section detection
-      const sections = NAV_LINKS.map((l) => l.href.replace('#', ''));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i]);
-        if (el && el.getBoundingClientRect().top <= 140) {
-          setActiveSection(sections[i]);
-          break;
-        }
-      }
+      setScrolled(window.scrollY > 30);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menu on outside click
+  // Close mobile drawer upon route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [currentPath]);
+
+  // Close menu on click outside
   useEffect(() => {
     const handleClick = (e) => {
       if (menuOpen && navRef.current && !navRef.current.contains(e.target)) {
@@ -38,7 +43,7 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
 
-  // Prevent background scrolling when mobile menu open
+  // Body scroll locking when drawer is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = 'hidden';
@@ -64,63 +69,71 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [menuOpen]);
 
-  const handleNavClick = (href) => {
-    setMenuOpen(false);
-    const id = href.replace('#', '');
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <>
-      <nav
+      <header
         ref={navRef}
         className={`navbar${scrolled ? ' navbar--scrolled' : ''}${menuOpen ? ' navbar--open' : ''}`}
-        aria-label="Main navigation"
       >
         <div className="navbar__container">
-          {/* Logo on Left */}
-          <a
-            href="#home"
+          {/* Logo on Left -> Navigates to Homepage */}
+          <Link
+            to="/"
             className="navbar__logo"
-            onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
-            aria-label="Ashivam Technologies - Return to home"
+            aria-label="Ashivam Technologies — Home"
           >
             <div className="navbar__logo-mark">
-              <img src="/logo-symbol.png" alt="" className="navbar__logo-img" width="44" height="25" />
+              <img
+                src="/logo-symbol.png"
+                alt="Ashivam Technologies Symbol"
+                className="navbar__logo-img"
+                width="44"
+                height="25"
+              />
             </div>
             <div className="navbar__logo-text">
               <span className="navbar__logo-name">Ashivam</span>
               <span className="navbar__logo-sub">Technologies</span>
             </div>
-          </a>
+          </Link>
 
-          {/* Centered/Right Desktop Navigation */}
-          <ul className="navbar__links" role="menubar">
-            {NAV_LINKS.map((link) => {
-              const secId = link.href.replace('#', '');
-              const isActive = activeSection === secId;
-              return (
-                <li key={link.href} role="none">
-                  <a
-                    href={link.href}
-                    className={`navbar__link${isActive ? ' navbar__link--active' : ''}`}
-                    role="menuitem"
-                    aria-current={isActive ? 'page' : undefined}
-                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                  >
-                    <span>{link.label}</span>
-                    <span className="navbar__link-underline" aria-hidden="true" />
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+          {/* Primary Navigation: Exactly Industries, Solutions, Careers */}
+          <nav className="navbar__nav" aria-label="Primary navigation">
+            <ul className="navbar__links" role="menubar">
+              {PRIMARY_NAV.map((item) => {
+                const isActive =
+                  currentPath === item.path ||
+                  (item.path !== '/' && currentPath.startsWith(item.path));
+                return (
+                  <li key={item.path} role="none">
+                    <Link
+                      to={item.path}
+                      className={`navbar__link${isActive ? ' navbar__link--active' : ''}`}
+                      role="menuitem"
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      <span>{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-          {/* Mobile & Tablet Hamburger Toggle */}
+          {/* Right Header Actions: Distinct Employee Login Button & Mobile Toggle */}
           <div className="navbar__actions">
+            <Link
+              to="/employee-login"
+              className={`navbar__employee-btn${
+                currentPath.startsWith('/employee-login') ? ' navbar__employee-btn--active' : ''
+              }`}
+              aria-label="Employee & Administrative Login Gateway"
+            >
+              <ShieldIcon size={14} className="navbar__employee-icon" />
+              <span>Employee Login</span>
+            </Link>
+
+            {/* Mobile & Tablet Hamburger Button */}
             <button
               className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -133,7 +146,7 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Mobile Navigation Drawer */}
       <div
@@ -145,36 +158,66 @@ export default function Navbar() {
       >
         <div className="mobile-menu__content">
           <div className="mobile-menu__logo">
-            <img src="/logo-symbol.png" alt="" className="mobile-menu__logo-img" width="44" height="25" />
+            <img
+              src="/logo-symbol.png"
+              alt="Ashivam Technologies"
+              className="mobile-menu__logo-img"
+              width="44"
+              height="25"
+            />
             <div>
               <div className="mobile-menu__logo-name">Ashivam</div>
               <div className="mobile-menu__logo-sub">Technologies</div>
             </div>
           </div>
 
-          <ul className="mobile-menu__links">
-            {NAV_LINKS.map((link) => {
-              const secId = link.href.replace('#', '');
-              const isActive = activeSection === secId;
-              return (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className={`mobile-menu__link${isActive ? ' mobile-menu__link--active' : ''}`}
-                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                  >
-                    <span>{link.label}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+          <nav aria-label="Mobile navigation links">
+            <ul className="mobile-menu__links">
+              <li>
+                <Link
+                  to="/"
+                  className={`mobile-menu__link${currentPath === '/' ? ' mobile-menu__link--active' : ''}`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span>Home</span>
+                </Link>
+              </li>
+              {PRIMARY_NAV.map((item) => {
+                const isActive =
+                  currentPath === item.path ||
+                  (item.path !== '/' && currentPath.startsWith(item.path));
+                return (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      className={`mobile-menu__link${isActive ? ' mobile-menu__link--active' : ''}`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <span>{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-          <p className="mobile-menu__tagline">Ashivam Technologies • Enterprise Engineering</p>
+          {/* Prominent Employee Login Portal Link inside Mobile Drawer */}
+          <div className="mobile-menu__footer-actions">
+            <Link
+              to="/employee-login"
+              className="btn btn-primary mobile-menu__employee-btn"
+              onClick={() => setMenuOpen(false)}
+            >
+              <ShieldIcon size={16} />
+              <span>Employee Login</span>
+              <ArrowRightIcon size={14} />
+            </Link>
+            <p className="mobile-menu__tagline">Ashivam Technologies • Enterprise Engineering</p>
+          </div>
         </div>
       </div>
 
-      {/* Backdrop */}
+      {/* Mobile Backdrop */}
       <div
         className={`mobile-backdrop${menuOpen ? ' mobile-backdrop--visible' : ''}`}
         onClick={() => setMenuOpen(false)}

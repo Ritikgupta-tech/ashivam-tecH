@@ -1,0 +1,183 @@
+/* ============================================================
+   ASHIVAM TECHNOLOGIES — EMPLOYEE LOGIN PAGE STYLES
+   ============================================================ */
+
+.employee-login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
+}
+
+.employee-login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(7.5rem + env(safe-area-inset-top)) 1rem 5rem;
+  background: radial-gradient(circle at 50% 20%, rgba(197, 155, 39, 0.08) 0%, transparent 60%);
+}
+
+.employee-login-container {
+  max-width: 480px;
+  width: 100%;
+}
+
+.employee-login-card {
+  background: rgba(18, 24, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-xl);
+  padding: 2.75rem 2.25rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.employee-login-card__header {
+  margin-bottom: 2rem;
+}
+
+.employee-login-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  background: rgba(197, 155, 39, 0.1);
+  border: 1px solid rgba(197, 155, 39, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-gold-light);
+  margin: 0 auto 1.25rem;
+}
+
+.employee-login-card__badge {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--clr-gold);
+  background: rgba(197, 155, 39, 0.08);
+  border: 1px solid rgba(197, 155, 39, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.75rem;
+  display: inline-block;
+}
+
+.employee-login-card__header h1 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.employee-login-card__header p {
+  font-size: 0.875rem;
+  color: var(--clr-neutral-400);
+  line-height: 1.5;
+}
+
+.employee-login-alert {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.employee-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--clr-neutral-200);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(11, 15, 23, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: var(--clr-gold);
+  box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.15);
+}
+
+.form-input--error {
+  border-color: #ef4444;
+}
+
+.field-error {
+  font-size: 0.775rem;
+  color: #ef4444;
+}
+
+.employee-login-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.employee-login-card__support {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+  color: var(--clr-neutral-400);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.employee-login-card__support a {
+  color: var(--clr-gold);
+  text-decoration: underline;
+}
+
+.employee-login-card__footer {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.switch-portal-link {
+  font-size: 0.8125rem;
+  color: var(--clr-neutral-400);
+  transition: color var(--dur-fast) ease;
+}
+
+.switch-portal-link:hover {
+  color: var(--clr-gold-light);
+}
+
+@media (max-width: 480px) {
+  .employee-login-card {
+    padding: 2rem 1.25rem;
+  }
+  .employee-login-main {
+    padding: calc(6rem + env(safe-area-inset-top)) 1rem 3rem;
+  }
+}

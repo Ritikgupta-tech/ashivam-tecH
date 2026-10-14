@@ -1,0 +1,190 @@
+/* ============================================================
+   ASHIVAM TECHNOLOGIES — PORTAL SELECTOR STYLES
+   ============================================================ */
+
+.portal-selector-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
+}
+
+.portal-selector-main {
+  flex: 1;
+  padding-top: calc(7.5rem + env(safe-area-inset-top));
+  padding-bottom: 6rem;
+  background: radial-gradient(circle at 50% 15%, rgba(197, 155, 39, 0.08) 0%, transparent 60%);
+}
+
+.portal-selector-container {
+  max-width: 1080px;
+}
+
+.portal-selector__header {
+  max-width: 760px;
+  margin: 0 auto 3.5rem;
+}
+
+.portal-selector__badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  background: rgba(197, 155, 39, 0.08);
+  border: 1px solid rgba(197, 155, 39, 0.25);
+  padding: 0.35rem 0.95rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 1.5rem;
+}
+
+.portal-selector__title {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.portal-selector__desc {
+  font-size: 1.05rem;
+  color: var(--clr-neutral-300);
+  line-height: 1.7;
+}
+
+/* Dual Card Grid */
+.portal-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 2.25rem;
+  margin-bottom: 3.5rem;
+}
+
+.portal-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 24, 38, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: 2.75rem 2.25rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) ease,
+    background var(--dur-base) ease,
+    box-shadow var(--dur-base) ease;
+}
+
+.portal-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(197, 155, 39, 0.45);
+  background: rgba(22, 30, 48, 0.95);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 0 25px rgba(197, 155, 39, 0.12);
+}
+
+.portal-card--admin {
+  border-color: rgba(197, 155, 39, 0.2);
+}
+
+.portal-card__icon-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-lg);
+  background: rgba(197, 155, 39, 0.1);
+  border: 1px solid rgba(197, 155, 39, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-gold-light);
+  margin-bottom: 1.5rem;
+}
+
+.portal-card__type {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--clr-neutral-400);
+  margin-bottom: 0.5rem;
+}
+
+.portal-card__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.85rem;
+}
+
+.portal-card__desc {
+  font-size: 0.925rem;
+  color: var(--clr-neutral-300);
+  line-height: 1.65;
+  margin-bottom: 1.75rem;
+  flex: 1;
+}
+
+.portal-card__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 1.25rem;
+}
+
+.portal-card__features li {
+  font-size: 0.85rem;
+  color: var(--clr-neutral-300);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.portal-card__features li::before {
+  content: '•';
+  color: var(--clr-gold);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.portal-card__btn {
+  width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+}
+
+.portal-security-notice {
+  max-width: 650px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.portal-security-notice p {
+  font-size: 0.8125rem;
+  color: var(--clr-neutral-500);
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .portal-selector-main {
+    padding-top: calc(6rem + env(safe-area-inset-top));
+    padding-bottom: 4rem;
+  }
+  .portal-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .portal-card {
+    padding: 2rem 1.5rem;
+  }
+}

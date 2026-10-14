@@ -110,33 +110,43 @@ export default function Footer() {
           <div className="footer__col">
             <h4 className="footer__col-title">Navigation</h4>
             <ul className="footer__links">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="footer__link"
-                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href); }}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/" className="footer__link">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/industries" className="footer__link">
+                  Industries
+                </Link>
+              </li>
+              <li>
+                <Link to="/solutions" className="footer__link">
+                  Solutions
+                </Link>
+              </li>
+              <li>
+                <Link to="/careers" className="footer__link">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link to="/employee-login" className="footer__link">
+                  Employee Portal
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Solutions & Engineering */}
           <div className="footer__col">
             <h4 className="footer__col-title">Engineering</h4>
             <ul className="footer__links">
               {SERVICES.map((s) => (
                 <li key={s.id}>
-                  <a
-                    href="#services"
-                    className="footer__link"
-                    onClick={(e) => { e.preventDefault(); handleNavClick('#services'); }}
-                  >
+                  <Link to="/solutions" className="footer__link">
                     {s.title}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

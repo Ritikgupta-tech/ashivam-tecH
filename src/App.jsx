@@ -1,32 +1,44 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import HomePage from './pages/HomePage';
+import IndustriesPage from './pages/IndustriesPage';
+import SolutionsPage from './pages/SolutionsPage';
+import CareersPage from './pages/CareersPage';
+import EmployeePortalSelector from './pages/EmployeePortalSelector';
+import EmployeeLoginPage from './pages/EmployeeLoginPage';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public Corporate Website & Direct Section Routes */}
+          {/* Core Corporate Multi-Page Architecture */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<HomePage />} />
-          <Route path="/services" element={<HomePage />} />
-          <Route path="/solutions" element={<HomePage />} />
-          <Route path="/projects" element={<HomePage />} />
-          <Route path="/careers" element={<HomePage />} />
-          <Route path="/contact" element={<HomePage />} />
+          <Route path="/industries" element={<IndustriesPage />} />
+          <Route path="/solutions" element={<SolutionsPage />} />
+          <Route path="/careers" element={<CareersPage />} />
 
-          {/* Superadmin Authentication */}
+          {/* Dedicated Employee & Admin Authentication Gateways */}
+          <Route path="/employee-login" element={<EmployeePortalSelector />} />
+          <Route path="/employee-login/employee" element={<EmployeeLoginPage />} />
+          <Route path="/employee-login/admin" element={<AdminLogin />} />
+
+          {/* Legacy & Direct Section Aliases */}
+          <Route path="/about" element={<HomePage />} />
+          <Route path="/services" element={<SolutionsPage />} />
+          <Route path="/projects" element={<HomePage />} />
+          <Route path="/contact" element={<HomePage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Protected Admin Control Center */}
+          {/* Protected Administrative Dashboard (Preserved) */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
 
-          {/* Catch-all redirect to public website */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Unknown Route Catch-All (404 Experience) */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

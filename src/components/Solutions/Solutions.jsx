@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { SOLUTIONS } from '../../data/content';
 import { SOLUTION_ICON_MAP, ArrowRightIcon } from '../icons';
 import './Solutions.css';
@@ -75,6 +76,17 @@ export default function Solutions() {
           {SOLUTIONS.map((sol, i) => (
             <SolutionCard key={sol.id} sol={sol} index={i} />
           ))}
+        </div>
+
+        <div className="solutions__actions text-center reveal reveal--delay-3" style={{ marginTop: '3rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+          <Link to="/industries" className="btn btn-secondary">
+            <span>Explore Industry Accelerators</span>
+            <ArrowRightIcon size={14} />
+          </Link>
+          <Link to="/solutions" className="btn btn-primary">
+            <span>View Full Solutions Portfolio</span>
+            <ArrowRightIcon size={14} />
+          </Link>
         </div>
       </div>
     </section>

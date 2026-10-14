@@ -517,3 +517,9 @@ export const CULTURE_ICON_MAP = {
   'Innovation First': RocketIcon,
   'Flexible Contribution': ClockIcon,
 };
+
+// Enterprise Aliases for Design System
+export const ShieldIcon = ShieldCheckIcon;
+export const CodeIcon = SoftwareIcon;
+export const ServerIcon = ApiIcon;
+

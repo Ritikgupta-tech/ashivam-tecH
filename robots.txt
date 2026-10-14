@@ -1,3 +1,9 @@
 User-agent: *
 Allow: /
-Sitemap: https://ashivam.com/sitemap.xml
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /employee-login
+Disallow: /employee-login/*
+Disallow: /api/
+
+Sitemap: https://ashivam-tec-h.vercel.app/sitemap.xml
