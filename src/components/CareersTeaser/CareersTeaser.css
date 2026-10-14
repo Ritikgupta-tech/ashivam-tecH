@@ -127,3 +127,9 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 480px) {
+  .careers-teaser__card {
+    padding: 2rem 1.15rem;
+  }
+}

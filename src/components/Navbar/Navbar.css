@@ -191,9 +191,11 @@
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 42px;
-  height: 42px;
-  padding: 9px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
   border-radius: var(--radius-sm);
   background: rgba(18, 24, 38, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -312,13 +314,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 1;
   cursor: pointer;
   transition: all var(--dur-fast) ease;
@@ -349,6 +353,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.85rem 1.15rem;
+  min-height: 48px;
+  box-sizing: border-box;
   font-size: 1.05rem;
   font-weight: 500;
   color: var(--clr-neutral-200);
@@ -484,9 +490,11 @@
   }
 
   .navbar__hamburger {
-    width: 38px;
-    height: 38px;
-    padding: 8px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 9px;
   }
 }
 
@@ -511,8 +519,10 @@
   }
 
   .navbar__hamburger {
-    width: 36px;
-    height: 36px;
-    padding: 7px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 9px;
   }
 }

@@ -218,4 +218,24 @@
   .employee-login-main {
     padding: calc(6rem + env(safe-area-inset-top)) 1rem 3rem;
   }
+  .login-tab-btn {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.78rem;
+    gap: 0.35rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .employee-login-card {
+    padding: 1.5rem 1rem;
+    border-radius: var(--radius-lg);
+  }
+  .login-tabs-nav {
+    flex-direction: column;
+    border-radius: var(--radius-md);
+  }
+  .login-tab-btn {
+    width: 100%;
+    border-radius: var(--radius-sm);
+  }
 }
