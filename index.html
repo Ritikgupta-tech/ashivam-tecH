@@ -34,30 +34,77 @@
       rel="stylesheet"
     />
 
-    <!-- Structured Data (JSON-LD Organization Schema) -->
+    <!-- Structured Data (JSON-LD Organization & Service Schema) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Ashivam Technologies",
-      "url": "https://ashivam-tec-h.vercel.app/",
-      "logo": "https://ashivam-tec-h.vercel.app/logo-symbol.png",
-      "description": "Ashivam Technologies is a modern technology company building scalable software, digital products, and innovative experiences.",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Agra",
-        "addressRegion": "Uttar Pradesh",
-        "addressCountry": "IN"
-      },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "Customer Support",
-        "email": "contact@ashivamtechnologies.com"
-      },
-      "sameAs": [
-        "https://linkedin.com/company/ashivam-technologies",
-        "https://github.com/ashivam-technologies",
-        "https://instagram.com/ashivamtechnologies"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "Ashivam Technologies",
+          "url": "https://ashivam-tec-h.vercel.app/",
+          "logo": "https://ashivam-tec-h.vercel.app/logo-symbol.png",
+          "description": "Ashivam Technologies is a modern software engineering company building scalable digital products, enterprise platforms, and mobile apps.",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Agra",
+            "addressRegion": "Uttar Pradesh",
+            "addressCountry": "IN"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Customer Support",
+            "email": "contact@ashivamtechnologies.com"
+          },
+          "sameAs": [
+            "https://linkedin.com/company/ashivam-technologies",
+            "https://github.com/ashivam-technologies",
+            "https://instagram.com/ashivamtechnologies"
+          ],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Software Engineering Services",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Web Application Development",
+                  "description": "High-performance, accessible, and scalable digital web interfaces."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Custom Enterprise Software",
+                  "description": "Clean architectures engineered around exact business logic and ERP operations."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Mobile Application Engineering",
+                  "description": "Native Android and adaptive mobile apps built for speed and field operations."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Backend & Cloud API Architecture",
+                  "description": "Impenetrable RESTful APIs, rate-limited endpoints, and distributed server architectures."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Ashivam Technologies",
+          "url": "https://ashivam-tec-h.vercel.app/"
+        }
       ]
     }
     </script>

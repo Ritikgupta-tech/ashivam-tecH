@@ -5,6 +5,7 @@ import Careers from '../components/Careers/Careers';
 import Culture from '../components/Culture/Culture';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { ArrowRightIcon } from '../components/icons';
+import { updatePageMeta } from '../utils/seo';
 import './CareersPage.css';
 
 export default function CareersPage() {
@@ -12,7 +13,11 @@ export default function CareersPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'Careers & Open Roles | Ashivam Technologies';
+    updatePageMeta({
+      title: 'Careers & Open Roles | Ashivam Technologies',
+      description: 'Explore engineering and technology careers at Ashivam Technologies. Join our team building scalable software architectures and innovative platforms.',
+      canonical: 'https://ashivam-tec-h.vercel.app/careers',
+    });
   }, []);
 
   return (

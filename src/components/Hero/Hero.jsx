@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { WebIcon, DesignIcon, ApiIcon, MobileIcon, ArrowRightIcon } from '../icons';
+import { trackCtaClick } from '../../utils/analytics';
 import './Hero.css';
 
 const TECH_BADGES = [
@@ -191,22 +192,28 @@ export default function Hero() {
           enterprise architectures, and innovative platforms that move ideas into reality.
         </p>
 
-        {/* CTAs: Primary to Solutions, Secondary to Careers */}
+        {/* CTAs: Primary to Contact Consultation, Secondary to Solutions Portfolio */}
         <div className="hero__ctas page-load-4">
+          <a
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              trackCtaClick('Discuss Your Project', '#contact');
+              scrollToSection('contact');
+            }}
+            className="btn btn-primary hero__cta-primary"
+            id="hero-cta-contact"
+          >
+            <span>Discuss Your Project</span>
+            <ArrowRightIcon size={16} className="hero__btn-arrow" />
+          </a>
           <Link
             to="/solutions"
-            className="btn btn-primary hero__cta-primary"
+            onClick={() => trackCtaClick('Explore Solutions', '/solutions')}
+            className="btn btn-outline hero__cta-secondary"
             id="hero-cta-solutions"
           >
             <span>Explore Solutions</span>
-            <ArrowRightIcon size={16} className="hero__btn-arrow" />
-          </Link>
-          <Link
-            to="/careers"
-            className="btn btn-outline hero__cta-secondary"
-            id="hero-cta-careers"
-          >
-            <span>Explore Careers</span>
           </Link>
         </div>
 

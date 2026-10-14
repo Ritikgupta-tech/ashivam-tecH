@@ -9,9 +9,11 @@ import Stats from '../components/Stats/Stats';
 import Services from '../components/Services/Services';
 import Solutions from '../components/Solutions/Solutions';
 import WhyAshivam from '../components/WhyAshivam/WhyAshivam';
+import Process from '../components/Process/Process';
 import CareersTeaser from '../components/CareersTeaser/CareersTeaser';
 import Contact from '../components/Contact/Contact';
 import Footer from '../components/Footer/Footer';
+import { updatePageMeta } from '../utils/seo';
 import '../App.css';
 
 export default function HomePage() {
@@ -20,6 +22,12 @@ export default function HomePage() {
   const location = useLocation();
 
   useEffect(() => {
+    updatePageMeta({
+      title: 'Ashivam Technologies — Infinite Possibilities. Engineered with Precision.',
+      description: 'Ashivam Technologies is an enterprise software engineering company building scalable web applications, native mobile apps, and robust cloud APIs.',
+      canonical: 'https://ashivam-tec-h.vercel.app/',
+    });
+
     const sectionName = location.pathname.replace(/^\//, '').toLowerCase();
     if (sectionName) {
       const el = document.getElementById(sectionName);
@@ -51,6 +59,7 @@ export default function HomePage() {
           <Services />
           <Solutions />
           <WhyAshivam />
+          <Process />
           <CareersTeaser />
           <Contact />
         </main>

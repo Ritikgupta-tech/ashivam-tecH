@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { COMPANY } from '../../data/content';
 import { submitInquiry } from '../../api';
-import { CheckIcon, MapPinIcon, MailIcon } from '../icons';
+import { trackInquirySubmit } from '../../utils/analytics';
+import { CheckIcon, MapPinIcon, MailIcon, ShieldIcon } from '../icons';
 import './Contact.css';
 
 const PROJECT_TYPES = [
@@ -117,7 +118,7 @@ function SelectField({ id, name, label, value, onChange, error, required, option
 
 export default function Contact() {
   const [form, setForm] = useState({
-    name: '', email: '', company: '', projectType: '', budget: '', message: '',
+    name: '', email: '', phone: '', company: '', projectType: '', budget: '', message: '',
   });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle');
@@ -129,6 +130,9 @@ export default function Contact() {
     if (!form.name.trim()) e.name = 'Name is required.';
     if (!form.email.trim()) e.email = 'Email is required.';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Please enter a valid email address.';
+    if (form.phone.trim() && !/^[0-9+\-\s()]{7,20}$/.test(form.phone.trim())) {
+      e.phone = 'Please provide a valid phone number (e.g. +91 98765 43210).';
+    }
     if (!form.message.trim()) e.message = 'Message is required.';
     else if (form.message.trim().length < 10) e.message = 'Message should be at least 10 characters.';
     return e;
@@ -146,6 +150,7 @@ export default function Contact() {
       .join(' - ') || 'Website inquiry';
     const message = [
       form.company.trim() ? `Company: ${form.company.trim()}` : '',
+      form.phone.trim() ? `Phone: ${form.phone.trim()}` : '',
       form.message.trim(),
     ].filter(Boolean).join('\n\n');
 
@@ -153,9 +158,11 @@ export default function Contact() {
       await submitInquiry({
         name: form.name.trim(),
         email: form.email.trim(),
+        phone: form.phone.trim() || undefined,
         subject,
         message,
       });
+      trackInquirySubmit(form.projectType, form.budget);
       setStatus('success');
     } catch (error) {
       setStatus('error');
@@ -172,12 +179,12 @@ export default function Contact() {
               <CheckIcon size={36} className="contact__check-svg" />
             </div>
             <h2 className="gradient-text-gold">Inquiry Received</h2>
-            <p>Thank you for reaching out to Ashivam Technologies. Our engineering leads will review your inquiry and respond shortly.</p>
+            <p>Thank you for reaching out to Ashivam Technologies. Our team reviews all inquiries promptly.</p>
             <button
               className="btn btn-outline"
               onClick={() => {
                 setStatus('idle');
-                setForm({ name: '', email: '', company: '', projectType: '', budget: '', message: '' });
+                setForm({ name: '', email: '', phone: '', company: '', projectType: '', budget: '', message: '' });
               }}
             >
               Send Another Inquiry
@@ -213,7 +220,10 @@ export default function Contact() {
               <FloatingField id="contact-name" name="name" label="Full Name" value={form.name} onChange={set('name')} error={errors.name} required />
               <FloatingField id="contact-email" name="email" label="Business Email" type="email" value={form.email} onChange={set('email')} error={errors.email} required />
             </div>
-            <FloatingField id="contact-company" name="company" label="Company / Organization" value={form.company} onChange={set('company')} error={errors.company} />
+            <div className="contact__form-row">
+              <FloatingField id="contact-company" name="company" label="Company / Organization" value={form.company} onChange={set('company')} error={errors.company} />
+              <FloatingField id="contact-phone" name="phone" label="Phone / WhatsApp (Optional)" type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} />
+            </div>
             <div className="contact__form-row">
               <SelectField id="contact-project-type" name="projectType" label="Project Classification" value={form.projectType} onChange={set('projectType')} error={errors.projectType} options={PROJECT_TYPES} />
               <SelectField id="contact-budget" name="budget" label="Investment Range" value={form.budget} onChange={set('budget')} error={errors.budget} options={BUDGET_RANGES} />
@@ -252,6 +262,10 @@ export default function Contact() {
                 </>
               )}
             </button>
+            <div className="contact__privacy-assurance">
+              <ShieldIcon size={15} className="contact__privacy-icon" />
+              <span>Our team reviews all inquiries promptly.</span>
+            </div>
             {errors.form && <p className="form-field__error" role="alert">{errors.form}</p>}
           </form>
 

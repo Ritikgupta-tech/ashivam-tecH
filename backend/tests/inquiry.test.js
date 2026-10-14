@@ -33,16 +33,26 @@ test("Inquiry Validator - Unit tests for input validation", () => {
   assert.equal(shortMsgValidation.isValid, false);
   assert.ok(shortMsgValidation.errors.message);
 
-  // Valid inquiry
-  const valid = validateCreateInquiry({
+  // Valid inquiry with phone
+  const validWithPhone = validateCreateInquiry({
     name: "John Doe",
     email: "john@example.com",
+    phone: "+91 98765 43210",
     subject: "Project Consultation",
     message: "We need custom software development for our enterprise.",
   });
-  assert.equal(valid.isValid, true);
-  assert.equal(valid.data.name, "John Doe");
-  assert.equal(valid.data.email, "john@example.com");
+  assert.equal(validWithPhone.isValid, true);
+  assert.equal(validWithPhone.data.phone, "+91 98765 43210");
+
+  // Invalid phone
+  const badPhone = validateCreateInquiry({
+    name: "John Doe",
+    email: "john@example.com",
+    phone: "invalid-letters-in-phone",
+    message: "We need custom software development for our enterprise.",
+  });
+  assert.equal(badPhone.isValid, false);
+  assert.equal(badPhone.errors.phone, "Please provide a valid phone number");
 });
 
 test("Inquiry API - POST /api/v1/inquiries rejects invalid payload with 400 and structured errors", async () => {

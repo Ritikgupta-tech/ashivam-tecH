@@ -15,6 +15,7 @@ import {
 } from '../components/icons';
 import TechStack from '../components/TechStack/TechStack';
 import Projects from '../components/Projects/Projects';
+import { updatePageMeta } from '../utils/seo';
 import './SolutionsPage.css';
 
 const SOLUTIONS_DATA = [
@@ -138,7 +139,11 @@ export default function SolutionsPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'Technology Solutions & Engineering | Ashivam Technologies';
+    updatePageMeta({
+      title: 'Technology Solutions & Engineering | Ashivam Technologies',
+      description: 'Comprehensive software engineering solutions: modern web application architecture, custom enterprise ERP, Android mobile development, and cloud backend engineering.',
+      canonical: 'https://ashivam-tec-h.vercel.app/solutions',
+    });
   }, []);
 
   useEffect(() => {

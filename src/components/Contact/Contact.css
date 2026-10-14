@@ -247,6 +247,21 @@ a.contact-info-card__value:hover {
   color: var(--clr-gold-light);
 }
 
+.contact__privacy-assurance {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.125rem;
+  font-size: 0.78125rem;
+  color: var(--clr-neutral-400);
+  line-height: 1.45;
+}
+
+.contact__privacy-icon {
+  color: var(--clr-gold);
+  flex-shrink: 0;
+}
+
 /* ---------- Success Card ---------- */
 .contact__success {
   text-align: center;

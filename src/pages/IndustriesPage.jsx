@@ -13,6 +13,7 @@ import {
   ArrowRightIcon,
   CheckIcon,
 } from '../components/icons';
+import { updatePageMeta } from '../utils/seo';
 import './IndustriesPage.css';
 
 const SECTOR_TABS = [
@@ -125,7 +126,11 @@ export default function IndustriesPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'Industries We Serve | Ashivam Technologies';
+    updatePageMeta({
+      title: 'Industries We Serve | Ashivam Technologies',
+      description: 'Domain software solutions engineered for Education, Enterprise ERP, Organizational Systems, Digital Platforms, Operations Automation, and Mobile Field Operations.',
+      canonical: 'https://ashivam-tec-h.vercel.app/industries',
+    });
   }, []);
 
   useEffect(() => {
