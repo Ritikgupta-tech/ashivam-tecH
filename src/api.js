@@ -1,10 +1,7 @@
 export const CLOUD_PROD_API_URL = 'https://ashivam-tech.onrender.com/api/v1';
 
 export const API_BASE_URL =
-  import.meta.env?.VITE_API_URL ||
-  (import.meta.env?.PROD
-    ? CLOUD_PROD_API_URL
-    : 'http://localhost:5000/api/v1');
+  import.meta.env?.VITE_API_URL || CLOUD_PROD_API_URL;
 
 const DEFAULT_TIMEOUT_MS = 35000;
 const TOKEN_KEY = 'ashivam_admin_session_token';
@@ -74,10 +71,8 @@ export const request = async (path, options = {}) => {
         signal: controller.signal,
       });
     } catch (networkErr) {
-      // In local dev without local backend running, failover to cloud backend
+      // If configured endpoint is unreachable (e.g. local backend refused connection), failover to live cloud backend
       if (
-        !import.meta.env?.PROD &&
-        !import.meta.env?.VITE_API_URL &&
         API_BASE_URL !== CLOUD_PROD_API_URL &&
         networkErr.name !== 'AbortError'
       ) {
