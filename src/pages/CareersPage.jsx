@@ -4,26 +4,8 @@ import Footer from '../components/Footer/Footer';
 import Careers from '../components/Careers/Careers';
 import Culture from '../components/Culture/Culture';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { LightbulbIcon, ShieldIcon, RocketIcon } from '../components/icons';
+import { ArrowRightIcon } from '../components/icons';
 import './CareersPage.css';
-
-const CULTURE_PILLARS = [
-  {
-    icon: RocketIcon,
-    title: 'High-Impact Ownership',
-    desc: 'Take direct architecture and delivery ownership. We build production systems, not throwaway prototypes.',
-  },
-  {
-    icon: LightbulbIcon,
-    title: 'Continuous Mastery',
-    desc: 'Work with modern enterprise stacks — React, Spring Boot, Android Kotlin, and cloud microservices.',
-  },
-  {
-    icon: ShieldIcon,
-    title: 'Engineering Rigor',
-    desc: 'Clean code reviews, test automation, and architectural discipline are foundational in everything we ship.',
-  },
-];
 
 export default function CareersPage() {
   useScrollReveal();
@@ -43,30 +25,42 @@ export default function CareersPage() {
           <div className="container">
             <div className="careers-hero__content text-center">
               <div className="careers-hero__badge">
-                <span>Join Our Engineering Team</span>
+                <span>Careers • Engineering & Product</span>
               </div>
               <h1 className="careers-hero__title">
                 Build Systems That <span className="gradient-text-gold">Matter</span>
               </h1>
               <p className="careers-hero__desc">
-                We are looking for driven software engineers, designers, and systems architects passionate about clean code, high concurrency, and real-world technology delivery.
+                Ashivam Technologies is assembling an elite software engineering culture in Agra, India.
+                We welcome ambitious developers, systems architects, and creative designers ready to take direct ownership of real-world production software.
               </p>
-            </div>
 
-            {/* Culture Pillars */}
-            <div className="careers-culture-grid">
-              {CULTURE_PILLARS.map((col, idx) => {
-                const IconComponent = col.icon;
-                return (
-                  <div key={idx} className="careers-culture-card">
-                    <div className="careers-culture-card__icon" aria-hidden="true">
-                      <IconComponent size={22} />
-                    </div>
-                    <h3>{col.title}</h3>
-                    <p>{col.desc}</p>
-                  </div>
-                );
-              })}
+              {/* Quick Trust Highlights Strip */}
+              <div className="careers-hero__highlights">
+                <div className="careers-hero__chip">
+                  <span className="careers-hero__chip-dot" />
+                  <span>Agra, UP / Hybrid & Remote</span>
+                </div>
+                <div className="careers-hero__chip">
+                  <span className="careers-hero__chip-dot" />
+                  <span>Full-Time & Contribution Tracks</span>
+                </div>
+                <div className="careers-hero__chip">
+                  <span className="careers-hero__chip-dot" />
+                  <span>Production Software Ownership</span>
+                </div>
+              </div>
+
+              {/* Action Jump Buttons */}
+              <div className="careers-hero__actions">
+                <a href="#careers" className="btn btn-primary">
+                  <span>Explore Open Vacancies</span>
+                  <ArrowRightIcon size={16} />
+                </a>
+                <a href="#culture" className="btn btn-outline">
+                  <span>Workplace Culture</span>
+                </a>
+              </div>
             </div>
           </div>
         </section>

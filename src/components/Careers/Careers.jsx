@@ -210,40 +210,13 @@ export default function Careers() {
         <div className="careers__inner">
           {/* Header */}
           <div className="careers__header">
-            <p className="section-label reveal">Opportunities</p>
+            <p className="section-label reveal">Talent Registry</p>
             <h2 id="careers-heading" className="reveal reveal--delay-1">
-              Build Your Future{' '}
-              <span className="gradient-text-gold">With Ashivam</span>
+              Active <span className="gradient-text-gold">Engineering Roles</span>
             </h2>
             <p className="careers__desc reveal reveal--delay-2">
-              Ashivam Technologies is building an elite software engineering culture in Agra, India, 
-              welcoming talented developers, architects, UI/UX designers, and innovative thinkers. 
-              We offer contribution-based and internship roles engineered for deep technical growth.
+              Explore currently published vacancies at Ashivam Technologies. Every position offers direct architecture ownership, modern tooling, and accelerated technical career growth.
             </p>
-            <div className="careers__ctas reveal reveal--delay-3">
-              <button
-                type="button"
-                className="btn btn-primary"
-                id="careers-cta-join"
-                onClick={() => {
-                  if (jobs.length > 0) {
-                    handleOpenApply(jobs[0]);
-                  } else {
-                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                <span>Join Our Engineering Team</span>
-                <ArrowRightIcon size={16} />
-              </button>
-              <a
-                href="#contact"
-                className="btn btn-outline"
-                id="careers-cta-view"
-              >
-                Inquire Positions
-              </a>
-            </div>
           </div>
 
           {/* Opportunities list */}
@@ -284,7 +257,7 @@ export default function Careers() {
                   and creative UI/UX visionaries.
                 </p>
                 <div className="career-empty-actions">
-                  <a href="#contact" className="btn btn-primary">
+                  <a href="/#contact" className="btn btn-primary">
                     <span>Send Open Inquiry</span>
                     <ArrowRightIcon size={14} />
                   </a>

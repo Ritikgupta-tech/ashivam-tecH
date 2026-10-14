@@ -155,19 +155,24 @@
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: var(--clr-gold) var(--clr-bg-2);
+  scrollbar-color: rgba(197, 155, 39, 0.35) rgba(9, 13, 21, 0.85);
   overflow-x: clip;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--clr-bg-2);
+  background: rgba(9, 13, 21, 0.95);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--clr-gold);
+  background: rgba(197, 155, 39, 0.35);
   border-radius: var(--radius-full);
+  border: 2px solid rgba(9, 13, 21, 0.95);
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 155, 39, 0.7);
 }
 
 body {

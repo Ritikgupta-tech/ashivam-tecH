@@ -13,6 +13,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef(null);
+  const drawerRef = useRef(null);
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -32,10 +33,16 @@ export default function Navbar() {
     setMenuOpen(false);
   }, [currentPath]);
 
-  // Close menu on click outside
+  // Close menu on click outside header and drawer
   useEffect(() => {
     const handleClick = (e) => {
-      if (menuOpen && navRef.current && !navRef.current.contains(e.target)) {
+      if (
+        menuOpen &&
+        navRef.current &&
+        !navRef.current.contains(e.target) &&
+        drawerRef.current &&
+        !drawerRef.current.contains(e.target)
+      ) {
         setMenuOpen(false);
       }
     };
@@ -150,6 +157,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       <div
+        ref={drawerRef}
         className={`mobile-menu${menuOpen ? ' mobile-menu--open' : ''}`}
         aria-hidden={!menuOpen}
         role="dialog"
@@ -157,21 +165,37 @@ export default function Navbar() {
         aria-label="Mobile navigation menu"
       >
         <div className="mobile-menu__content">
-          <div className="mobile-menu__logo">
-            <img
-              src="/logo-symbol.png"
-              alt="Ashivam Technologies"
-              className="mobile-menu__logo-img"
-              width="44"
-              height="25"
-            />
-            <div>
-              <div className="mobile-menu__logo-name">Ashivam</div>
-              <div className="mobile-menu__logo-sub">Technologies</div>
-            </div>
+          {/* Dedicated Drawer Top Bar */}
+          <div className="mobile-menu__header">
+            <Link
+              to="/"
+              className="mobile-menu__logo"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Ashivam Technologies — Home"
+            >
+              <img
+                src="/logo-symbol.png"
+                alt="Ashivam Technologies"
+                className="mobile-menu__logo-img"
+                width="38"
+                height="22"
+              />
+              <div className="mobile-menu__logo-text">
+                <span className="mobile-menu__logo-name">Ashivam</span>
+                <span className="mobile-menu__logo-sub">Technologies</span>
+              </div>
+            </Link>
+            <button
+              type="button"
+              className="mobile-menu__close-btn"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Close navigation menu"
+            >
+              ✕
+            </button>
           </div>
 
-          <nav aria-label="Mobile navigation links">
+          <nav aria-label="Mobile navigation links" className="mobile-menu__nav">
             <ul className="mobile-menu__links">
               <li>
                 <Link
@@ -180,6 +204,7 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                 >
                   <span>Home</span>
+                  <ArrowRightIcon size={14} className="mobile-menu__link-arrow" />
                 </Link>
               </li>
               {PRIMARY_NAV.map((item) => {
@@ -194,6 +219,7 @@ export default function Navbar() {
                       onClick={() => setMenuOpen(false)}
                     >
                       <span>{item.label}</span>
+                      <ArrowRightIcon size={14} className="mobile-menu__link-arrow" />
                     </Link>
                   </li>
                 );
