@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowRightIcon } from '../icons';
 import { getPublicJobs, applyForJob } from '../../api';
 import { isLegitimatePublishedJob } from '../../utils/careerPublishing';
-import { VERIFIED_VACANCIES, mergeWithVerifiedVacancies } from '../../utils/verifiedVacancies';
 import './Careers.css';
 
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
@@ -37,27 +36,42 @@ export default function Careers() {
 
   const modalRef = useRef(null);
 
-  // Fetch active jobs from live backend with verified corporate vacancy fallback
+  // Fetch active jobs strictly from database as configured in Admin Portal
   const fetchJobs = useCallback(async () => {
     setLoadingJobs(true);
     setFetchError(null);
     try {
-      const res = await getPublicJobs();
+      let res;
+      try {
+        res = await getPublicJobs();
+      } catch {
+        // Cold-start tolerant retry (wait 1.5s and retry once)
+        await new Promise((r) => setTimeout(r, 1500));
+        res = await getPublicJobs();
+      }
+
       const rawJobs = Array.isArray(res?.data?.jobs)
         ? res.data.jobs
         : Array.isArray(res?.data)
           ? res.data
           : [];
 
-      // Filter for strictly legitimate, published, non-test jobs
+      // Filter for strictly legitimate, active, published non-test jobs
       const publishedJobs = rawJobs.filter(isLegitimatePublishedJob);
-      const consolidatedJobs = mergeWithVerifiedVacancies(publishedJobs);
-      setJobs(consolidatedJobs);
+
+      // Normalize display title if live record has typo (e.g. "Android devloper" -> "Android Developer")
+      const cleanPublishedJobs = publishedJobs.map((job) => {
+        if (String(job.title).trim().toLowerCase() === 'android devloper') {
+          return { ...job, title: 'Android Developer' };
+        }
+        return job;
+      });
+
+      // Display strictly the active jobs configured by the admin
+      setJobs(cleanPublishedJobs);
     } catch (err) {
-      // In case of backend spin-down or network issue, gracefully show verified corporate vacancies
-      console.warn('[Careers] Falling back to verified vacancies:', err.message);
-      setJobs(VERIFIED_VACANCIES);
-      setFetchError(null);
+      setFetchError(err.message || 'Unable to connect to careers service. Please check your network.');
+      setJobs([]);
     } finally {
       setLoadingJobs(false);
     }

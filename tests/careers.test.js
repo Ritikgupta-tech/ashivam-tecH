@@ -420,69 +420,49 @@ test('Published active jobs appear on public careers page while draft and closed
   assert.equal(publicList[0].isActive, true);
 });
 
-// 6. Resilient Corporate Vacancy & Fallback Merge Tests
-import {
-  VERIFIED_VACANCIES,
-  mergeWithVerifiedVacancies,
-} from '../src/utils/verifiedVacancies.js';
-
-test('VERIFIED_VACANCIES provides all core engineering roles with valid 24-char hex ObjectIds', () => {
-  assert.ok(Array.isArray(VERIFIED_VACANCIES));
-  assert.equal(VERIFIED_VACANCIES.length >= 4, true);
-
-  const titles = VERIFIED_VACANCIES.map((j) => j.title);
-  assert.ok(titles.includes('Android Developer'));
-  assert.ok(titles.includes('Web Developer (Frontend)'));
-  assert.ok(titles.includes('Backend Developer'));
-  assert.ok(titles.includes('UI/UX Designer'));
-
-  // Ensure all _id fields are valid 24-character hexadecimal MongoDB ObjectIds
-  const hexRegex = /^[0-9a-fA-F]{24}$/;
-  for (const job of VERIFIED_VACANCIES) {
-    assert.match(job._id, hexRegex, `Job "${job.title}" _id must be a valid 24-char hex ObjectId`);
-    assert.equal(job.isActive, true);
-    assert.ok(job.department);
-    assert.ok(job.description);
-    assert.ok(Array.isArray(job.skills) && job.skills.length > 0);
-  }
-});
-
-test('mergeWithVerifiedVacancies returns VERIFIED_VACANCIES when input is empty or offline', () => {
-  const resultEmpty = mergeWithVerifiedVacancies([]);
-  assert.equal(resultEmpty.length, VERIFIED_VACANCIES.length);
-
-  const resultNull = mergeWithVerifiedVacancies(null);
-  assert.equal(resultNull.length, VERIFIED_VACANCIES.length);
-});
-
-test('mergeWithVerifiedVacancies normalizes live typos and complements with corporate tracks', () => {
-  const liveApiJobs = [
+// 6. Strict Admin-Governed Vacancy Display Tests
+test('Careers public display shows ONLY genuine published jobs from backend without phantom listings', () => {
+  const backendJobs = [
     {
       _id: '6ac8cf9c315e835f9f7d5759',
-      title: 'Android devloper', // Typo in live record
+      title: 'Android devloper',
       department: 'Software Engineering',
       isActive: true,
       skills: ['react', 'node', 'express'],
     },
   ];
 
-  const merged = mergeWithVerifiedVacancies(liveApiJobs);
+  const published = backendJobs.filter(isLegitimatePublishedJob);
+  const cleanJobs = published.map((job) => {
+    if (String(job.title).trim().toLowerCase() === 'android devloper') {
+      return { ...job, title: 'Android Developer' };
+    }
+    return job;
+  });
 
-  // Live record must have its title normalized to "Android Developer"
-  const androidJob = merged.find((j) => String(j._id) === '6ac8cf9c315e835f9f7d5759');
-  assert.ok(androidJob);
-  assert.equal(androidJob.title, 'Android Developer');
-
-  // There should NOT be two Android Developer listings
-  const androidJobs = merged.filter((j) => j.title.toLowerCase().includes('android'));
-  assert.equal(androidJobs.length, 1);
-
-  // Complementary tracks (Web, Backend, UI/UX) must be present
-  const titles = merged.map((j) => j.title);
-  assert.ok(titles.includes('Web Developer (Frontend)'));
-  assert.ok(titles.includes('Backend Developer'));
-  assert.ok(titles.includes('UI/UX Designer'));
-  assert.equal(merged.length, 4);
+  // Must contain strictly 1 job as configured by the admin
+  assert.equal(cleanJobs.length, 1, 'Only the active job added in the admin page should be displayed');
+  assert.equal(cleanJobs[0].title, 'Android Developer');
+  assert.equal(cleanJobs[0]._id, '6ac8cf9c315e835f9f7d5759');
 });
+
+test('Careers public display is empty when admin deactivates all openings', () => {
+  const allInactiveJobs = [
+    {
+      _id: '6ac8cf9c315e835f9f7d5759',
+      title: 'Android Developer',
+      isActive: false,
+    },
+    {
+      _id: '6ac8cf9c315e835f9f7d5760',
+      title: 'Frontend Developer',
+      isActive: false,
+    },
+  ];
+
+  const published = allInactiveJobs.filter(isLegitimatePublishedJob);
+  assert.equal(published.length, 0, 'No jobs should be displayed when admin sets all to inactive');
+});
+
 
 
