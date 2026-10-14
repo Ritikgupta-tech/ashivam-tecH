@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { COMPANY, NAV_LINKS, SERVICES } from '../../data/content';
+import { COMPANY, SERVICES } from '../../data/content';
 import { CheckIcon, ArrowRightIcon } from '../icons';
 import Logo from '../ui/Logo';
 import './Footer.css';

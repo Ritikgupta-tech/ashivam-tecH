@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { COMPANY } from '../../data/content';
 import { WebIcon, DesignIcon, ApiIcon, MobileIcon, ArrowRightIcon } from '../icons';
 import './Hero.css';
 
