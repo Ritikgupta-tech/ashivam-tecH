@@ -1,10 +1,12 @@
+export const CLOUD_PROD_API_URL = 'https://ashivam-tech.onrender.com/api/v1';
+
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? 'https://ashivam-tech.onrender.com/api/v1'
+  import.meta.env?.VITE_API_URL ||
+  (import.meta.env?.PROD
+    ? CLOUD_PROD_API_URL
     : 'http://localhost:5000/api/v1');
 
-const DEFAULT_TIMEOUT_MS = 15000;
+const DEFAULT_TIMEOUT_MS = 35000;
 const TOKEN_KEY = 'ashivam_admin_session_token';
 
 // In-memory fallback if sessionStorage is inaccessible
@@ -64,11 +66,30 @@ export const request = async (path, options = {}) => {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      ...restOptions,
-      headers,
-      signal: controller.signal,
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}${path}`, {
+        ...restOptions,
+        headers,
+        signal: controller.signal,
+      });
+    } catch (networkErr) {
+      // In local dev without local backend running, failover to cloud backend
+      if (
+        !import.meta.env?.PROD &&
+        !import.meta.env?.VITE_API_URL &&
+        API_BASE_URL !== CLOUD_PROD_API_URL &&
+        networkErr.name !== 'AbortError'
+      ) {
+        response = await fetch(`${CLOUD_PROD_API_URL}${path}`, {
+          ...restOptions,
+          headers,
+          signal: controller.signal,
+        });
+      } else {
+        throw networkErr;
+      }
+    }
 
     const result = await response.json().catch(() => ({}));
 

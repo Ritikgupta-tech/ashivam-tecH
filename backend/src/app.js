@@ -74,7 +74,15 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    if (env.allowedOrigins.includes(origin) || !env.isProduction) {
+    const isVercel = origin.endsWith(".vercel.app") || origin.includes("vercel.app");
+    const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
+
+    if (
+      env.allowedOrigins.includes(origin) ||
+      !env.isProduction ||
+      isVercel ||
+      isLocal
+    ) {
       return callback(null, true);
     }
 

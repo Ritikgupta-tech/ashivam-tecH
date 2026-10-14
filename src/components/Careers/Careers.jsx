@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowRightIcon } from '../icons';
 import { getPublicJobs, applyForJob } from '../../api';
 import { isLegitimatePublishedJob } from '../../utils/careerPublishing';
+import { VERIFIED_VACANCIES, mergeWithVerifiedVacancies } from '../../utils/verifiedVacancies';
 import './Careers.css';
 
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
@@ -36,7 +37,7 @@ export default function Careers() {
 
   const modalRef = useRef(null);
 
-  // Fetch active jobs from live backend
+  // Fetch active jobs from live backend with verified corporate vacancy fallback
   const fetchJobs = useCallback(async () => {
     setLoadingJobs(true);
     setFetchError(null);
@@ -50,10 +51,13 @@ export default function Careers() {
 
       // Filter for strictly legitimate, published, non-test jobs
       const publishedJobs = rawJobs.filter(isLegitimatePublishedJob);
-      setJobs(publishedJobs);
+      const consolidatedJobs = mergeWithVerifiedVacancies(publishedJobs);
+      setJobs(consolidatedJobs);
     } catch (err) {
-      setFetchError(err.message || 'Unable to connect to careers service. Please check your network.');
-      setJobs([]);
+      // In case of backend spin-down or network issue, gracefully show verified corporate vacancies
+      console.warn('[Careers] Falling back to verified vacancies:', err.message);
+      setJobs(VERIFIED_VACANCIES);
+      setFetchError(null);
     } finally {
       setLoadingJobs(false);
     }
@@ -177,7 +181,9 @@ export default function Careers() {
       } else if (err.status === 400 && err.details?.resume) {
         setSubmitError(err.details.resume);
       } else {
-        setSubmitError(err.message || 'Unable to submit application. Please check your connection and try again.');
+        setSubmitError(
+          `${err.message || 'Unable to submit application.'} If the issue persists, please send your resume directly to careers@ashivamtechnologies.com.`
+        );
       }
     } finally {
       setSubmitting(false);

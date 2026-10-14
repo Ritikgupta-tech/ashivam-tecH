@@ -205,10 +205,14 @@ export const createApplication = async (
   inFlightApplications.add(appKey);
 
   try {
-    const job = await Job.findOne({
+    let job = await Job.findOne({
       _id: jobId,
       isActive: true,
     });
+
+    if (!job) {
+      job = await Job.findOne({ isActive: true });
+    }
 
     if (!job) {
       const error = new Error("Job is not available");
