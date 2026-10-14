@@ -1,11 +1,15 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { ShieldIcon, ServerIcon, ArrowRightIcon } from '../components/icons';
 import './EmployeePortalSelector.css';
 
 export default function EmployeePortalSelector() {
+  useScrollReveal();
+  const navigate = useNavigate();
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'Employee & Administrative Portals | Ashivam Technologies';
@@ -31,7 +35,18 @@ export default function EmployeePortalSelector() {
 
           <div className="portal-cards-grid">
             {/* Employee Portal Card */}
-            <div className="portal-card">
+            <div
+              className="portal-card"
+              onClick={() => navigate('/employee-login/employee')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  navigate('/employee-login/employee');
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="portal-card__icon-wrap">
                 <ShieldIcon size={28} />
               </div>
@@ -52,7 +67,18 @@ export default function EmployeePortalSelector() {
             </div>
 
             {/* Admin Console Card */}
-            <div className="portal-card portal-card--admin">
+            <div
+              className="portal-card portal-card--admin"
+              onClick={() => navigate('/employee-login/admin')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  navigate('/employee-login/admin');
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="portal-card__icon-wrap">
                 <ServerIcon size={28} />
               </div>

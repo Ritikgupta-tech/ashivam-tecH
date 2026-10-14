@@ -11,7 +11,9 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: clamp(6.5rem, 12vh, 9rem) 0 clamp(4rem, 8vh, 6rem);
+  padding-top: calc(5.5rem + env(safe-area-inset-top));
+  padding-bottom: clamp(3rem, 6vh, 4.5rem);
+  box-sizing: border-box;
 }
 
 /* Canvas */
@@ -263,6 +265,12 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--clr-neutral-500);
+}
+
+@media (max-height: 720px) {
+  .hero__scroll-indicator {
+    display: none;
+  }
 }
 
 /* Responsive */

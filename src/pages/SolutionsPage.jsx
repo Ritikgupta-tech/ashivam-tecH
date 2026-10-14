@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import {
   CodeIcon,
   ServerIcon,
@@ -131,12 +132,20 @@ const CATEGORIES = [
 ];
 
 export default function SolutionsPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  useScrollReveal();
+  const { category } = useParams();
+  const [selectedCategory, setSelectedCategory] = useState(category || 'all');
 
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'Technology Solutions & Engineering | Ashivam Technologies';
   }, []);
+
+  useEffect(() => {
+    if (category && CATEGORIES.some((c) => c.id === category)) {
+      setSelectedCategory(category);
+    }
+  }, [category]);
 
   const filteredSolutions =
     selectedCategory === 'all'

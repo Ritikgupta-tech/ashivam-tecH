@@ -4,34 +4,40 @@
 
 /* ---------- Scroll Reveal Base ---------- */
 .reveal {
-  opacity: 0;
-  transform: translateY(32px);
+  opacity: 1;
+  transform: none;
   transition:
     opacity var(--dur-slow) var(--ease-out),
     transform var(--dur-slow) var(--ease-out);
 }
 
-.reveal.reveal--left {
-  transform: translateX(-40px);
+/* When scroll-reveal is actively managing animations, stage unrevealed elements */
+.has-scroll-reveal .reveal:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(28px);
 }
 
-.reveal.reveal--right {
-  transform: translateX(40px);
+.has-scroll-reveal .reveal.reveal--left:not(.is-visible) {
+  transform: translateX(-32px);
 }
 
-.reveal.reveal--scale {
-  transform: scale(0.92) translateY(20px);
+.has-scroll-reveal .reveal.reveal--right:not(.is-visible) {
+  transform: translateX(32px);
 }
 
-.reveal.reveal--blur {
-  filter: blur(8px);
-  transform: translateY(20px);
+.has-scroll-reveal .reveal.reveal--scale:not(.is-visible) {
+  transform: scale(0.94) translateY(16px);
+}
+
+.has-scroll-reveal .reveal.reveal--blur:not(.is-visible) {
+  filter: blur(6px);
+  transform: translateY(16px);
 }
 
 .reveal.is-visible {
-  opacity: 1;
-  transform: translate(0, 0) scale(1);
-  filter: blur(0);
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) !important;
+  filter: blur(0) !important;
 }
 
 /* Staggered delays */

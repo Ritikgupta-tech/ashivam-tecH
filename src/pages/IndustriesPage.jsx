@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import {
   CodeIcon,
   ServerIcon,
@@ -13,6 +14,16 @@ import {
   CheckIcon,
 } from '../components/icons';
 import './IndustriesPage.css';
+
+const SECTOR_TABS = [
+  { id: 'all', label: 'All Sectors' },
+  { id: 'edtech', label: 'Education' },
+  { id: 'enterprise-erp', label: 'Enterprise ERP' },
+  { id: 'management', label: 'Management' },
+  { id: 'digital-platforms', label: 'Digital Platforms' },
+  { id: 'automation', label: 'Automation' },
+  { id: 'mobile-ecosystem', label: 'Mobile' },
+];
 
 const INDUSTRIES_DATA = [
   {
@@ -108,10 +119,25 @@ const INDUSTRIES_DATA = [
 ];
 
 export default function IndustriesPage() {
+  useScrollReveal();
+  const { sector } = useParams();
+  const [selectedSector, setSelectedSector] = useState(sector || 'all');
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'Industries We Serve | Ashivam Technologies';
   }, []);
+
+  useEffect(() => {
+    if (sector && SECTOR_TABS.some((t) => t.id === sector)) {
+      setSelectedSector(sector);
+    }
+  }, [sector]);
+
+  const filteredIndustries =
+    selectedSector === 'all'
+      ? INDUSTRIES_DATA
+      : INDUSTRIES_DATA.filter((ind) => ind.id === selectedSector);
 
   return (
     <div className="industries-page">
@@ -157,10 +183,27 @@ export default function IndustriesPage() {
               <p className="section-subtitle">
                 Discover how Ashivam Technologies applies modern architecture and disciplined execution to solve industry-specific challenges.
               </p>
+
+              {/* Interactive Sector Filter */}
+              <div className="industries-filter" role="tablist" aria-label="Filter industries by domain">
+                {SECTOR_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    role="tab"
+                    aria-selected={selectedSector === tab.id}
+                    className={`industries-filter__btn${
+                      selectedSector === tab.id ? ' industries-filter__btn--active' : ''
+                    }`}
+                    onClick={() => setSelectedSector(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="industries-grid">
-              {INDUSTRIES_DATA.map((ind) => {
+              {filteredIndustries.map((ind) => {
                 const IconComponent = ind.icon;
                 return (
                   <article key={ind.id} className="industry-card" id={ind.id}>

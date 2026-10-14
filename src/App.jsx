@@ -9,16 +9,21 @@ import EmployeeLoginPage from './pages/EmployeeLoginPage';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
+import RouteScrollWatcher from './components/RouteScrollWatcher';
 
 function App() {
   return (
     <BrowserRouter>
+      <RouteScrollWatcher />
+      <div className="page-bg" aria-hidden="true" />
       <AuthProvider>
         <Routes>
           {/* Core Corporate Multi-Page Architecture */}
           <Route path="/" element={<HomePage />} />
           <Route path="/industries" element={<IndustriesPage />} />
+          <Route path="/industries/:sector" element={<IndustriesPage />} />
           <Route path="/solutions" element={<SolutionsPage />} />
+          <Route path="/solutions/:category" element={<SolutionsPage />} />
           <Route path="/careers" element={<CareersPage />} />
 
           {/* Dedicated Employee & Admin Authentication Gateways */}

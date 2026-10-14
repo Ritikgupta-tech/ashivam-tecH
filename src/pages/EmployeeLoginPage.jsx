@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
-import { ShieldIcon, ArrowRightIcon } from '../components/icons';
+import { ShieldIcon, ServerIcon, ArrowRightIcon } from '../components/icons';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useAuth } from '../context/AuthContext';
 import './EmployeeLoginPage.css';
 
 export default function EmployeeLoginPage() {
+  useScrollReveal();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -70,6 +72,28 @@ export default function EmployeeLoginPage() {
       <main className="employee-login-main" id="main-content">
         <div className="container employee-login-container">
           <div className="employee-login-card">
+            {/* Top Gateway Switcher Tabs */}
+            <div className="login-tabs-nav" role="tablist" aria-label="Portal selection">
+              <Link
+                to="/employee-login/employee"
+                className="login-tab-btn login-tab-btn--active"
+                role="tab"
+                aria-selected="true"
+              >
+                <ShieldIcon size={16} />
+                <span>Staff Workspace</span>
+              </Link>
+              <Link
+                to="/employee-login/admin"
+                className="login-tab-btn"
+                role="tab"
+                aria-selected="false"
+              >
+                <ServerIcon size={16} />
+                <span>Admin Login</span>
+              </Link>
+            </div>
+
             <div className="employee-login-card__header text-center">
               <div className="employee-login-card__icon" aria-hidden="true">
                 <ShieldIcon size={26} />

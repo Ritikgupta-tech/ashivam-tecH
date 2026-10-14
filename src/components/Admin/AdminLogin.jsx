@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { ShieldIcon, ServerIcon } from '../icons';
 import Logo from '../ui/Logo';
 import './AdminLogin.css';
 
@@ -78,6 +79,28 @@ export default function AdminLogin() {
   return (
     <div className="admin-login-wrapper">
       <div className="admin-login-card">
+        {/* Top Gateway Switcher Tabs */}
+        <div className="login-tabs-nav" role="tablist" aria-label="Portal selection">
+          <Link
+            to="/employee-login/employee"
+            className="login-tab-btn"
+            role="tab"
+            aria-selected="false"
+          >
+            <ShieldIcon size={16} />
+            <span>Staff Workspace</span>
+          </Link>
+          <Link
+            to="/employee-login/admin"
+            className="login-tab-btn login-tab-btn--active"
+            role="tab"
+            aria-selected="true"
+          >
+            <ServerIcon size={16} />
+            <span>Admin Login</span>
+          </Link>
+        </div>
+
         <div className="admin-login-brand">
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.85rem' }}>
             <Logo size={42} variant="horizontal" showText={true} />
@@ -229,8 +252,11 @@ export default function AdminLogin() {
         </form>
 
         <div className="admin-login-footer">
+          <Link to="/employee-login/employee" className="admin-login-back-link">
+            ← Switch to Employee Portal
+          </Link>
           <Link to="/" className="admin-login-back-link">
-            ← Return to Public Website
+            Return to Public Website
           </Link>
           <div>Ashivam Technologies &copy; {new Date().getFullYear()}</div>
         </div>

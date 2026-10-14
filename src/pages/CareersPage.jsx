@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import Careers from '../components/Careers/Careers';
 import Culture from '../components/Culture/Culture';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { LightbulbIcon, ShieldIcon, RocketIcon } from '../components/icons';
 import './CareersPage.css';
 
@@ -25,6 +26,8 @@ const CULTURE_PILLARS = [
 ];
 
 export default function CareersPage() {
+  useScrollReveal();
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'Careers & Open Roles | Ashivam Technologies';
