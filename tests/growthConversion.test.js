@@ -95,3 +95,37 @@ test('public/ contains robots.txt and sitemap.xml for Vite production distributi
   const robots = fs.readFileSync(publicRobots, 'utf8');
   assert.ok(robots.includes('Sitemap: https://ashivam-tec-h.vercel.app/sitemap.xml'), 'public/robots.txt must specify production sitemap URL');
 });
+
+// 8. Content Credibility & Claim Integrity
+test('Process and Solutions components maintain credible claims without unsupported guarantees', () => {
+  const processContent = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Process/Process.jsx'), 'utf8');
+  assert.ok(!processContent.includes('100%'), 'Process must not claim 100% test pass guarantee');
+  assert.ok(!processContent.includes('Zero-Vulnerability'), 'Process must not claim zero-vulnerability guarantees');
+  assert.ok(!processContent.includes('Zero-downtime deployment'), 'Process must not promise zero-downtime deployment SLAs without verification');
+  assert.ok(processContent.includes('Automated Test Suites & Regression Checks'), 'Process must specify realistic regression testing deliverables');
+  assert.ok(processContent.includes('Security Hardening & Dependency Audits'), 'Process must specify realistic security auditing deliverables');
+
+  const solutionsContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/SolutionsPage.jsx'), 'utf8');
+  assert.ok(!solutionsContent.includes('Impenetrable RESTful APIs'), 'Solutions must not claim impenetrable APIs');
+  assert.ok(solutionsContent.includes('Hardened RESTful APIs'), 'Solutions must use realistic hardened API phrasing');
+});
+
+// 9. Single-Header Content Hierarchy Architecture
+test('Industries and Solutions pages maintain streamlined single-header hierarchy without double-stacked introductions', () => {
+  const industriesContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/IndustriesPage.jsx'), 'utf8');
+  assert.ok(!industriesContent.includes('section-header'), 'IndustriesPage must not render redundant duplicate section-header block');
+  assert.ok(industriesContent.includes('industries-filter'), 'IndustriesPage must integrate filter pills directly under hero value proposition');
+
+  const solutionsContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/SolutionsPage.jsx'), 'utf8');
+  assert.ok(!solutionsContent.includes('section-header'), 'SolutionsPage must not render redundant duplicate section-header block');
+  assert.ok(solutionsContent.includes('solutions-filter'), 'SolutionsPage must integrate filter pills directly under hero value proposition');
+});
+
+// 10. Filter Touch Ergonomics
+test('Filter controls on multi-page domains enforce minimum 44px touch targets', () => {
+  const industriesCss = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/IndustriesPage.css'), 'utf8');
+  assert.ok(industriesCss.includes('.industries-filter__btn') && industriesCss.includes('min-height: 44px;'), 'Industries filter buttons must have 44px touch target');
+
+  const solutionsCss = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/SolutionsPage.css'), 'utf8');
+  assert.ok(solutionsCss.includes('.solutions-filter__btn') && solutionsCss.includes('min-height: 44px;'), 'Solutions filter buttons must have 44px touch target');
+});

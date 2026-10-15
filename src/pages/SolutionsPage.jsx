@@ -76,7 +76,7 @@ const SOLUTIONS_DATA = [
     categoryLabel: 'Backend & Cloud',
     icon: ServerIcon,
     title: 'Backend Systems & API Architecture',
-    tagline: 'Impenetrable RESTful APIs and distributed server architectures.',
+    tagline: 'Hardened RESTful APIs and distributed server architectures.',
     description:
       'Behind every fast application is a rock-solid server foundation. We build scalable backend services with strict validation, rate limiting, token security, and structured observability.',
     capabilities: [
@@ -162,7 +162,7 @@ export default function SolutionsPage() {
       <Navbar />
 
       <main className="solutions-main" id="main-content">
-        {/* Hero Section */}
+        {/* Unified Hero & Filter Section */}
         <section className="solutions-hero section">
           <div className="container">
             <div className="solutions-hero__content">
@@ -170,35 +170,11 @@ export default function SolutionsPage() {
                 <span>Enterprise Technology Solutions</span>
               </div>
               <h1 className="solutions-hero__title">
-                Software Capabilities Engineered with{' '}
-                <span className="gradient-text-gold">Precision</span>
+                Software Solutions Built for{' '}
+                <span className="gradient-text-gold">Real Business Needs</span>
               </h1>
               <p className="solutions-hero__desc">
-                From scalable web architectures and native mobile apps to resilient cloud backends, we build technology foundations that turn complex challenges into competitive operating advantages.
-              </p>
-              <div className="solutions-hero__actions">
-                <a href="#solutions-catalog" className="btn btn-primary">
-                  <span>View Solutions</span>
-                  <ArrowRightIcon size={16} />
-                </a>
-                <Link to="/contact" className="btn btn-secondary">
-                  <span>Discuss Your Project</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Catalog & Filter Section */}
-        <section className="solutions-catalog section" id="solutions-catalog">
-          <div className="container">
-            <div className="section-header text-center">
-              <p className="section-label">Engineering Portfolio</p>
-              <h2>
-                Architectural Depth Across the <span className="gradient-text-gold">Full Stack</span>
-              </h2>
-              <p className="section-subtitle">
-                Explore our core technology capabilities and see how our disciplined approach delivers reliable results.
+                From scalable web architectures and native mobile apps to resilient cloud backends, we build technology foundations that turn complex challenges into operational advantages.
               </p>
 
               {/* Category Filter Pills */}
@@ -218,7 +194,12 @@ export default function SolutionsPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
 
+        {/* Solutions Grid Section */}
+        <section className="solutions-catalog section" id="solutions-catalog">
+          <div className="container">
             {/* Solutions Grid */}
             <div className="solutions-grid">
               {filteredSolutions.map((sol) => {
@@ -227,13 +208,12 @@ export default function SolutionsPage() {
                   <article key={sol.id} className="solution-card" id={sol.id}>
                     <div className="solution-card__header">
                       <div className="solution-card__icon-wrap" aria-hidden="true">
-                        <IconComponent size={24} />
+                        <IconComponent size={22} />
                       </div>
                       <span className="solution-card__badge">{sol.categoryLabel}</span>
                     </div>
 
                     <h3 className="solution-card__title">{sol.title}</h3>
-                    <p className="solution-card__tagline">{sol.tagline}</p>
                     <p className="solution-card__desc">{sol.description}</p>
 
                     <div className="solution-card__capabilities">
@@ -257,7 +237,7 @@ export default function SolutionsPage() {
                         ))}
                       </div>
                       <Link to="/contact" className="solution-card__link">
-                        <span>Consult on this solution</span>
+                        <span>Explore Solution</span>
                         <ArrowRightIcon size={14} />
                       </Link>
                     </div>

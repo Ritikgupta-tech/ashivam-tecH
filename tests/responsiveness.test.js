@@ -77,12 +77,22 @@ test('Multi-column sections stack to single column on mobile viewports', () => {
 
   // Industries Page
   const industriesCss = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/IndustriesPage.css'), 'utf8');
+  assert.ok(industriesCss.includes('grid-template-columns: repeat(3, minmax(0, 1fr));'), 'Industries grid must use balanced 3-column layout on desktop');
+  assert.ok(industriesCss.includes('@media (max-width: 1024px)') && industriesCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'), 'Industries grid must collapse to 2 columns on tablet');
   assert.ok(industriesCss.includes('@media (max-width: 640px)') && industriesCss.includes('grid-template-columns: 1fr;'), 'Industries grid must collapse to 1fr on mobile');
   assert.ok(industriesCss.includes('.industries-filter__btn'), 'Industries filter buttons must have responsive styling');
 
   // Solutions Page
   const solutionsPageCss = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/SolutionsPage.css'), 'utf8');
+  assert.ok(solutionsPageCss.includes('grid-template-columns: repeat(3, minmax(0, 1fr));'), 'SolutionsPage grid must use balanced 3-column layout on desktop');
+  assert.ok(solutionsPageCss.includes('@media (max-width: 1024px)') && solutionsPageCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'), 'SolutionsPage grid must collapse to 2 columns on tablet');
   assert.ok(solutionsPageCss.includes('@media (max-width: 640px)') && solutionsPageCss.includes('grid-template-columns: 1fr;'), 'SolutionsPage grid must collapse to 1fr on mobile');
+
+  // Process / Delivery Workflow
+  const processCss = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Process/Process.css'), 'utf8');
+  assert.ok(processCss.includes('grid-template-columns: repeat(4, 1fr);'), 'Process grid must display 4 columns on wide desktop');
+  assert.ok(processCss.includes('@media (max-width: 1024px)') && processCss.includes('grid-template-columns: repeat(2, 1fr);'), 'Process grid must collapse to 2 columns on tablet');
+  assert.ok(processCss.includes('@media (max-width: 640px)') && processCss.includes('grid-template-columns: 1fr;'), 'Process grid must collapse to 1fr on mobile');
 });
 
 // 6. Mobile Forms & Modals Layout
@@ -107,4 +117,5 @@ test('Images and media adhere to fluid constraints', () => {
   const globalsCss = fs.readFileSync(globalsPath, 'utf8');
 
   assert.ok(globalsCss.includes('max-width: 100%;') && globalsCss.includes('height: auto;'), 'Global img selector must constrain max-width: 100% and height: auto');
+  assert.ok(globalsCss.includes('overflow-x: clip;'), 'html must enforce overflow-x: clip to prevent horizontal scroll bleed');
 });

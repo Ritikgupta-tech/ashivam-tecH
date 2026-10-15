@@ -28,7 +28,7 @@ const STEPS = [
     title: 'Automated QA & Security Audits',
     description:
       'Strict regression testing, cross-breakpoint mobile verification, least-privilege security controls, and performance tuning.',
-    deliverables: ['Automated Test Suite Pass (100%)', 'Zero-Vulnerability Audits', 'Mobile & Accessibility Validation'],
+    deliverables: ['Automated Test Suites & Regression Checks', 'Security Hardening & Dependency Audits', 'Mobile & Accessibility Validation'],
   },
   {
     step: '04',
@@ -36,7 +36,7 @@ const STEPS = [
     icon: RocketIcon,
     title: 'Production Launch & Reliability',
     description:
-      'Zero-downtime deployment pipelines, environment hardening, continuous monitoring, and ongoing technical support for your enterprise software.',
+      'Automated CI/CD deployment pipelines, environment hardening, continuous monitoring, and ongoing technical support for your enterprise software.',
     deliverables: ['Production CI/CD Automation', 'Telemetry & Health Probes', 'Ongoing Maintenance & Support'],
   },
 ];
@@ -54,7 +54,7 @@ export default function Process() {
         <div className="process__header">
           <p className="section-label reveal">Delivery Lifecycle</p>
           <h2 id="process-heading" className="reveal reveal--delay-1">
-            How We <span className="gradient-text-gold">Engineer & Deliver</span>
+            From Discovery to <span className="gradient-text-gold">Delivery</span>
           </h2>
           <p className="section-subtitle reveal reveal--delay-2">
             A disciplined, transparent delivery framework designed to eliminate guesswork, mitigate project risk, and deliver production-grade software on schedule.

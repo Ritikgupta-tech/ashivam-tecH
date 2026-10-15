@@ -63,7 +63,7 @@ const INDUSTRIES_DATA = [
     name: 'Management & Organizational Systems',
     tagline: 'Secure employee lifecycle management and enterprise document vaults.',
     description:
-      'Modern institutions require impenetrable data custody, auditable policy distribution, and frictionless onboarding. Our organizational architectures guarantee end-to-end security and role-based permissions.',
+      'Modern institutions require secure data custody, auditable policy distribution, and frictionless onboarding. Our organizational architectures guarantee end-to-end security and role-based permissions.',
     capabilities: [
       'Comprehensive employee lifecycle & profile systems',
       'Private employee document verification vaults',
@@ -100,7 +100,7 @@ const INDUSTRIES_DATA = [
       'API prototyping, integration, and gateway bridges',
       'Telemetry logging, error alerting, and health probes',
     ],
-    highlight: 'Resilient event-driven architecture with zero unhandled dropouts.',
+    highlight: 'Resilient event-driven architecture with structured error handling.',
   },
   {
     id: 'mobile-ecosystem',
@@ -149,7 +149,7 @@ export default function IndustriesPage() {
       <Navbar />
 
       <main className="industries-main" id="main-content">
-        {/* Hero Section */}
+        {/* Unified Hero & Sector Filter */}
         <section className="industries-hero section">
           <div className="container">
             <div className="industries-hero__content">
@@ -157,36 +157,12 @@ export default function IndustriesPage() {
                 <span>Enterprise Domain Architecture</span>
               </div>
               <h1 className="industries-hero__title">
-                Domain Solutions Engineered for{' '}
-                <span className="gradient-text-gold">Real Impact</span>
+                Technology Built Around{' '}
+                <span className="gradient-text-gold">Your Industry</span>
               </h1>
               <p className="industries-hero__desc">
-                We partner with institutions, businesses, and digital innovators to build purpose-engineered software.
-                Our domain solutions are designed around verified operational workflows, rigorous data security, and long-term scalability.
-              </p>
-              <div className="industries-hero__actions">
-                <a href="#industries-grid" className="btn btn-primary">
-                  <span>Explore Sectors</span>
-                  <ArrowRightIcon size={16} />
-                </a>
-                <Link to="/contact" className="btn btn-secondary">
-                  <span>Consult With an Architect</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Industries Grid Section */}
-        <section className="industries-grid-section section" id="industries-grid">
-          <div className="container">
-            <div className="section-header text-center">
-              <p className="section-label">Focused Sectors</p>
-              <h2>
-                Tailored Engineering Across <span className="gradient-text-gold">Key Industries</span>
-              </h2>
-              <p className="section-subtitle">
-                Discover how Ashivam Technologies applies modern architecture and disciplined execution to solve industry-specific challenges.
+                We build purpose-engineered software around verified operational workflows, rigorous data security,
+                and long-term scalability across key industry domains.
               </p>
 
               {/* Interactive Sector Filter */}
@@ -206,7 +182,12 @@ export default function IndustriesPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
 
+        {/* Industries Grid Section */}
+        <section className="industries-grid-section section" id="industries-grid">
+          <div className="container">
             <div className="industries-grid">
               {filteredIndustries.map((ind) => {
                 const IconComponent = ind.icon;
@@ -214,13 +195,12 @@ export default function IndustriesPage() {
                   <article key={ind.id} className="industry-card" id={ind.id}>
                     <div className="industry-card__header">
                       <div className="industry-card__icon-wrap" aria-hidden="true">
-                        <IconComponent size={24} />
+                        <IconComponent size={22} />
                       </div>
-                      <span className="industry-card__tag">Sector Solution</span>
+                      <span className="industry-card__tag">Enterprise</span>
                     </div>
 
                     <h3 className="industry-card__title">{ind.name}</h3>
-                    <p className="industry-card__tagline">{ind.tagline}</p>
                     <p className="industry-card__desc">{ind.description}</p>
 
                     <div className="industry-card__capabilities">
@@ -228,7 +208,7 @@ export default function IndustriesPage() {
                       <ul className="industry-card__caps-list">
                         {ind.capabilities.map((cap, i) => (
                           <li key={i} className="industry-card__cap-item">
-                            <CheckIcon size={15} className="industry-card__cap-icon" />
+                            <CheckIcon size={14} className="industry-card__cap-icon" />
                             <span>{cap}</span>
                           </li>
                         ))}
@@ -236,9 +216,6 @@ export default function IndustriesPage() {
                     </div>
 
                     <div className="industry-card__footer">
-                      <div className="industry-card__highlight">
-                        <strong>Architecture Note:</strong> {ind.highlight}
-                      </div>
                       <Link to="/contact" className="industry-card__link">
                         <span>Inquire for this industry</span>
                         <ArrowRightIcon size={14} />
