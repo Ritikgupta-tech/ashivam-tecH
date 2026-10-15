@@ -19,29 +19,54 @@ export function useCustomCursor() {
     const ring = ringRef.current;
     if (!dot || !ring) return;
 
+    let hasMoved = false;
     dot.style.display = 'block';
     ring.style.display = 'block';
+    dot.style.opacity = '0';
+    ring.style.opacity = '0';
 
     const onMove = (e) => {
+      if (!hasMoved) {
+        hasMoved = true;
+        dot.style.opacity = '1';
+        ring.style.opacity = '1';
+        ringPosRef.current = { x: e.clientX, y: e.clientY };
+      }
       posRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const onLeave = () => {
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    };
+
+    const onEnter = () => {
+      if (hasMoved) {
+        dot.style.opacity = '1';
+        ring.style.opacity = '1';
+      }
     };
 
     const lerp = (a, b, t) => a + (b - a) * t;
 
     const animate = () => {
-      // Dot follows instantly
-      dot.style.transform = `translate(${posRef.current.x - 4}px, ${posRef.current.y - 4}px)`;
+      if (hasMoved) {
+        // Dot follows instantly
+        dot.style.transform = `translate(${posRef.current.x - 4}px, ${posRef.current.y - 4}px)`;
 
-      // Ring lags behind
-      ringPosRef.current.x = lerp(ringPosRef.current.x, posRef.current.x, 0.12);
-      ringPosRef.current.y = lerp(ringPosRef.current.y, posRef.current.y, 0.12);
-      ring.style.transform = `translate(${ringPosRef.current.x - 20}px, ${ringPosRef.current.y - 20}px)`;
+        // Ring lags behind
+        ringPosRef.current.x = lerp(ringPosRef.current.x, posRef.current.x, 0.12);
+        ringPosRef.current.y = lerp(ringPosRef.current.y, posRef.current.y, 0.12);
+        ring.style.transform = `translate(${ringPosRef.current.x - 20}px, ${ringPosRef.current.y - 20}px)`;
+      }
 
       rafRef.current = requestAnimationFrame(animate);
     };
 
     rafRef.current = requestAnimationFrame(animate);
     window.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseleave', onLeave);
+    document.addEventListener('mouseenter', onEnter);
 
     const handleOver = (e) => {
       const target = e.target;
@@ -56,6 +81,8 @@ export function useCustomCursor() {
 
     return () => {
       window.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseleave', onLeave);
+      document.removeEventListener('mouseenter', onEnter);
       window.removeEventListener('mouseover', handleOver);
       cancelAnimationFrame(rafRef.current);
     };

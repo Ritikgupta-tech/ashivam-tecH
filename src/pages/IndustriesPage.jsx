@@ -31,91 +31,73 @@ const INDUSTRIES_DATA = [
     id: 'edtech',
     icon: LightbulbIcon,
     name: 'Education & Academic Technology',
-    tagline: 'Bridging institutions, educators, and learners with modern software.',
-    description:
-      'We engineer comprehensive digital platforms for universities, academies, and training providers. From automated attendance engines to interactive student portals, our solutions eliminate administrative friction.',
+    summary: 'Comprehensive platforms for universities and training providers, uniting attendance engines with student portals.',
     capabilities: [
-      'Digital student portals and academic hubs',
-      'Automated attendance and reporting systems',
-      'Secure exam workflows and grade management',
-      'Real-time communication and notification channels',
+      'Digital student portals & academic hubs',
+      'Automated attendance & reporting engines',
+      'Secure exam workflows & grade management',
+      'Real-time communication & alert channels',
     ],
-    highlight: 'Engineered for high-concurrency access and offline resilience.',
   },
   {
     id: 'enterprise-erp',
     icon: ServerIcon,
     name: 'Enterprise & Business Operations',
-    tagline: 'Streamlining mission-critical business workflows with tailored ERP.',
-    description:
-      'Off-the-shelf software often burdens growing businesses with unnecessary complexity. We build lightweight, maintainable ERP platforms that unify inventory, invoicing, team allocation, and reporting.',
+    summary: 'Bespoke ERP systems that eliminate operational friction and unify inventory, invoicing, and team allocations.',
     capabilities: [
-      'Custom ERP and inventory lifecycle platforms',
-      'Automated billing, invoicing, and ledger pipelines',
-      'Role-governed task assignment and tracking',
-      'Executive dashboard metrics and financial overviews',
+      'Custom ERP & inventory lifecycle platforms',
+      'Automated billing & ledger pipelines',
+      'Role-governed task assignment workflows',
+      'Executive dashboard metrics & analytics',
     ],
-    highlight: 'Clean relational architecture with automated audit compliance.',
   },
   {
     id: 'management',
     icon: ShieldIcon,
     name: 'Management & Organizational Systems',
-    tagline: 'Secure employee lifecycle management and enterprise document vaults.',
-    description:
-      'Modern institutions require secure data custody, auditable policy distribution, and frictionless onboarding. Our organizational architectures guarantee end-to-end security and role-based permissions.',
+    summary: 'Secure enterprise platforms guaranteeing role-based access, policy acknowledgments, and audit-ready records.',
     capabilities: [
-      'Comprehensive employee lifecycle & profile systems',
+      'Employee lifecycle & records systems',
       'Private employee document verification vaults',
-      'HR policy publishing and digital acknowledgments',
-      'Role-based access control (RBAC) and audit trails',
+      'HR policy publishing & acknowledgments',
+      'Role-based access control (RBAC) & audits',
     ],
-    highlight: 'Strict least-privilege security with server-side authorization.',
   },
   {
     id: 'digital-platforms',
     icon: CodeIcon,
     name: 'Digital Platforms & Modern Commerce',
-    tagline: 'High-performance user interfaces and responsive web applications.',
-    description:
-      'We help consumer-facing enterprises and growing digital brands launch lightning-fast web applications. Combining React, responsive state management, and optimized asset delivery to maximize conversion.',
+    summary: 'Sub-second consumer web applications built with React, responsive state management, and optimized conversion paths.',
     capabilities: [
       'High-speed, SEO-engineered web applications',
-      'Cross-platform responsive design for all screen sizes',
-      'Secure payment gateway and transactional integrations',
-      'Real-time state synchronization with sub-second feedback',
+      'Responsive design across mobile and desktop',
+      'Secure payment gateways & transaction flows',
+      'Real-time state synchronization engines',
     ],
-    highlight: 'Optimized for sub-second page loads and mobile-first users.',
   },
   {
     id: 'automation',
     icon: GearIcon,
     name: 'Smart Operations & Process Automation',
-    tagline: 'Eliminating repetitive manual workflows with reliable automated logic.',
-    description:
-      'Speed and accuracy define competitive advantage. We engineer background workers, webhook pipelines, and automated reporting systems that connect disparate tools into an orchestrated ecosystem.',
+    summary: 'Background job processors, webhook pipelines, and automated bridges connecting disparate tools into one flow.',
     capabilities: [
-      'Scheduled background jobs and batch processing',
-      'Automated email notifications and event triggers',
-      'API prototyping, integration, and gateway bridges',
-      'Telemetry logging, error alerting, and health probes',
+      'Scheduled background jobs & batch workers',
+      'Automated email notifications & event hooks',
+      'API gateway bridges & integrations',
+      'Telemetry logging & system health probes',
     ],
-    highlight: 'Resilient event-driven architecture with structured error handling.',
   },
   {
     id: 'mobile-ecosystem',
     icon: RocketIcon,
     name: 'Mobile Engineering & Field Operations',
-    tagline: 'Native Android and hybrid applications built for field agility.',
-    description:
-      'Empower on-the-ground teams, field technicians, and consumers with responsive mobile applications engineered with native speed, offline caching, and intuitive user ergonomics.',
+    summary: 'Native Android and hybrid applications with 60fps responsiveness, offline sync, and field-ready ergonomics.',
     capabilities: [
-      'Native Android applications engineered in Kotlin',
-      'Local-first SQLite / encrypted cache persistence',
-      'Background geolocation and sync capabilities',
-      'Biometric authentication and secure local storage',
+      'Native Android applications in Kotlin',
+      'Local-first SQLite & encrypted cache persistence',
+      'Background geolocation & sync workflows',
+      'Biometric authentication & secure storage',
     ],
-    highlight: 'Engineered for smooth 60fps frame rates and minimal battery drain.',
   },
 ];
 
@@ -149,23 +131,20 @@ export default function IndustriesPage() {
       <Navbar />
 
       <main className="industries-main" id="main-content">
-        {/* Unified Hero & Sector Filter */}
-        <section className="industries-hero section">
+        <section className="industries-section">
           <div className="container">
-            <div className="industries-hero__content">
-              <div className="industries-hero__badge">
-                <span>Enterprise Domain Architecture</span>
-              </div>
-              <h1 className="industries-hero__title">
+            {/* Compact Header & Integrated Filter */}
+            <header className="industries-header">
+              <span className="industries-eyebrow">Enterprise Domain Architecture</span>
+              <h1 className="industries-title">
                 Technology Built Around{' '}
                 <span className="gradient-text-gold">Your Industry</span>
               </h1>
-              <p className="industries-hero__desc">
-                We build purpose-engineered software around verified operational workflows, rigorous data security,
-                and long-term scalability across key industry domains.
+              <p className="industries-subtitle">
+                Purpose-engineered software tailored to verified operational workflows, security demands, and domain-specific scale.
               </p>
 
-              {/* Interactive Sector Filter */}
+              {/* Sector Filter Pills */}
               <div className="industries-filter" role="tablist" aria-label="Filter industries by domain">
                 {SECTOR_TABS.map((tab) => (
                   <button
@@ -181,39 +160,32 @@ export default function IndustriesPage() {
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
+            </header>
 
-        {/* Industries Grid Section */}
-        <section className="industries-grid-section section" id="industries-grid">
-          <div className="container">
-            <div className="industries-grid">
-              {filteredIndustries.map((ind) => {
+            {/* Compact 3-Column Sector Grid */}
+            <div className="industries-grid" id="industries-grid">
+              {filteredIndustries.map((ind, index) => {
                 const IconComponent = ind.icon;
                 return (
                   <article key={ind.id} className="industry-card" id={ind.id}>
                     <div className="industry-card__header">
                       <div className="industry-card__icon-wrap" aria-hidden="true">
-                        <IconComponent size={22} />
+                        <IconComponent size={20} />
                       </div>
-                      <span className="industry-card__tag">Enterprise</span>
+                      <span className="industry-card__index">0{index + 1}</span>
                     </div>
 
-                    <h3 className="industry-card__title">{ind.name}</h3>
-                    <p className="industry-card__desc">{ind.description}</p>
+                    <h2 className="industry-card__title">{ind.name}</h2>
+                    <p className="industry-card__summary">{ind.summary}</p>
 
-                    <div className="industry-card__capabilities">
-                      <h4 className="industry-card__caps-title">Key Capabilities</h4>
-                      <ul className="industry-card__caps-list">
-                        {ind.capabilities.map((cap, i) => (
-                          <li key={i} className="industry-card__cap-item">
-                            <CheckIcon size={14} className="industry-card__cap-icon" />
-                            <span>{cap}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <ul className="industry-card__capabilities">
+                      {ind.capabilities.map((cap, i) => (
+                        <li key={i} className="industry-card__cap-item">
+                          <CheckIcon size={13} className="industry-card__cap-icon" />
+                          <span>{cap}</span>
+                        </li>
+                      ))}
+                    </ul>
 
                     <div className="industry-card__footer">
                       <Link to="/contact" className="industry-card__link">
@@ -228,12 +200,12 @@ export default function IndustriesPage() {
           </div>
         </section>
 
-        {/* CTA Banner */}
-        <section className="industries-cta section">
+        {/* Compact Bottom CTA Banner */}
+        <section className="industries-cta">
           <div className="container">
             <div className="industries-cta__card">
               <div className="industries-cta__content">
-                <h2>Have a custom domain challenge?</h2>
+                <h3>Have a custom domain challenge?</h3>
                 <p>
                   Our senior engineering team conducts architectural assessments to design software tailored specifically to your operational demands.
                 </p>

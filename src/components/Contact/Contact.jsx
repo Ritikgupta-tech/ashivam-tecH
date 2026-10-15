@@ -40,6 +40,7 @@ const CONTACT_INFO = [
     label: 'LinkedIn',
     value: 'Ashivam Technologies',
     href: COMPANY.linkedin,
+    ariaLabel: 'Ashivam Technologies on LinkedIn',
   },
   {
     icon: (
@@ -48,8 +49,9 @@ const CONTACT_INFO = [
       </svg>
     ),
     label: 'GitHub',
-    value: 'ashivam-technologies',
+    value: 'ashivam-tecH',
     href: COMPANY.github,
+    ariaLabel: 'Ashivam Technologies on GitHub',
   },
   {
     icon: <MapPinIcon size={20} />,
@@ -282,7 +284,13 @@ export default function Contact() {
                   <div>
                     <div className="contact-info-card__label">{info.label}</div>
                     {info.href ? (
-                      <a href={info.href} className="contact-info-card__value" target={info.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+                      <a
+                        href={info.href}
+                        className="contact-info-card__value"
+                        target={info.href.startsWith('http') ? '_blank' : undefined}
+                        rel="noopener noreferrer"
+                        aria-label={info.ariaLabel || info.label}
+                      >
                         {info.value}
                       </a>
                     ) : (

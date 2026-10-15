@@ -123,7 +123,7 @@
   --space-3xl: 4.5rem;    /* 72px */
 
   /* Layout Containers & Sections */
-  --section-padding: clamp(3.5rem, 6vw, 6rem) clamp(1rem, 3.5vw, 3rem);
+  --section-padding: clamp(2rem, 3.5vw, 3.25rem) clamp(1rem, 3.5vw, 2.5rem);
   --container-max: 1240px;
 
   /* Animation & Motion */
@@ -243,7 +243,7 @@ ul, ol {
 }
 
 .section {
-  padding-block: clamp(3.5rem, 6vw, 5.5rem);
+  padding-block: clamp(2rem, 3.5vw, 3.25rem);
   padding-inline: 0;
   position: relative;
   width: 100%;

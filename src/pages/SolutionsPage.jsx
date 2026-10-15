@@ -22,19 +22,16 @@ const SOLUTIONS_DATA = [
   {
     id: 'web-platforms',
     category: 'web',
-    categoryLabel: 'Web & Digital Platforms',
+    categoryLabel: 'Web & Digital',
     icon: CodeIcon,
     title: 'Modern Web Application Engineering',
-    tagline: 'High-performance, accessible, and scalable digital interfaces.',
-    description:
-      'We architect and build enterprise-grade web applications using modern component-driven methodologies. Our focus is responsive performance, fluid state management, and robust security headers.',
+    summary: 'High-performance digital interfaces engineered with React, fluid state synchronization, and strict WCAG accessibility.',
     capabilities: [
-      'Single-page applications (SPA) & static rendering',
-      'Complex dashboard & data visualization interfaces',
-      'State synchronization, caching, and offline recovery',
-      'Strict WCAG 2.1 accessibility and SEO optimization',
+      'Single-page applications (SPA) & modern frameworks',
+      'Complex dashboards & data visualizations',
+      'Sub-second load times & SEO optimization',
     ],
-    technologies: ['React', 'JavaScript / TypeScript', 'HTML5 / Modern CSS', 'RESTful APIs'],
+    technologies: ['React', 'TypeScript', 'REST APIs', 'Vite'],
   },
   {
     id: 'custom-software',
@@ -42,16 +39,13 @@ const SOLUTIONS_DATA = [
     categoryLabel: 'Custom Software',
     icon: GearIcon,
     title: 'Custom Enterprise Software Development',
-    tagline: 'Clean architectures engineered around your exact business logic.',
-    description:
-      'Off-the-shelf software often forces organizations into awkward trade-offs. We design bespoke systems that adapt to your operational workflows, scale under high concurrency, and evolve without technical debt.',
+    summary: 'Bespoke operational systems designed around your proprietary business logic without legacy technical debt.',
     capabilities: [
-      'Bespoke ERP, CRM, and management system design',
-      'Legacy software modernization and modular migration',
-      'Integration bridges between disparate enterprise tools',
-      'Automated regression testing and clean code reviews',
+      'Custom ERP, CRM, and workflow tools',
+      'Legacy migration & service decoupling',
+      'Integration bridges between internal systems',
     ],
-    technologies: ['Java', 'Spring Boot', 'Python', 'Node.js', 'MySQL'],
+    technologies: ['Java', 'Spring Boot', 'Node.js', 'PostgreSQL'],
   },
   {
     id: 'mobile-engineering',
@@ -59,16 +53,13 @@ const SOLUTIONS_DATA = [
     categoryLabel: 'Mobile Engineering',
     icon: RocketIcon,
     title: 'Mobile Architecture & App Development',
-    tagline: 'Native Android and adaptive mobile apps built for speed.',
-    description:
-      'We craft high-quality mobile applications with zero-lag user interactions, intuitive touch ergonomics, and resilient background synchronization for field and consumer applications.',
+    summary: 'Native Android and mobile experiences with zero-lag interactions, offline caching, and biometric authentication.',
     capabilities: [
-      'Native Android app engineering in Kotlin',
-      'Offline-first data sync and encrypted local storage',
-      'Hardware integration (camera, GPS, biometrics)',
-      'Push notification pipelines and event listeners',
+      'Native Android engineering in Kotlin',
+      'Offline-first synchronization & SQLite',
+      'Hardware telemetry & push pipelines',
     ],
-    technologies: ['Android SDK', 'Kotlin', 'Firebase', 'SQLite'],
+    technologies: ['Android SDK', 'Kotlin', 'SQLite', 'Firebase'],
   },
   {
     id: 'backend-cloud',
@@ -76,16 +67,13 @@ const SOLUTIONS_DATA = [
     categoryLabel: 'Backend & Cloud',
     icon: ServerIcon,
     title: 'Backend Systems & API Architecture',
-    tagline: 'Hardened RESTful APIs and distributed server architectures.',
-    description:
-      'Behind every fast application is a rock-solid server foundation. We build scalable backend services with strict validation, rate limiting, token security, and structured observability.',
+    summary: 'Hardened RESTful APIs and distributed server architectures with token authentication and rate limiting.',
     capabilities: [
-      'REST API design with strict request validation',
-      'JWT token sessions and role-based access control (RBAC)',
-      'Multi-tier rate limiting and DDoS protection',
-      'Structured request correlation and error normalization',
+      'Hardened RESTful APIs with input validation',
+      'JWT token sessions & role-based RBAC',
+      'Multi-tier rate limiting & request logging',
     ],
-    technologies: ['Node.js', 'Express', 'Spring Boot', 'MongoDB / Mongoose', 'PostgreSQL'],
+    technologies: ['Node.js', 'Express', 'MongoDB', 'Docker'],
   },
   {
     id: 'uiux-architecture',
@@ -93,16 +81,13 @@ const SOLUTIONS_DATA = [
     categoryLabel: 'Design & Ergonomics',
     icon: LightbulbIcon,
     title: 'UI/UX Architecture & Product Design',
-    tagline: 'Balancing conversion aesthetics with functional ergonomics.',
-    description:
-      'Enterprise software does not have to be frustrating to use. We design clean, intentional, design-token-driven interfaces that accelerate user adoption and minimize operational training.',
+    summary: 'Design-token-driven interfaces and user flows that maximize conversion and reduce operational onboarding.',
     capabilities: [
-      'Design systems, typography scales, and token systems',
-      'Interactive prototyping and user journey validation',
-      'Usability audits and responsive viewport testing',
-      'Figma component libraries and developer handoffs',
+      'Design systems & fluid typography tokens',
+      'User journey mapping & prototyping',
+      'Usability audits across all viewports',
     ],
-    technologies: ['Figma', 'Design Tokens', 'User Journey Mapping', 'Micro-Interactions'],
+    technologies: ['Figma', 'Design Tokens', 'User Journeys', 'Wireframing'],
   },
   {
     id: 'data-persistence',
@@ -110,16 +95,13 @@ const SOLUTIONS_DATA = [
     categoryLabel: 'Data & Persistence',
     icon: ShieldIcon,
     title: 'Data Architecture & Storage Security',
-    tagline: 'Reliable document and relational persistence models.',
-    description:
-      'We structure database schemas with explicit validation, indexing strategies for sub-millisecond query execution, and strict server-side encryption for sensitive enterprise records.',
+    summary: 'Document and relational schemas optimized for sub-millisecond execution and private data custody.',
     capabilities: [
-      'MongoDB document modeling with Mongoose validation',
-      'Relational normalization and ACID consistency (MySQL)',
-      'Private document storage with signed authorization vaults',
-      'Automated database backup and migration strategies',
+      'MongoDB document modeling & indexing',
+      'Relational normalization & consistency',
+      'Private authorization vaults & backups',
     ],
-    technologies: ['MongoDB', 'Mongoose', 'MySQL', 'AWS S3 / Local Storage'],
+    technologies: ['MongoDB', 'Mongoose', 'MySQL', 'Storage Vaults'],
   },
 ];
 
@@ -162,19 +144,17 @@ export default function SolutionsPage() {
       <Navbar />
 
       <main className="solutions-main" id="main-content">
-        {/* Unified Hero & Filter Section */}
-        <section className="solutions-hero section">
+        <section className="solutions-section">
           <div className="container">
-            <div className="solutions-hero__content">
-              <div className="solutions-hero__badge">
-                <span>Enterprise Technology Solutions</span>
-              </div>
-              <h1 className="solutions-hero__title">
+            {/* Compact Header & Integrated Filter */}
+            <header className="solutions-header">
+              <span className="solutions-eyebrow">Enterprise Technology Solutions</span>
+              <h1 className="solutions-title">
                 Software Solutions Built for{' '}
                 <span className="gradient-text-gold">Real Business Needs</span>
               </h1>
-              <p className="solutions-hero__desc">
-                From scalable web architectures and native mobile apps to resilient cloud backends, we build technology foundations that turn complex challenges into operational advantages.
+              <p className="solutions-subtitle">
+                From scalable web interfaces and native mobile apps to hardened backend infrastructure, we build technology foundations that turn complex challenges into operational advantages.
               </p>
 
               {/* Category Filter Pills */}
@@ -193,40 +173,32 @@ export default function SolutionsPage() {
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
+            </header>
 
-        {/* Solutions Grid Section */}
-        <section className="solutions-catalog section" id="solutions-catalog">
-          <div className="container">
-            {/* Solutions Grid */}
-            <div className="solutions-grid">
+            {/* Compact SaaS Service Cards Grid */}
+            <div className="solutions-grid" id="solutions-catalog">
               {filteredSolutions.map((sol) => {
                 const IconComponent = sol.icon;
                 return (
                   <article key={sol.id} className="solution-card" id={sol.id}>
                     <div className="solution-card__header">
                       <div className="solution-card__icon-wrap" aria-hidden="true">
-                        <IconComponent size={22} />
+                        <IconComponent size={20} />
                       </div>
                       <span className="solution-card__badge">{sol.categoryLabel}</span>
                     </div>
 
-                    <h3 className="solution-card__title">{sol.title}</h3>
-                    <p className="solution-card__desc">{sol.description}</p>
+                    <h2 className="solution-card__title">{sol.title}</h2>
+                    <p className="solution-card__summary">{sol.summary}</p>
 
-                    <div className="solution-card__capabilities">
-                      <h4 className="solution-card__caps-title">Core Deliverables</h4>
-                      <ul className="solution-card__caps-list">
-                        {sol.capabilities.map((cap, i) => (
-                          <li key={i} className="solution-card__cap-item">
-                            <CheckIcon size={14} className="solution-card__cap-icon" />
-                            <span>{cap}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <ul className="solution-card__capabilities">
+                      {sol.capabilities.map((cap, i) => (
+                        <li key={i} className="solution-card__cap-item">
+                          <CheckIcon size={13} className="solution-card__cap-icon" />
+                          <span>{cap}</span>
+                        </li>
+                      ))}
+                    </ul>
 
                     <div className="solution-card__footer">
                       <div className="solution-card__techs">
@@ -254,14 +226,14 @@ export default function SolutionsPage() {
         {/* Engineered Products, Case Studies & Deliverables */}
         <Projects />
 
-        {/* Engineering Philosophy Banner */}
-        <section className="solutions-banner section">
+        {/* Compact Engineering Partner Banner */}
+        <section className="solutions-banner">
           <div className="container">
             <div className="solutions-banner__card">
               <div className="solutions-banner__text">
-                <h2>Looking for an enterprise partner?</h2>
+                <h3>Looking for an enterprise engineering partner?</h3>
                 <p>
-                  We don't just deliver lines of code. We advise on technical architecture, design for resilience, and deliver maintainable software that stands the test of time.
+                  We advise on technical architecture, design for resilience, and deliver maintainable software that stands the test of time.
                 </p>
               </div>
               <div className="solutions-banner__actions">

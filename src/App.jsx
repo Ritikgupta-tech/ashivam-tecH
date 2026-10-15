@@ -9,6 +9,7 @@ import EmployeeLoginPage from './pages/EmployeeLoginPage';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
+import LegalPage from './pages/LegalPage';
 import RouteScrollWatcher from './components/RouteScrollWatcher';
 
 function App() {
@@ -25,6 +26,13 @@ function App() {
           <Route path="/solutions" element={<SolutionsPage />} />
           <Route path="/solutions/:category" element={<SolutionsPage />} />
           <Route path="/careers" element={<CareersPage />} />
+
+          {/* Legal Governance & Enterprise Compliance Pages */}
+          <Route path="/privacy-policy" element={<LegalPage initialTab="privacy" />} />
+          <Route path="/privacy" element={<LegalPage initialTab="privacy" />} />
+          <Route path="/terms-of-service" element={<LegalPage initialTab="terms" />} />
+          <Route path="/terms" element={<LegalPage initialTab="terms" />} />
+          <Route path="/security" element={<LegalPage initialTab="security" />} />
 
           {/* Dedicated Employee & Admin Authentication Gateways */}
           <Route path="/employee-login" element={<EmployeePortalSelector />} />

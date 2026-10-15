@@ -11,7 +11,7 @@
   background: linear-gradient(135deg, rgba(24, 32, 48, 0.85) 0%, rgba(18, 24, 38, 0.95) 100%);
   border: 1px solid rgba(197, 155, 39, 0.25);
   border-radius: var(--radius-xl);
-  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3.5rem);
+  padding: clamp(2rem, 3.5vw, 2.75rem) clamp(1.25rem, 3vw, 2.5rem);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -34,14 +34,14 @@
   border: 1px solid rgba(197, 155, 39, 0.25);
   padding: 0.35rem 0.95rem;
   border-radius: var(--radius-full);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .careers-teaser__title {
   font-size: clamp(2rem, 3.5vw, 2.75rem);
   font-weight: 800;
   color: #ffffff;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   letter-spacing: -0.02em;
 }
 
@@ -50,7 +50,7 @@
   color: var(--clr-neutral-300);
   line-height: 1.7;
   max-width: 680px;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .careers-teaser__grid {
@@ -59,7 +59,7 @@
   gap: 1.5rem;
   width: 100%;
   max-width: 900px;
-  margin-bottom: 2.75rem;
+  margin-bottom: 1.75rem;
   text-align: left;
 }
 

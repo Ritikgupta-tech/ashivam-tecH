@@ -91,3 +91,32 @@ test('Employee Portal Selector links to both /employee-login/employee and /emplo
     'Portal selector must route to /employee-login/admin'
   );
 });
+
+// 4. Legal Compliance Routes Verification
+test('App.jsx defines legal governance routes mapped to LegalPage', () => {
+  const appPath = path.resolve(process.cwd(), 'src/App.jsx');
+  const content = fs.readFileSync(appPath, 'utf8');
+
+  assert.ok(content.includes('import LegalPage from \'./pages/LegalPage\';'), 'App.jsx must import LegalPage');
+  assert.ok(content.includes('path="/privacy-policy"'), 'App.jsx must define /privacy-policy');
+  assert.ok(content.includes('path="/terms-of-service"'), 'App.jsx must define /terms-of-service');
+  assert.ok(content.includes('path="/security"'), 'App.jsx must define /security');
+});
+
+// 5. Footer Legal & Verified External Social Links
+test('Footer links navigate to legal routes and verified social channels', () => {
+  const footerPath = path.resolve(process.cwd(), 'src/components/Footer/Footer.jsx');
+  assert.ok(fs.existsSync(footerPath), 'Footer.jsx must exist');
+  const content = fs.readFileSync(footerPath, 'utf8');
+
+  assert.ok(content.includes('to="/privacy-policy"'), 'Footer must route to /privacy-policy');
+  assert.ok(content.includes('to="/terms-of-service"'), 'Footer must route to /terms-of-service');
+  assert.ok(content.includes('to="/security"'), 'Footer must route to /security');
+  assert.ok(!content.includes('href="#about" className="footer__legal-link"'), 'Footer must not use broken #about anchor tags for legal pages');
+
+  const contentPath = path.resolve(process.cwd(), 'src/data/content.js');
+  const contentJs = fs.readFileSync(contentPath, 'utf8');
+  assert.ok(!contentJs.includes('https://github.com/ashivam-technologies'), 'COMPANY.github must not point to dead hyphenated organization');
+  assert.ok(contentJs.includes('https://github.com/AshivamTechnologies'), 'COMPANY.github must point to official AshivamTechnologies profile');
+  assert.ok(contentJs.includes('https://www.linkedin.com/company/ashivam/'), 'COMPANY.linkedin must point to verified live company page');
+});

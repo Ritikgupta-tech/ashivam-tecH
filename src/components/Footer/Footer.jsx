@@ -210,11 +210,11 @@ export default function Footer() {
           </div>
 
           <div className="footer__legal">
-            <a href="#about" className="footer__legal-link">Privacy Policy</a>
+            <Link to="/privacy-policy" className="footer__legal-link">Privacy Policy</Link>
             <span className="footer__legal-sep">·</span>
-            <a href="#about" className="footer__legal-link">Terms of Service</a>
+            <Link to="/terms-of-service" className="footer__legal-link">Terms of Service</Link>
             <span className="footer__legal-sep">·</span>
-            <a href="#about" className="footer__legal-link">Security</a>
+            <Link to="/security" className="footer__legal-link">Security</Link>
             <span className="footer__legal-sep">·</span>
             <Link to="/admin/login" className="footer__legal-link">Admin Portal</Link>
           </div>
