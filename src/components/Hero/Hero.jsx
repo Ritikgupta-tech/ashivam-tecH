@@ -17,7 +17,7 @@ export default function Hero() {
   const parallaxRef = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
 
-  // Optimized ambient particle canvas (pauses off-screen, scaled for mobile)
+  // High-performance ambient particle canvas (DPR-scaled, visibility-aware, halo rendering)
   useEffect(() => {
     const canvas = canvasRef.current;
     const heroEl = heroRef.current;
@@ -25,65 +25,125 @@ export default function Hero() {
     const ctx = canvas.getContext('2d');
     let animId;
     let isVisible = true;
+    let isTabVisible = !document.hidden;
     let particles = [];
+    let resizeTimer;
 
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const initParticles = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      const isMobile = canvas.width < 768;
-      const count = isMobile ? 16 : 42;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = heroEl.offsetWidth;
+      const height = heroEl.offsetHeight;
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
+      ctx.resetTransform?.();
+      ctx.scale(dpr, dpr);
+
+      const isMobile = width < 768;
+      const count = isMobile ? 22 : 36;
       particles = [];
 
       for (let i = 0; i < count; i++) {
+        const isGold = Math.random() > 0.35;
         particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          r: Math.random() * (isMobile ? 1 : 1.2) + 0.4,
-          vx: (Math.random() - 0.5) * (isMobile ? 0.15 : 0.25),
-          vy: (Math.random() - 0.5) * (isMobile ? 0.15 : 0.25),
-          opacity: Math.random() * 0.4 + 0.1,
+          x: Math.random() * width,
+          y: Math.random() * height,
+          r: Math.random() * (isMobile ? 1.0 : 1.3) + 1.2,
+          vx: (Math.random() - 0.5) * (isMobile ? 0.16 : 0.22),
+          vy: (Math.random() - 0.5) * (isMobile ? 0.16 : 0.22),
+          baseOpacity: Math.random() * 0.35 + 0.32,
+          pulseVal: Math.random() * Math.PI * 2,
+          pulseSpeed: Math.random() * 0.02 + 0.012,
+          isGold,
         });
       }
     };
 
     initParticles();
-    window.addEventListener('resize', initParticles);
+
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(initParticles, 150);
+    };
+    window.addEventListener('resize', handleResize);
+
+    const handleVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible && isVisible && !isReduced) {
+        cancelAnimationFrame(animId);
+        animId = requestAnimationFrame(draw);
+      } else {
+        cancelAnimationFrame(animId);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const draw = () => {
-      if (!isVisible) return;
+      if (!isVisible || !isTabVisible) return;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const isMobile = canvas.width < 768;
+      const width = heroEl.offsetWidth;
+      const height = heroEl.offsetHeight;
+      const isMobile = width < 768;
+
+      ctx.clearRect(0, 0, width, height);
 
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+        p.pulseVal += p.pulseSpeed;
+        const currentOpacity = Math.min(0.85, Math.max(0.25, p.baseOpacity + Math.sin(p.pulseVal) * 0.16));
 
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        // Faint outer halo (ultra-fast, zero GPU shadowBlur overhead)
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = p.isGold
+          ? `rgba(212, 175, 55, ${currentOpacity * 0.18})`
+          : `rgba(135, 206, 235, ${currentOpacity * 0.18})`;
+        ctx.fill();
+
+        // Core solid particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(197, 155, 39, ${p.opacity * 0.8})`;
+        ctx.fillStyle = p.isGold
+          ? `rgba(180, 130, 20, ${currentOpacity})`
+          : `rgba(27, 111, 160, ${currentOpacity * 0.9})`;
         ctx.fill();
       });
 
-      // Subtle particle connections (desktop only for performance)
+      // Subtle particle constellation filaments with bounding-box spatial culling
       if (!isMobile) {
+        const maxDist = 95;
+        const maxDistSq = maxDist * maxDist;
+        ctx.lineWidth = 0.65;
+
         for (let i = 0; i < particles.length; i++) {
+          const pi = particles[i];
           for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 100) {
+            const pj = particles[j];
+            const dx = pi.x - pj.x;
+            if (dx > maxDist || dx < -maxDist) continue;
+            const dy = pi.y - pj.y;
+            if (dy > maxDist || dy < -maxDist) continue;
+
+            const distSq = dx * dx + dy * dy;
+            if (distSq < maxDistSq) {
+              const alpha = 0.14 * (1 - Math.sqrt(distSq) / maxDist);
+              ctx.strokeStyle = pi.isGold
+                ? `rgba(180, 130, 20, ${alpha})`
+                : `rgba(27, 111, 160, ${alpha})`;
               ctx.beginPath();
-              ctx.strokeStyle = `rgba(197, 155, 39, ${0.04 * (1 - dist / 100)})`;
-              ctx.lineWidth = 0.5;
-              ctx.moveTo(particles[i].x, particles[i].y);
-              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.moveTo(pi.x, pi.y);
+              ctx.lineTo(pj.x, pj.y);
               ctx.stroke();
             }
           }
@@ -99,9 +159,11 @@ export default function Hero() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry.isIntersecting;
-        if (isVisible && !isReduced) {
+        if (isVisible && isTabVisible && !isReduced) {
           cancelAnimationFrame(animId);
           animId = requestAnimationFrame(draw);
+        } else {
+          cancelAnimationFrame(animId);
         }
       },
       { threshold: 0.05 }
@@ -116,8 +178,10 @@ export default function Hero() {
 
     return () => {
       cancelAnimationFrame(animId);
+      clearTimeout(resizeTimer);
       observer.disconnect();
-      window.removeEventListener('resize', initParticles);
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

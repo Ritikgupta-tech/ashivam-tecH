@@ -50,11 +50,12 @@
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
   line-height: 1.1;
+  color: var(--clr-navy);
 }
 
 .not-found-desc {
   font-size: clamp(1rem, 1.6vw, 1.15rem);
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   line-height: 1.7;
   margin-bottom: 2.5rem;
   max-width: 540px;

@@ -8,7 +8,7 @@ export const COMPANY = {
   tagline: 'Infinite Possibilities. Engineered with Precision.',
   description:
     'We are a modern technology company building scalable software, digital products, and innovative experiences that move ideas forward.',
-  email: 'contact@ashivamtechnologies.com',
+  email: 'team.ashivam@gmail.com',
   phone: '+91 XXXXX XXXXX',
   location: 'Agra, Uttar Pradesh, India',
   headquarters: 'Agra, Uttar Pradesh, India',
@@ -151,7 +151,7 @@ export const TECH_LAYERS = [
     shortLabel: 'Database',
     description: 'Reliable relational and real-time cloud data storage infrastructures.',
     items: [
-      { name: 'MySQL', role: 'Relational DB', category: 'database' },
+      { name: 'MySQL', role: 'Relational Database', category: 'database' },
       { name: 'Firebase', role: 'Real-Time Cloud', category: 'database' },
     ],
   },

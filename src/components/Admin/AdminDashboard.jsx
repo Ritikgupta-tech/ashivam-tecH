@@ -2786,7 +2786,7 @@ export default function AdminDashboard() {
                           <p className="admin-settings-desc">Enable or disable dynamic website capability modules.</p>
 
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0', fontSize: '0.9rem' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem' }}>
                               <input
                                 type="checkbox"
                                 checked={settingsForm.features?.contactForm ?? true}
@@ -2798,7 +2798,7 @@ export default function AdminDashboard() {
                               Enable Public Contact Form
                             </label>
 
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0', fontSize: '0.9rem' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem' }}>
                               <input
                                 type="checkbox"
                                 checked={settingsForm.features?.careerApplications ?? true}
@@ -2810,7 +2810,7 @@ export default function AdminDashboard() {
                               Enable Public Career Applications
                             </label>
 
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0', fontSize: '0.9rem' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem' }}>
                               <input
                                 type="checkbox"
                                 checked={settingsForm.features?.publicContent ?? true}
@@ -2824,7 +2824,7 @@ export default function AdminDashboard() {
                           </div>
 
                           <h4 className="admin-settings-title" style={{ marginTop: '1.5rem' }}>🔧 Maintenance Mode</h4>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
                             <input
                               type="checkbox"
                               checked={settingsForm.maintenance?.enabled ?? false}
@@ -3127,7 +3127,7 @@ export default function AdminDashboard() {
                     { key: 'audit', label: '🛡️ Audit Trail' },
                     { key: 'settings', label: '⚙️ Settings' },
                   ].map((perm) => (
-                    <label key={perm.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#e2e8f0', cursor: 'pointer' }}>
+                    <label key={perm.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--clr-text, #172B4D)', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
                         name="permissions"
@@ -3282,7 +3282,7 @@ export default function AdminDashboard() {
                     id="job-employment-type"
                     name="employmentType"
                     className="admin-form-input"
-                    style={{ background: '#0a1425', color: '#fff' }}
+                    style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                     value={jobForm.employmentType}
                     onChange={(e) => setJobForm({ ...jobForm, employmentType: e.target.value })}
                   >
@@ -3369,7 +3369,7 @@ export default function AdminDashboard() {
                   id="job-status-select"
                   name="isActive"
                   className="admin-form-input"
-                  style={{ background: '#0a1425', color: '#fff' }}
+                  style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                   value={jobForm.isActive ? 'active' : 'draft'}
                   onChange={(e) => setJobForm({ ...jobForm, isActive: e.target.value === 'active' })}
                 >
@@ -3504,7 +3504,7 @@ export default function AdminDashboard() {
 
             <div style={{ marginBottom: '1.25rem' }}>
               <div className="admin-detail-label" style={{ marginBottom: '0.5rem' }}>Message Body</div>
-              <div style={{ background: '#070d19', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'pre-wrap', color: '#e2e8f0', fontSize: '0.9rem', lineHeight: '1.6' }}>
+              <div style={{ background: 'var(--clr-soft, #F4F8FC)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--clr-border, #E2E8F0)', whiteSpace: 'pre-wrap', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem', lineHeight: '1.6' }}>
                 {selectedInquiry.message || 'No message text provided.'}
               </div>
             </div>
@@ -3590,7 +3590,7 @@ export default function AdminDashboard() {
             {selectedApp.coverLetter && (
               <div style={{ marginBottom: '1.25rem' }}>
                 <div className="admin-detail-label" style={{ marginBottom: '0.5rem' }}>Cover Letter / Candidate Statement</div>
-                <div style={{ background: '#070d19', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'pre-wrap', color: '#e2e8f0', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                <div style={{ background: 'var(--clr-soft, #F4F8FC)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--clr-border, #E2E8F0)', whiteSpace: 'pre-wrap', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem', lineHeight: '1.6' }}>
                   {selectedApp.coverLetter}
                 </div>
               </div>
@@ -3675,7 +3675,7 @@ export default function AdminDashboard() {
             {selectedIntern.statement && (
               <div style={{ marginBottom: '1.25rem' }}>
                 <div className="admin-detail-label" style={{ marginBottom: '0.5rem' }}>Candidate Statement</div>
-                <div style={{ background: '#070d19', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'pre-wrap', color: '#e2e8f0', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                <div style={{ background: 'var(--clr-soft, #F4F8FC)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--clr-border, #E2E8F0)', whiteSpace: 'pre-wrap', color: 'var(--clr-text, #172B4D)', fontSize: '0.9rem', lineHeight: '1.6' }}>
                   {selectedIntern.statement}
                 </div>
               </div>
@@ -3828,7 +3828,7 @@ export default function AdminDashboard() {
                   <select
                     id="emp-emptype"
                     className="admin-form-input"
-                    style={{ background: '#0a1425', color: '#fff' }}
+                    style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                     value={empForm.employmentType}
                     onChange={(e) => setEmpForm({ ...empForm, employmentType: e.target.value })}
                   >
@@ -3844,7 +3844,7 @@ export default function AdminDashboard() {
                   <select
                     id="emp-loc"
                     className="admin-form-input"
-                    style={{ background: '#0a1425', color: '#fff' }}
+                    style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                     value={empForm.workLocation}
                     onChange={(e) => setEmpForm({ ...empForm, workLocation: e.target.value })}
                   >
@@ -3916,7 +3916,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="admin-form-group" style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--clr-text, #172B4D)' }}>
                   <input
                     type="checkbox"
                     checked={empForm.isActive}
@@ -4002,7 +4002,7 @@ export default function AdminDashboard() {
             {selectedEmp.bio && (
               <div style={{ marginBottom: '1.25rem' }}>
                 <div className="admin-detail-label" style={{ marginBottom: '0.35rem' }}>Biography</div>
-                <div style={{ background: '#070d19', padding: '0.85rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', color: '#e2e8f0', fontSize: '0.875rem', lineHeight: '1.5' }}>
+                <div style={{ background: 'var(--clr-soft, #F4F8FC)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--clr-border, #E2E8F0)', color: 'var(--clr-text, #172B4D)', fontSize: '0.875rem', lineHeight: '1.5' }}>
                   {selectedEmp.bio}
                 </div>
               </div>
@@ -4081,7 +4081,7 @@ export default function AdminDashboard() {
                   id="doc-emp"
                   required
                   className="admin-form-input"
-                  style={{ background: '#0a1425', color: '#fff' }}
+                  style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                   value={docForm.employee}
                   onChange={(e) => setDocForm({ ...docForm, employee: e.target.value })}
                 >
@@ -4101,7 +4101,7 @@ export default function AdminDashboard() {
                     id="doc-type"
                     required
                     className="admin-form-input"
-                    style={{ background: '#0a1425', color: '#fff' }}
+                    style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                     value={docForm.documentType}
                     onChange={(e) => setDocForm({ ...docForm, documentType: e.target.value })}
                   >
@@ -4287,7 +4287,7 @@ export default function AdminDashboard() {
                   <select
                     id="cnt-status"
                     className="admin-form-input"
-                    style={{ background: '#0a1425', color: '#fff' }}
+                    style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                     value={contentForm.status}
                     onChange={(e) => setContentForm({ ...contentForm, status: e.target.value })}
                   >
@@ -4365,7 +4365,7 @@ export default function AdminDashboard() {
                 <select
                   id="med-cat"
                   className="admin-form-input"
-                  style={{ background: '#0a1425', color: '#fff' }}
+                  style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-text, #172B4D)', border: '1px solid var(--clr-border, #E2E8F0)' }}
                   value={mediaCategory}
                   onChange={(e) => setMediaCategory(e.target.value)}
                 >
@@ -4509,7 +4509,7 @@ export default function AdminDashboard() {
                     { key: 'audit', label: '🛡️ Audit Trail' },
                     { key: 'settings', label: '⚙️ Settings' },
                   ].map((perm) => (
-                    <label key={perm.key} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#e2e8f0', cursor: 'pointer' }}>
+                    <label key={perm.key} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--clr-text, #172B4D)', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
                         checked={adminPermissionsList.includes(perm.key)}

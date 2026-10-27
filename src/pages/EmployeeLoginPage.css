@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: center;
   padding: calc(7.5rem + env(safe-area-inset-top)) 1rem 5rem;
-  background: radial-gradient(circle at 50% 20%, rgba(197, 155, 39, 0.08) 0%, transparent 60%);
+  background: radial-gradient(circle at 50% 20%, rgba(135, 206, 235, 0.22) 0%, transparent 60%), #ffffff;
 }
 
 .employee-login-container {
@@ -25,20 +25,18 @@
 }
 
 .employee-login-card {
-  background: rgba(18, 24, 38, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-xl);
   padding: 2.75rem 2.25rem;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 50px rgba(11, 31, 58, 0.08);
 }
 
 .login-tabs-nav {
   display: flex;
   align-items: center;
-  background: rgba(11, 15, 23, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--clr-soft);
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-full);
   padding: 4px;
   margin-bottom: 2rem;
@@ -55,21 +53,21 @@
   border-radius: var(--radius-full);
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   text-decoration: none;
   transition: all var(--dur-fast) ease;
 }
 
 .login-tab-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--clr-navy);
+  background: rgba(135, 206, 235, 0.2);
 }
 
 .login-tab-btn--active {
-  color: #07090e !important;
-  background: var(--clr-gold) !important;
+  color: var(--clr-navy) !important;
+  background: #ffffff !important;
   font-weight: 700;
-  box-shadow: 0 2px 10px rgba(197, 155, 39, 0.35);
+  box-shadow: 0 2px 8px rgba(11, 31, 58, 0.08);
 }
 
 .employee-login-card__header {
@@ -95,7 +93,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--clr-gold);
+  color: var(--clr-gold-dark);
   background: rgba(197, 155, 39, 0.08);
   border: 1px solid rgba(197, 155, 39, 0.2);
   padding: 0.25rem 0.65rem;
@@ -107,13 +105,13 @@
 .employee-login-card__header h1 {
   font-size: 1.65rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--clr-navy);
   margin-bottom: 0.5rem;
 }
 
 .employee-login-card__header p {
   font-size: 0.875rem;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   line-height: 1.5;
 }
 
@@ -144,16 +142,16 @@
 .form-group label {
   font-size: 0.825rem;
   font-weight: 600;
-  color: var(--clr-neutral-200);
+  color: var(--clr-navy);
 }
 
 .form-input {
   width: 100%;
   padding: 0.8rem 1rem;
-  background: rgba(11, 15, 23, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--clr-soft);
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
-  color: #ffffff;
+  color: var(--clr-text);
   font-size: 0.9rem;
   outline: none;
   transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
@@ -184,15 +182,15 @@
 .employee-login-card__support {
   margin-top: 2rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--clr-border);
   font-size: 0.8rem;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   line-height: 1.6;
   text-align: center;
 }
 
 .employee-login-card__support a {
-  color: var(--clr-gold);
+  color: var(--clr-gold-dark);
   text-decoration: underline;
 }
 

@@ -145,7 +145,7 @@ export default function LegalPage({ initialTab = 'privacy' }) {
                     </p>
                     <div className="legal-contact-callout">
                       <strong>Privacy & Compliance Inquiries:</strong>{' '}
-                      <a href="mailto:contact@ashivamtechnologies.com">contact@ashivamtechnologies.com</a>
+                      <a href="mailto:team.ashivam@gmail.com">team.ashivam@gmail.com</a>
                       <br />
                       <span>Ashivam Technologies • Agra, Uttar Pradesh, India</span>
                     </div>
@@ -237,7 +237,7 @@ export default function LegalPage({ initialTab = 'privacy' }) {
                     </p>
                     <div className="legal-contact-callout">
                       <strong>Security Response Team:</strong>{' '}
-                      <a href="mailto:contact@ashivamtechnologies.com">contact@ashivamtechnologies.com</a>
+                      <a href="mailto:team.ashivam@gmail.com">team.ashivam@gmail.com</a>
                       <br />
                       <span>PGP Key / Encrypted communications available upon request. We commit to acknowledging reports within 24 business hours.</span>
                     </div>

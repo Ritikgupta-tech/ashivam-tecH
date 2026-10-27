@@ -163,18 +163,18 @@ const env = {
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
-      : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
+      : "Ashivam Technologies <teamashivam@gmail.com>"),
   emailFrom:
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
-      : "Ashivam Technologies <no-reply@ashivamtechnologies.com>"),
+      : "Ashivam Technologies <teamashivam@gmail.com>"),
   alertEmail:
     (process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
-    "admin@ashivamtechnologies.com",
+    "team.ashivam@gmail.com",
   notificationRecipient:
     (process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
-    "admin@ashivamtechnologies.com",
+    "team.ashivam@gmail.com",
 
   smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 10000,
   smtpGreetingTimeoutMs: Number(process.env.SMTP_GREETING_TIMEOUT_MS) || 10000,

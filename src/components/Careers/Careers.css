@@ -3,8 +3,8 @@
    ============================================================ */
 
 .careers {
-  border-top: 1px solid var(--clr-border-subtle);
-  background: radial-gradient(circle at 85% 60%, rgba(197, 155, 39, 0.03) 0%, transparent 60%);
+  border-top: 1px solid var(--clr-border);
+  background: #ffffff;
   position: relative;
 }
 
@@ -34,7 +34,7 @@
 .careers__desc {
   font-size: 1.05rem;
   line-height: 1.8;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   margin-bottom: 1.25rem;
 }
 
@@ -65,19 +65,20 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1.75rem;
-  background: rgba(18, 24, 38, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-md, 0.75rem);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(11, 31, 58, 0.05);
   transition: all 0.25s ease;
   animation: careerCardFadeIn 0.35s ease-out forwards;
 }
 
 .career-card:hover {
-  border-color: rgba(197, 155, 39, 0.4);
-  background: rgba(22, 30, 48, 0.9);
+  border-color: var(--clr-sky);
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(11, 31, 58, 0.1);
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
 }
@@ -124,22 +125,22 @@
   padding: 0.2rem 0.65rem;
   border-radius: 9999px;
   font-size: 0.725rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  background: var(--clr-soft);
+  border: 1px solid var(--clr-border);
+  color: var(--clr-navy);
 }
 
 .career-card__location {
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--clr-text-muted);
   font-weight: 500;
 }
 
 .career-card__title {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--clr-text);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -147,7 +148,7 @@
 .career-card__desc {
   font-size: 0.925rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--clr-text);
   margin: 0;
 }
 
@@ -181,12 +182,12 @@
   display: flex;
   gap: 1.25rem;
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--clr-text-muted);
   flex-wrap: wrap;
 }
 
 .career-card__meta-details strong {
-  color: #ffffff;
+  color: var(--clr-navy);
 }
 
 .career-card__apply-btn {
@@ -197,7 +198,7 @@
   border-radius: 9999px;
   background: linear-gradient(135deg, #d4af37, #f3e5ab);
   border: none;
-  color: #07090e;
+  color: var(--clr-navy);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -213,8 +214,8 @@
 /* State Cards (Loading, Error, Empty) */
 .career-state-card {
   padding: 3.5rem 1.5rem;
-  background: rgba(18, 24, 38, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-md, 0.75rem);
   text-align: center;
   display: flex;
@@ -275,8 +276,8 @@
 /* Empty Card */
 .career-empty-card {
   padding: 3rem 2rem;
-  background: rgba(18, 24, 38, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-md, 0.75rem);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -331,16 +332,17 @@
   justify-content: space-between;
   gap: 1.25rem;
   padding: 1.35rem 1.75rem;
-  background: rgba(18, 24, 38, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
   backdrop-filter: blur(16px);
   transition: all var(--dur-base) ease;
 }
 
 .career-item:hover {
-  border-color: rgba(197, 155, 39, 0.4);
-  background: rgba(22, 30, 48, 0.9);
+  border-color: var(--clr-sky);
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(11, 31, 58, 0.1);
   transform: translateX(4px);
 }
 
@@ -380,14 +382,14 @@
 .career-item__role {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--clr-text);
   margin-bottom: 0.2rem;
   letter-spacing: -0.01em;
 }
 
 .career-item__type {
   font-size: 0.8125rem;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
 }
 
 .career-item__apply-btn {
@@ -413,7 +415,7 @@
 .career-item__apply-btn:hover {
   background: var(--grad-gold);
   border-color: transparent;
-  color: #07090e;
+  color: var(--clr-navy, #0B1F3A);
   transform: translateY(-1px);
 }
 
@@ -422,7 +424,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(3, 7, 18, 0.85);
+  background: rgba(11, 31, 58, 0.5);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
@@ -433,13 +435,13 @@
 }
 
 .career-modal {
-  background: #090f1d;
+  background: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.25rem;
   width: 100%;
   max-width: 600px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(212, 175, 55, 0.1);
-  color: #ffffff;
+  color: var(--clr-text);
   position: relative;
   max-height: 90vh;
   display: flex;
@@ -458,7 +460,7 @@
 .career-modal__title-group h3 {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--clr-navy);
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
 }
 
@@ -482,7 +484,7 @@
 .career-modal__close {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--clr-navy);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -497,8 +499,8 @@
 }
 
 .career-modal__close:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--clr-navy);
+  background: var(--clr-soft);
 }
 
 .career-modal__body {
@@ -527,18 +529,18 @@
 
 .career-field-label {
   font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  color: var(--clr-navy);
 }
 
 .career-field-input,
 .career-field-select,
 .career-field-textarea {
-  background: rgba(14, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--clr-soft);
+  border: 1px solid var(--clr-border);
   border-radius: 0.5rem;
   padding: 0.65rem 0.85rem;
-  color: #ffffff;
+  color: var(--clr-text);
   font-size: 0.875rem;
   font-family: inherit;
   outline: none;
@@ -626,7 +628,7 @@
 
 .career-submit-btn {
   background: var(--grad-gold);
-  color: #07090e;
+  color: var(--clr-navy, #0B1F3A);
   font-weight: 600;
   font-size: 0.9rem;
   border: none;

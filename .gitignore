@@ -26,6 +26,7 @@ backend/.env.*
 !backend/.env.example
 !backend/.env.*.example
 backend/uploads/
+uploads/
 backend/logs/
 
 # Editor & OS files

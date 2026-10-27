@@ -59,12 +59,28 @@ export default function Careers() {
       // Filter for strictly legitimate, active, published non-test jobs
       const publishedJobs = rawJobs.filter(isLegitimatePublishedJob);
 
-      // Normalize display title if live record has typo (e.g. "Android devloper" -> "Android Developer")
+      // Normalize display title and description if live record has typos or draft phrasing
       const cleanPublishedJobs = publishedJobs.map((job) => {
-        if (String(job.title).trim().toLowerCase() === 'android devloper') {
-          return { ...job, title: 'Android Developer' };
+        let title = String(job.title || '').trim();
+        if (title.toLowerCase() === 'android devloper') {
+          title = 'Android Developer';
+        } else if (title.toLowerCase() === 'web devloper') {
+          title = 'Web Developer';
+        } else {
+          title = title.replace(/\bdevloper\b/gi, 'Developer');
         }
-        return job;
+
+        let description = String(job.description || '').trim();
+        description = description
+          .replace(/\bcollabrative\b/gi, 'collaborative')
+          .replace(/\benviroment\b/gi, 'environment')
+          .replace(/\bexpericend\b/gi, 'experienced');
+
+        return {
+          ...job,
+          title,
+          description,
+        };
       });
 
       // Display strictly the active jobs configured by the admin
@@ -196,7 +212,7 @@ export default function Careers() {
         setSubmitError(err.details.resume);
       } else {
         setSubmitError(
-          `${err.message || 'Unable to submit application.'} If the issue persists, please send your resume directly to careers@ashivamtechnologies.com.`
+          `${err.message || 'Unable to submit application.'} If the issue persists, please send your resume directly to team.ashivam@gmail.com.`
         );
       }
     } finally {

@@ -6,10 +6,10 @@ import './Projects.css';
 const CATEGORIES = ['All', 'Web', 'Mobile', 'Software', 'Experiments'];
 
 const STATUS_CONFIG = {
-  'Active': { label: 'Active', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-  'In Development': { label: 'In Development', color: '#e6c55c', bg: 'rgba(230, 197, 92, 0.12)' },
-  'Planning': { label: 'Planning', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.12)' },
-  'Experiment': { label: 'Experiment', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.12)' },
+  'Active': { label: 'Active', color: '#047857', bg: 'rgba(16, 185, 129, 0.14)' },
+  'In Development': { label: 'In Development', color: '#b45309', bg: 'rgba(245, 158, 11, 0.14)' },
+  'Planning': { label: 'Planning', color: '#1d4ed8', bg: 'rgba(59, 130, 246, 0.14)' },
+  'Experiment': { label: 'Experiment', color: '#6d28d9', bg: 'rgba(147, 51, 234, 0.14)' },
 };
 
 function ProjectCard({ project, index }) {

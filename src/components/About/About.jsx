@@ -41,30 +41,31 @@ export default function About() {
           {/* Right: visual */}
           <div className="about__visual reveal reveal--right reveal--delay-2">
             <div className="about__visual-inner">
+              {/* Orbital Rings - Concentric around center logo */}
+              <div className="about__visual-ring about__visual-ring--1" aria-hidden="true" />
+              <div className="about__visual-ring about__visual-ring--2" aria-hidden="true" />
+
               {/* Center logo glow */}
               <div className="about__visual-core">
                 <img src="/logo-symbol.png" alt="Ashivam Technologies" className="about__visual-logo" width="96" height="53" loading="lazy" />
-                <div className="about__visual-ring about__visual-ring--1" aria-hidden="true" />
-                <div className="about__visual-ring about__visual-ring--2" aria-hidden="true" />
               </div>
 
-              {/* Pillar cards with SVG icons */}
+              {/* Pillar cards with isolated positioning slots for collision-free motion */}
               {PILLARS.map((p, i) => {
                 const IconComponent = p.Icon;
                 return (
                   <div
                     key={p.title}
-                    className={`about__pillar float-${(i % 4) + 1}`}
-                    style={{
-                      '--angle': `${i * 90}deg`,
-                      animationDelay: `${i * 0.3}s`,
-                    }}
-                    aria-label={`${p.title}: ${p.desc}`}
+                    className={`about__pillar-slot about__pillar-slot--${i + 1}`}
                   >
-                    <span className="about__pillar-icon" aria-hidden="true">
-                      <IconComponent size={20} />
-                    </span>
-                    <div>
+                    <div
+                      className={`about__pillar float-${(i % 4) + 1}`}
+                      style={{ animationDelay: `${i * 0.3}s` }}
+                      aria-label={`${p.title}: ${p.desc}`}
+                    >
+                      <span className="about__pillar-icon" aria-hidden="true">
+                        <IconComponent size={20} />
+                      </span>
                       <div className="about__pillar-title">{p.title}</div>
                     </div>
                   </div>

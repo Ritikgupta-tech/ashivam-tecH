@@ -3,8 +3,8 @@
    ============================================================ */
 
 .why {
-  border-top: 1px solid var(--clr-border-subtle);
-  background: radial-gradient(circle at 15% 50%, rgba(197, 155, 39, 0.035) 0%, transparent 60%);
+  border-top: 1px solid var(--clr-border);
+  background: #ffffff;
 }
 
 .why__inner {
@@ -29,7 +29,7 @@
 .why__desc {
   margin-bottom: 1.5rem;
   font-size: 1.05rem;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   line-height: 1.8;
 }
 
@@ -83,7 +83,7 @@
 .why-card__line {
   width: 1.5px;
   flex: 1;
-  background: linear-gradient(180deg, rgba(197, 155, 39, 0.35), rgba(255, 255, 255, 0.04));
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.5), rgba(27, 111, 160, 0.15));
   margin-top: 6px;
   min-height: 24px;
   order: 2;
@@ -102,8 +102,8 @@
   width: 100%;
   box-sizing: border-box;
   padding: 1.5rem 1.75rem;
-  background: rgba(18, 24, 38, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -116,9 +116,9 @@
 }
 
 .why-card__content:hover {
-  border-color: rgba(197, 155, 39, 0.4);
-  background: rgba(22, 30, 48, 0.9);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(197, 155, 39, 0.08);
+  border-color: var(--clr-sky);
+  background: var(--clr-surface-hover);
+  box-shadow: 0 12px 30px rgba(11, 31, 58, 0.08);
   transform: translateX(4px);
 }
 
@@ -126,12 +126,12 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: rgba(197, 155, 39, 0.1);
-  border: 1px solid rgba(197, 155, 39, 0.25);
+  background: var(--clr-soft);
+  border: 1px solid var(--clr-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--clr-gold-light);
+  color: var(--clr-sky-d);
   flex-shrink: 0;
   transition: transform var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
@@ -153,14 +153,14 @@
 .why-card__title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--clr-text);
   margin-bottom: 0.35rem;
   letter-spacing: -0.01em;
 }
 
 .why-card__desc {
   font-size: 0.9rem;
-  color: var(--clr-neutral-400);
+  color: var(--clr-text-muted);
   line-height: 1.7;
 }
 

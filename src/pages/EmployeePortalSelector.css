@@ -14,7 +14,7 @@
   flex: 1;
   padding-top: calc(7.5rem + env(safe-area-inset-top));
   padding-bottom: 6rem;
-  background: radial-gradient(circle at 50% 15%, rgba(197, 155, 39, 0.08) 0%, transparent 60%);
+  background: radial-gradient(circle at 50% 15%, rgba(135, 206, 235, 0.22) 0%, transparent 60%), #ffffff;
 }
 
 .portal-selector-container {
@@ -46,13 +46,13 @@
   font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: var(--clr-navy);
   margin-bottom: 1rem;
 }
 
 .portal-selector__desc {
   font-size: 1.05rem;
-  color: var(--clr-neutral-300);
+  color: var(--clr-text-muted);
   line-height: 1.7;
 }
 
@@ -67,13 +67,11 @@
 .portal-card {
   display: flex;
   flex-direction: column;
-  background: rgba(18, 24, 38, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-xl);
   padding: 2.75rem 2.25rem;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(11, 31, 58, 0.06);
   transition:
     transform var(--dur-base) var(--ease-out),
     border-color var(--dur-base) ease,
@@ -83,9 +81,9 @@
 
 .portal-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(197, 155, 39, 0.45);
-  background: rgba(22, 30, 48, 0.95);
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 0 25px rgba(197, 155, 39, 0.12);
+  border-color: var(--clr-sky);
+  background: var(--clr-surface-hover);
+  box-shadow: 0 20px 40px rgba(11, 31, 58, 0.12);
 }
 
 .portal-card--admin {
@@ -118,13 +116,13 @@
 .portal-card__title {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--clr-navy);
   margin-bottom: 0.85rem;
 }
 
 .portal-card__desc {
   font-size: 0.925rem;
-  color: var(--clr-neutral-300);
+  color: var(--clr-text);
   line-height: 1.65;
   margin-bottom: 1.75rem;
   flex: 1;
@@ -137,13 +135,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--clr-border);
   padding-top: 1.25rem;
 }
 
 .portal-card__features li {
   font-size: 0.85rem;
-  color: var(--clr-neutral-300);
+  color: var(--clr-text-muted);
   display: flex;
   align-items: center;
   gap: 0.5rem;

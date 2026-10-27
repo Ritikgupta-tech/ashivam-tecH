@@ -55,20 +55,20 @@
 }
 
 .ashivam-logo__name {
-  font-family: var(--font-display, 'Syne', sans-serif);
+  font-family: var(--font-display, 'Manrope', sans-serif);
   font-size: calc(var(--logo-height, 38px) * 0.48);
   font-weight: 800;
-  color: #ffffff;
+  color: var(--clr-navy, #0B1F3A);
   letter-spacing: -0.01em;
 }
 
 .ashivam-logo__sub {
-  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
   font-size: calc(var(--logo-height, 38px) * 0.22);
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #f5cb5c;
+  color: var(--clr-gold, #D4AF37);
   margin-top: 2px;
 }
 
