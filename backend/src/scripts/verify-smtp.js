@@ -63,8 +63,8 @@ const run = async () => {
     console.log("  - SMTP_PORT           (e.g., 587 or 465)");
     console.log("  - SMTP_USER           (e.g., your email or apikey)");
     console.log("  - SMTP_PASSWORD       (SMTP password or app password)");
-    console.log("  - SMTP_FROM           (e.g., Ashivam Technologies <no-reply@ashivamtechnologies.com>)");
-    console.log("  - ALERT_EMAIL         (e.g., hr@ashivamtechnologies.com)");
+    console.log("  - SMTP_FROM           (e.g., Ashivam Technologies <teamashivam@gmail.com>)");
+    console.log("  - ALERT_EMAIL         (e.g., team.ashivam@gmail.com)");
     console.log("\n[Notice] The application operates safely in SIMULATED mode until configured.");
     return;
   }

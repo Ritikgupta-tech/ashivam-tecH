@@ -148,7 +148,7 @@ const withRetry = async (fn, maxRetries = env.isTest ? 0 : 2, baseDelayMs = 300)
  */
 const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
   const payload = {
-    from: env.smtpFrom || env.emailFrom || "Ashivam Technologies <no-reply@ashivamtechnologies.com>",
+    from: env.smtpFrom || env.emailFrom || "Ashivam Technologies <teamashivam@gmail.com>",
     to: [to],
     subject,
     html: html || text || "",
@@ -198,7 +198,7 @@ const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
  * Dispatches an email via Brevo HTTPS API (Port 443).
  */
 const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
-  const fromRaw = env.smtpFrom || env.emailFrom || "no-reply@ashivamtechnologies.com";
+  const fromRaw = env.smtpFrom || env.emailFrom || "Ashivam Technologies <teamashivam@gmail.com>";
   const parsedSender = parseSender(fromRaw);
 
   const payload = {
