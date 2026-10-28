@@ -514,19 +514,19 @@
 /* Mobile & Small Tablets (<= 640px) */
 @media (max-width: 640px) {
   .techstack__controls {
-    justify-content: flex-start;
-    overflow-x: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
     padding-bottom: 0.5rem;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .techstack__controls::-webkit-scrollbar {
-    display: none;
   }
 
   .techstack__filter-btn {
-    flex-shrink: 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 1rem;
   }
 
   .techstack__status-bar {
