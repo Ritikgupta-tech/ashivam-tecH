@@ -1227,7 +1227,7 @@ export default function AdminDashboard() {
       <div className="admin-layout" style={{ justifyContent: 'center', alignItems: 'center' }}>
         <div className="admin-loading-state">
           <div className="admin-spinner" style={{ width: '32px', height: '32px', borderWidth: '3px' }} />
-          <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.7)' }}>Verifying secure administrator session...</p>
+          <p style={{ marginTop: '1rem', color: 'var(--clr-text-muted, #64748B)', fontWeight: 500 }}>Verifying secure administrator session...</p>
         </div>
       </div>
     );
@@ -1528,7 +1528,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>Website Contact Inquiries</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Manage messages from client prospective partners, respond, and track ticket status.
                         </p>
                       </div>
@@ -1573,12 +1573,12 @@ export default function AdminDashboard() {
                               <td><strong>{inq.name}</strong></td>
                               <td>
                                 <div>{inq.email}</div>
-                                {inq.phone && <small style={{ color: 'rgba(255,255,255,0.45)' }}>{inq.phone}</small>}
+                                {inq.phone && <small style={{ color: 'var(--clr-text-muted, #64748B)', display: 'block' }}>{inq.phone}</small>}
                               </td>
                               <td>
                                 <div>{inq.subject || 'General Inquiry'}</div>
                                 {inq.message && (
-                                  <small style={{ color: 'rgba(255,255,255,0.5)', display: 'block', maxWidth: '280px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  <small style={{ color: 'var(--clr-text-muted, #64748B)', display: 'block', maxWidth: '280px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {inq.message}
                                   </small>
                                 )}
@@ -1673,7 +1673,7 @@ export default function AdminDashboard() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
                           <h3 className="admin-panel-title" style={{ margin: 0 }}>Job Openings</h3>
-                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                             Manage company vacancies, review candidate pipelines, and publish opportunities.
                           </p>
                         </div>
@@ -1715,14 +1715,14 @@ export default function AdminDashboard() {
                                 <td>
                                   <strong>{job.title}</strong>
                                   {job.slug && (
-                                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-mono, monospace)' }}>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted, #64748B)', fontFamily: 'var(--font-mono, monospace)' }}>
                                       /{job.slug}
                                     </div>
                                   )}
                                 </td>
                                 <td>{job.department}</td>
                                 <td>
-                                  <span style={{ background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                  <span style={{ background: 'var(--clr-soft, #F4F8FC)', border: '1px solid var(--clr-border, #E2E8F0)', color: 'var(--clr-navy, #0B1F3A)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>
                                     {job.employmentType}
                                   </span>
                                 </td>
@@ -1775,7 +1775,7 @@ export default function AdminDashboard() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
                           <h3 className="admin-panel-title" style={{ margin: 0 }}>Job Applications</h3>
-                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                             Review submitted candidate applications, download resumes, and manage applicant statuses.
                           </p>
                         </div>
@@ -1822,7 +1822,7 @@ export default function AdminDashboard() {
                                 <td><strong>{app.firstName} {app.lastName}</strong></td>
                                 <td>
                                   <div>{app.email}</div>
-                                  <small style={{ color: 'rgba(255,255,255,0.5)' }}>{app.phone}</small>
+                                  <small style={{ color: 'var(--clr-text-muted, #64748B)', display: 'block' }}>{app.phone}</small>
                                 </td>
                                 <td>
                                   <span className={`admin-status-pill ${app.status || 'applied'}`}>
@@ -1902,7 +1902,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>Internship Applications</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Review student candidate submissions, domain preferences, academic backgrounds, and pipeline progress.
                         </p>
                       </div>
@@ -1960,7 +1960,7 @@ export default function AdminDashboard() {
                               <td>
                                 <strong>{intern.name}</strong>
                                 <br />
-                                <small style={{ color: 'rgba(255,255,255,0.5)' }}>{intern.email}</small>
+                                <small style={{ color: 'var(--clr-text-muted, #64748B)' }}>{intern.email}</small>
                               </td>
                               <td>{intern.domain}</td>
                               <td>{intern.college}</td>
@@ -2046,7 +2046,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>Employee Directory</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Manage company personnel, departmental assignments, employment profiles, and records.
                         </p>
                       </div>
@@ -2100,12 +2100,12 @@ export default function AdminDashboard() {
                                 <td>
                                   <strong>{displayName}</strong>
                                   <br />
-                                  <small style={{ color: 'rgba(255,255,255,0.5)' }}>{emp.email}</small>
+                                  <small style={{ color: 'var(--clr-text-muted, #64748B)' }}>{emp.email}</small>
                                 </td>
                                 <td>{emp.designation}</td>
                                 <td>{emp.department}</td>
                                 <td>
-                                  <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>
+                                  <span style={{ fontSize: '0.8rem', color: 'var(--clr-text-muted, #64748B)' }}>
                                     {emp.employmentType} • {emp.workLocation || 'Office'}
                                   </span>
                                 </td>
@@ -2193,7 +2193,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>HR & Corporate Documents</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Manage confidential employee documentation, offer letters, NDAs, and verify compliance records.
                         </p>
                       </div>
@@ -2244,14 +2244,14 @@ export default function AdminDashboard() {
                               <td>
                                 <strong>{doc.title}</strong>
                                 {doc.documentNumber && (
-                                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)' }}>
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted, #64748B)' }}>
                                     #{doc.documentNumber}
                                   </div>
                                 )}
                               </td>
                               <td>{doc.employee?.name || doc.employee?.firstName || 'Assigned Employee'}</td>
                               <td>
-                                <span style={{ background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                <span style={{ background: 'var(--clr-soft, #F4F8FC)', border: '1px solid var(--clr-border, #E2E8F0)', color: 'var(--clr-navy, #0B1F3A)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>
                                   {doc.documentType}
                                 </span>
                               </td>
@@ -2329,7 +2329,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>CMS Content Blocks</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Dynamically manage website marketing copy, hero banners, feature sections, and published status.
                         </p>
                       </div>
@@ -2448,7 +2448,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>Media Assets</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Central company asset repository for website imagery, logos, brochures, and CDN files.
                         </p>
                       </div>
@@ -2550,7 +2550,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                       <div>
                         <h3 className="admin-panel-title" style={{ margin: 0 }}>Audit Trail & Security Logs</h3>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                           Immutable administrative log tracking state mutations, authentication events, and administrative actions.
                         </p>
                       </div>
@@ -2629,7 +2629,7 @@ export default function AdminDashboard() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
                       <h3 className="admin-panel-title" style={{ margin: 0 }}>System & Website Configuration</h3>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                         Manage corporate profile, contact metadata, social links, and live platform features with direct MongoDB persistence.
                       </p>
                     </div>
@@ -2880,7 +2880,7 @@ export default function AdminDashboard() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
                       <h3 className="admin-panel-title" style={{ margin: 0 }}>Administrator Accounts</h3>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--clr-text-muted, #64748B)' }}>
                         Superadmin-only console. Create and manage operational admin access with role-based restrictions.
                       </p>
                     </div>
@@ -2926,7 +2926,7 @@ export default function AdminDashboard() {
                             <tr key={adm._id}>
                               <td><strong>{adm.name}</strong></td>
                               <td>@{adm.username}</td>
-                              <td>{adm.email || <span style={{ color: 'rgba(255,255,255,0.4)' }}>—</span>}</td>
+                              <td>{adm.email || <span style={{ color: 'var(--clr-text-muted, #64748B)' }}>—</span>}</td>
                               <td>
                                 <span className={`admin-role-badge ${adm.role?.toLowerCase()}`}>
                                   {adm.role}
@@ -2941,11 +2941,7 @@ export default function AdminDashboard() {
                                       <span
                                         key={p}
                                         style={{
-                                          background: 'rgba(255,255,255,0.08)',
-                                          padding: '2px 6px',
-                                          borderRadius: '4px',
-                                          fontSize: '0.75rem',
-                                          color: 'rgba(255,255,255,0.85)',
+                                          background: 'var(--clr-soft, #F4F8FC)', border: '1px solid var(--clr-border, #E2E8F0)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 500,
                                         }}
                                       >
                                         {p}
@@ -2953,7 +2949,7 @@ export default function AdminDashboard() {
                                     ))}
                                   </div>
                                 ) : (
-                                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>None</span>
+                                  <span style={{ color: 'var(--clr-text-muted, #64748B)', fontSize: '0.85rem' }}>None</span>
                                 )}
                               </td>
                               <td>
@@ -2964,7 +2960,7 @@ export default function AdminDashboard() {
                               <td>{adm.lastLoginAt ? new Date(adm.lastLoginAt).toLocaleString() : 'Never'}</td>
                               <td>
                                 {adm._id === user?.id ? (
-                                  <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>Current Session</span>
+                                  <span style={{ fontSize: '0.8rem', color: '#1B6FA0', fontWeight: 600 }}>Current Session</span>
                                 ) : (
                                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                     <button
@@ -3020,15 +3016,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Create Normal Admin Account</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Create Normal Admin Account</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   Restricted to operational tasks. Cannot manage other admin accounts.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreateAdminModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close modal"
               >
                 &times;
@@ -3110,13 +3106,13 @@ export default function AdminDashboard() {
                   readOnly
                   className="admin-form-input"
                   value="Admin (Normal Administrator - Restricted)"
-                  style={{ background: 'rgba(255,255,255,0.05)', color: '#93c5fd' }}
+                  style={{ background: 'var(--clr-soft, #F4F8FC)', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 500 }}
                 />
               </div>
 
               <div className="admin-form-group">
                 <label className="admin-form-label">Assigned Permissions</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', background: 'var(--clr-soft, #F4F8FC)', border: '1px solid var(--clr-border, #E2E8F0)', padding: '0.75rem', borderRadius: '8px' }}>
                   {[
                     { key: 'dashboard', label: '📊 Dashboard Overview' },
                     { key: 'inquiries', label: '💬 Inquiries' },
@@ -3182,10 +3178,10 @@ export default function AdminDashboard() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 id="job-modal-title" style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>
+                <h3 id="job-modal-title" style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>
                   {editingJob ? 'Edit Job Opening' : 'Add New Job Opening'}
                 </h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   {editingJob
                     ? `Update position details, requirements, and live status for "${editingJob.title}".`
                     : 'Publish a new engineering vacancy or internship to the careers portal.'}
@@ -3194,7 +3190,7 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setShowJobModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close modal"
               >
                 &times;
@@ -3472,15 +3468,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Contact Inquiry</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Contact Inquiry</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   From {selectedInquiry.name} ({new Date(selectedInquiry.createdAt).toLocaleDateString()})
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedInquiry(null)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -3549,15 +3545,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Candidate Application</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Candidate Application</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   {selectedApp.firstName} {selectedApp.lastName} • Applied {new Date(selectedApp.createdAt).toLocaleDateString()}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedApp(null)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -3624,15 +3620,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Internship Candidate</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Internship Candidate</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   {selectedIntern.name} • {selectedIntern.domain} ({new Date(selectedIntern.createdAt).toLocaleDateString()})
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedIntern(null)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -3721,17 +3717,17 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '720px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>
                   {editingEmp ? 'Edit Employee Profile' : 'Add New Employee'}
                 </h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   {editingEmp ? `Update organizational records for ${editingEmp.firstName || editingEmp.name}.` : 'Register a new employee into the company directory.'}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowEmpModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -3966,7 +3962,7 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setSelectedEmp(null)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -3992,7 +3988,7 @@ export default function AdminDashboard() {
                   <span className={`admin-status-pill ${selectedEmp.isActive ? 'active' : 'inactive'}`}>
                     {selectedEmp.isActive ? 'Active' : 'Inactive'}
                   </span>
-                  <span style={{ marginLeft: '8px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ marginLeft: '8px', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                     {selectedEmp.joiningDate ? new Date(selectedEmp.joiningDate).toLocaleDateString() : ''}
                   </span>
                 </div>
@@ -4053,15 +4049,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Upload HR Document</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Upload HR Document</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   Upload verified employment contracts, identification, or appraisal records.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowDocModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -4217,17 +4213,17 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>
                   {editingContent ? 'Edit Content Block' : 'Create Content Block'}
                 </h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   Manage dynamic marketing content rendered on the public website.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowContentModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -4338,15 +4334,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Upload Media Asset</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Upload Media Asset</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   Upload images, documents, or branding materials to the official media library.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowMediaModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -4415,15 +4411,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Security Audit Log Entry</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Security Audit Log Entry</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   Action: {selectedAudit.action} • {new Date(selectedAudit.createdAt).toLocaleString()}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedAudit(null)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -4481,15 +4477,15 @@ export default function AdminDashboard() {
           <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px', width: '92%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Edit Admin Permissions</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--clr-navy, #0B1F3A)', fontWeight: 700 }}>Edit Admin Permissions</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--clr-text-muted, #64748B)' }}>
                   Manage module access for @{editingAdminPermissions.username} ({editingAdminPermissions.name}).
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingAdminPermissions(null)}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--clr-text-muted, #64748B)', fontSize: '1.5rem', cursor: 'pointer' }}
                 aria-label="Close"
               >
                 &times;
@@ -4497,7 +4493,7 @@ export default function AdminDashboard() {
             </div>
 
             <form onSubmit={handleSaveAdminPermissions}>
-              <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', marginBottom: '1.25rem' }}>
+              <div style={{ background: 'var(--clr-soft, #F4F8FC)', border: '1px solid var(--clr-border, #E2E8F0)', padding: '1rem', borderRadius: '8px', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
                   {[
                     { key: 'dashboard', label: '📊 Dashboard Overview' },
