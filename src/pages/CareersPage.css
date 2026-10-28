@@ -8,16 +8,20 @@
   flex-direction: column;
   background-color: var(--clr-bg);
   color: var(--clr-text);
+  position: relative;
+  overflow-x: hidden;
 }
 
 .careers-main {
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 /* Recruitment Hero */
 .careers-hero {
-  padding-top: calc(5.75rem + env(safe-area-inset-top));
-  padding-bottom: 2.25rem;
+  padding-top: calc(8.5rem + env(safe-area-inset-top));
+  padding-bottom: 2.75rem;
   background: radial-gradient(circle at 50% 10%, rgba(135, 206, 235, 0.18) 0%, transparent 60%);
   position: relative;
 }
@@ -111,9 +115,13 @@
   border-top: 1px solid var(--clr-border-subtle);
 }
 
+.careers-page .culture {
+  padding-bottom: clamp(3.5rem, 5vw, 5.5rem);
+}
+
 @media (max-width: 640px) {
   .careers-hero {
-    padding-top: calc(5.25rem + env(safe-area-inset-top));
+    padding-top: calc(7.25rem + env(safe-area-inset-top));
     padding-bottom: 2rem;
   }
 

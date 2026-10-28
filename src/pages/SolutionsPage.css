@@ -16,7 +16,7 @@
 
 /* Unified Main Section: Navbar offset without arbitrary gap */
 .solutions-section {
-  padding-top: calc(4.75rem + env(safe-area-inset-top));
+  padding-top: calc(7rem + env(safe-area-inset-top));
   padding-bottom: clamp(2.5rem, 4vw, 3.75rem);
   background: radial-gradient(circle at 50% 5%, rgba(135, 206, 235, 0.18) 0%, transparent 55%);
 }
