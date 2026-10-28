@@ -127,6 +127,15 @@ app.use(
   express.static(path.resolve(process.cwd(), "uploads", "media"), {
     index: false,
     dotfiles: "deny",
+    setHeaders: (res, filePath) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      if (filePath && filePath.toLowerCase().endsWith(".svg")) {
+        res.setHeader(
+          "Content-Security-Policy",
+          "default-src 'none'; frame-ancestors 'none'; sandbox"
+        );
+      }
+    },
   })
 );
 

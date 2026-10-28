@@ -16,10 +16,12 @@ import {
   PERMISSIONS,
 } from "./admin.validator.js";
 
-const sendError = (res, message, statusCode = 400) => {
+const sendError = (res, message, statusCode = 400, errors = {}) => {
   return res.status(statusCode).json({
     success: false,
     message,
+    errors,
+    requestId: res.req?.id || "N/A",
   });
 };
 

@@ -38,6 +38,7 @@ export const healthLimiter = rateLimit({
   limit: env.isTest ? 10000 : 300, // 300 requests/minute (5 requests/sec is ample for multi-region health checks)
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   handler: createRateLimitHandler("Health check rate limit exceeded."),
 });
 
@@ -50,6 +51,7 @@ export const globalLimiter = rateLimit({
   limit: env.isTest ? 10000 : (env.globalRateLimit || 100),
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   skip: (req) => isHealthOrDiscoveryPath(req.path),
   handler: createRateLimitHandler("Too many requests from this IP. Please try again later."),
 });
@@ -64,6 +66,7 @@ export const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   handler: createRateLimitHandler("Too many login attempts. Please try again later."),
 });
 
@@ -76,5 +79,6 @@ export const publicFormLimiter = rateLimit({
   limit: env.isTest ? 100 : (env.publicFormRateLimit || 10),
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   handler: createRateLimitHandler("Too many submissions. Please try again later."),
 });

@@ -211,11 +211,17 @@ export const errorHandler = (err, req, res, next) => {
     clientMessage = scrubSensitivePatterns(err.message || "Request failed");
   }
 
+  const responseErrors =
+    typeof err.errors === "object" && err.errors !== null
+      ? err.errors
+      : typeof err.details === "object" && err.details !== null
+        ? err.details
+        : {};
+
   const responseBody = {
     success: false,
     message: clientMessage,
-    errors:
-      typeof err.errors === "object" && err.errors !== null ? err.errors : {},
+    errors: responseErrors,
     requestId,
   };
 

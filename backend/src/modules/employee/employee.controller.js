@@ -28,6 +28,7 @@ const validationError = (errors) => {
   );
 
   error.statusCode = 400;
+  error.errors = errors;
   error.details = errors;
 
   return error;
