@@ -215,8 +215,6 @@ export default function Footer() {
             <Link to="/terms-of-service" className="footer__legal-link">Terms of Service</Link>
             <span className="footer__legal-sep">·</span>
             <Link to="/security" className="footer__legal-link">Security</Link>
-            <span className="footer__legal-sep">·</span>
-            <Link to="/admin/login" className="footer__legal-link">Admin Portal</Link>
           </div>
 
           <button
