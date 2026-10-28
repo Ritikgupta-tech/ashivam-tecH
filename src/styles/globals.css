@@ -187,6 +187,25 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
+
+  /* Shared Subpage Hero Tokens */
+  --hero-offset-top: calc(7.5rem + env(safe-area-inset-top));
+  --hero-offset-tablet: calc(7rem + env(safe-area-inset-top));
+  --hero-offset-mobile: calc(6.25rem + env(safe-area-inset-top));
+  --hero-offset-small: calc(5.75rem + env(safe-area-inset-top));
+  --hero-padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
+  --hero-title-size: clamp(1.85rem, 4.2vw, 3.15rem);
+  --hero-title-line: 1.16;
+  --hero-title-letter: -0.025em;
+  --hero-subtitle-size: clamp(0.925rem, 1.35vw, 1.05rem);
+  --hero-subtitle-line: 1.6;
+  --hero-subtitle-max: 680px;
+
+  /* Shared Card System Tokens */
+  --card-radius: 16px;
+  --card-shadow: 0 4px 16px rgba(11, 31, 58, 0.05);
+  --card-shadow-hover: 0 12px 30px rgba(11, 31, 58, 0.1);
+  --card-padding: 1.35rem 1.25rem 1.25rem;
 }
 
 /* ---------- Reset & Box Sizing ---------- */

@@ -1,92 +1,111 @@
 /* ============================================================
-   ASHIVAM TECHNOLOGIES — SOLUTIONS PAGE STYLES (REFINED)
+   ASHIVAM TECHNOLOGIES — SOLUTIONS PAGE STYLES
+   Design System Aligned with Industries & Careers
    ============================================================ */
 
 .solutions-page {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   background-color: var(--clr-bg);
   color: var(--clr-text);
+  position: relative;
+  overflow-x: clip;
+  width: 100%;
 }
 
 .solutions-main {
-  flex: 1;
+  flex: 1 0 auto;
+  width: 100%;
+  position: relative;
 }
 
-/* Unified Main Section: Navbar offset without arbitrary gap */
+/* Unified Hero Section: Exact Shared Top Padding with Navbar */
 .solutions-section {
-  padding-top: calc(7rem + env(safe-area-inset-top));
-  padding-bottom: clamp(2.5rem, 4vw, 3.75rem);
-  background: radial-gradient(circle at 50% 5%, rgba(135, 206, 235, 0.18) 0%, transparent 55%);
+  padding-top: var(--hero-offset-top, calc(7.5rem + env(safe-area-inset-top)));
+  padding-bottom: var(--hero-padding-bottom, clamp(2.5rem, 4vw, 3.5rem));
+  background: radial-gradient(circle at 50% 8%, rgba(135, 206, 235, 0.18) 0%, transparent 58%);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .solutions-header {
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto 1.75rem;
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .solutions-eyebrow {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--clr-gold-dark);
   background: rgba(197, 155, 39, 0.08);
   border: 1px solid rgba(197, 155, 39, 0.25);
-  padding: 0.3rem 0.85rem;
+  padding: 0.325rem 0.9rem;
   border-radius: var(--radius-full);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.875rem;
+  box-sizing: border-box;
 }
 
 .solutions-title {
-  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-size: var(--hero-title-size, clamp(1.85rem, 4.2vw, 3.15rem));
   font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.18;
-  margin-bottom: 0.65rem;
+  letter-spacing: var(--hero-title-letter, -0.025em);
+  line-height: var(--hero-title-line, 1.16);
+  margin-bottom: 0.75rem;
   color: var(--clr-navy);
   overflow-wrap: break-word;
 }
 
 .solutions-subtitle {
-  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  font-size: var(--hero-subtitle-size, clamp(0.925rem, 1.35vw, 1.05rem));
   color: var(--clr-text-muted);
-  line-height: 1.55;
-  max-width: 680px;
-  margin: 0 auto 1.5rem;
+  line-height: var(--hero-subtitle-line, 1.6);
+  max-width: var(--hero-subtitle-max, 680px);
+  margin: 0 auto 1.75rem;
+  overflow-wrap: break-word;
 }
 
 /* Category Filter Pills */
 .solutions-filter {
   display: inline-flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   background: var(--clr-soft);
   border: 1px solid var(--clr-border);
-  padding: 0.3rem;
+  padding: 0.3rem 0.4rem;
   border-radius: var(--radius-full);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .solutions-filter__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 0.85rem;
   min-height: 44px;
   box-sizing: border-box;
-  font-size: 0.825rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--clr-text-muted);
   background: transparent;
   border: none;
   border-radius: var(--radius-full);
   cursor: pointer;
+  white-space: nowrap;
   transition: all var(--dur-fast) ease;
 }
 
@@ -122,7 +141,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 800px) {
   .solutions-filter {
     display: flex;
     flex-wrap: nowrap;
@@ -132,7 +151,7 @@
     max-width: 100%;
     justify-content: flex-start;
     padding: 0.35rem 0.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-md, 12px);
     scrollbar-width: none;
   }
 
@@ -146,22 +165,25 @@
     font-size: 0.8rem;
     padding: 0.45rem 0.85rem;
   }
+}
 
+@media (max-width: 640px) {
   .solutions-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 }
 
-/* SaaS Service Card */
+/* SaaS Service Card — Standardized Shared Enterprise Card System */
 .solution-card {
   display: flex;
   flex-direction: column;
+  height: 100%;
   background: #ffffff;
   border: 1px solid var(--clr-border);
-  box-shadow: 0 4px 16px rgba(11, 31, 58, 0.05);
-  border-radius: 14px;
-  padding: 1.35rem 1.25rem 1.25rem;
+  box-shadow: var(--card-shadow, 0 4px 16px rgba(11, 31, 58, 0.05));
+  border-radius: var(--card-radius, 16px);
+  padding: var(--card-padding, 1.35rem 1.25rem 1.25rem);
   box-sizing: border-box;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -172,7 +194,7 @@
   transform: translateY(-3px);
   background: var(--clr-surface-hover);
   border-color: var(--clr-sky);
-  box-shadow: 0 12px 30px rgba(11, 31, 58, 0.1);
+  box-shadow: var(--card-shadow-hover, 0 12px 30px rgba(11, 31, 58, 0.1));
 }
 
 .solution-card__header {
@@ -185,13 +207,13 @@
 .solution-card__icon-wrap {
   width: 38px;
   height: 38px;
-  border-radius: 9px;
+  border-radius: 10px;
   background: rgba(197, 155, 39, 0.1);
   border: 1px solid rgba(197, 155, 39, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--clr-gold);
+  color: var(--clr-gold-dark, #785200);
   transition: background 180ms ease, transform 180ms ease;
 }
 
@@ -203,26 +225,27 @@
 .solution-card__badge {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--clr-navy);
   background: var(--clr-soft);
   border: 1px solid var(--clr-border);
-  padding: 0.2rem 0.55rem;
-  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.04em;
 }
 
 .solution-card__title {
-  font-size: 1.125rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--clr-navy);
-  line-height: 1.3;
+  line-height: 1.35;
   margin-bottom: 0.45rem;
 }
 
 .solution-card__summary {
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   color: var(--clr-text-muted);
-  line-height: 1.5;
+  line-height: 1.55;
   margin-bottom: 0.85rem;
 }
 
@@ -239,14 +262,14 @@
   display: flex;
   align-items: flex-start;
   gap: 0.45rem;
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   color: var(--clr-text);
   font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .solution-card__cap-icon {
-  color: var(--clr-gold);
+  color: var(--clr-gold-dark, #785200);
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -288,7 +311,7 @@
 
 .solution-card__link:hover {
   gap: 0.6rem;
-  color: var(--clr-gold-dark);
+  color: var(--clr-gold-dark, #785200);
 }
 
 /* Compact Banner */
@@ -327,10 +350,36 @@
   flex-shrink: 0;
 }
 
+.solutions-page .footer {
+  flex-shrink: 0;
+  position: relative;
+  margin-top: auto;
+}
+
+@media (max-width: 1024px) {
+  .solutions-section {
+    padding-top: var(--hero-offset-tablet, calc(7rem + env(safe-area-inset-top)));
+  }
+}
+
 @media (max-width: 768px) {
   .solutions-banner__card {
     flex-direction: column;
     text-align: center;
     gap: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .solutions-section {
+    padding-top: var(--hero-offset-mobile, calc(6.25rem + env(safe-area-inset-top)));
+    padding-bottom: 2.25rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .solutions-section {
+    padding-top: var(--hero-offset-small, calc(5.75rem + env(safe-area-inset-top)));
+    padding-bottom: 2rem;
   }
 }
