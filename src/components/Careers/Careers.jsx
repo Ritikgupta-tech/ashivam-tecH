@@ -392,7 +392,7 @@ export default function Careers() {
                     Thank you, <strong>{formData.firstName}</strong>. Your application and resume for{' '}
                     <strong>{selectedJob.title}</strong> have been securely received and recorded.
                   </p>
-                  <p className="career-success-desc" style={{ fontSize: '0.825rem', color: 'rgba(255,255,255,0.5)' }}>
+                  <p className="career-success-desc" style={{ fontSize: '0.825rem', color: 'var(--clr-text-muted, #64748B)' }}>
                     Our engineering leadership team will review your qualifications and reach out via{' '}
                     <strong>{formData.email}</strong>.
                   </p>

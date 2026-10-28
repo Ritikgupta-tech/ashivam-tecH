@@ -5,7 +5,7 @@
 
 export const COMPANY = {
   name: 'Ashivam Technologies',
-  tagline: 'Infinite Possibilities. Engineered with Precision.',
+  tagline: 'Endless Innovation. Limitless Possibilities.',
   description:
     'We are a modern technology company building scalable software, digital products, and innovative experiences that move ideas forward.',
   email: 'team.ashivam@gmail.com',

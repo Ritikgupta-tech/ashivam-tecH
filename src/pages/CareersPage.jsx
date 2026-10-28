@@ -26,13 +26,13 @@ export default function CareersPage() {
 
       <main className="careers-main" id="main-content">
         {/* Recruitment Hero */}
-        <section className="careers-hero section">
+        <section className="careers-hero" aria-labelledby="careers-hero-heading">
           <div className="container">
             <div className="careers-hero__content text-center">
               <div className="careers-hero__badge">
                 <span>Careers • Engineering & Product</span>
               </div>
-              <h1 className="careers-hero__title">
+              <h1 id="careers-hero-heading" className="careers-hero__title">
                 Build Systems That <span className="gradient-text-gold">Matter</span>
               </h1>
               <p className="careers-hero__desc">

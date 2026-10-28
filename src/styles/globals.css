@@ -196,6 +196,12 @@
   padding: 0;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
@@ -220,6 +226,7 @@ html {
 }
 
 body {
+  margin: 0;
   font-family: var(--font-primary);
   background-color: var(--clr-bg);
   color: var(--clr-text);
@@ -227,6 +234,26 @@ body {
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root,
+.app-layout {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content,
+#main-content {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+.site-footer,
+.footer {
+  flex-shrink: 0;
+  position: relative;
 }
 
 /* ---------- Typography Defaults ---------- */

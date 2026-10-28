@@ -81,7 +81,7 @@ The system is built upon modern full-stack web standards: a **React 18 single-pa
 
 ### 3.1 Public Client-Facing Pages & Workflows
 1. **Homepage (`/`):**
-   - **Hero Section:** High-impact value proposition ("Infinite Possibilities. Engineered with Precision."), dual call-to-action buttons ("Discuss Your Project", "Explore Solutions"), and animated background glow elements.
+   - **Hero Section:** High-impact value proposition ("Endless Innovation. Limitless Possibilities."), dual call-to-action buttons ("Discuss Your Project", "Explore Solutions"), and animated background glow elements.
    - **Institutional Metrics (`Stats`):** Displays operational metrics from marketing copy (active projects, developer contributors, supported technologies) — *[Marketing copy claim — Requires corporate metrics sign-off]*.
    - **Core Capabilities (`Services`):** Interactive 4-card matrix detailing Web Development, Mobile Development, Custom Software Engineering, and UI/UX Design Systems.
    - **Agile Delivery Lifecycle (`Process`):** A modern 4-phase interactive process section ("Discovery & Architecture", "Rapid Prototyping", "Production Hardening", "Deployment & Handover") with numbered indicators, status tags, and deliverable badges.

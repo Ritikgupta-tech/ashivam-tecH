@@ -23,7 +23,7 @@ export default function HomePage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Ashivam Technologies — Infinite Possibilities. Engineered with Precision.',
+      title: 'Ashivam Technologies — Endless Innovation. Limitless Possibilities.',
       description: 'Ashivam Technologies is an enterprise software engineering company building scalable web applications, native mobile apps, and robust cloud APIs.',
       canonical: 'https://ashivam-tec-h.vercel.app/',
     });

@@ -245,9 +245,9 @@ export default function Hero() {
       <div className="hero__content container">
         {/* Large Headline */}
         <h1 id="hero-heading" className="hero__headline page-load-2">
-          Infinite Possibilities.
-          <br />
-          <span className="gradient-text-gold">Engineered with Precision.</span>
+          <span className="hero__headline-primary">Endless Innovation.</span>
+          <br className="hero__headline-break" />
+          <span className="hero__headline-accent gradient-text-gold">Limitless Possibilities.</span>
         </h1>
 
         {/* Supporting Text */}

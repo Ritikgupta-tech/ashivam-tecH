@@ -155,12 +155,18 @@
 .hero__headline {
   font-size: clamp(2rem, 4.5vw, 4rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.18;
   letter-spacing: -0.03em;
   color: var(--clr-navy);
   margin: 0;
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+.hero__headline-primary,
+.hero__headline-accent {
+  display: inline-block;
+  max-width: 100%;
 }
 
 /* Description */
@@ -310,7 +316,7 @@
   }
 
   .hero__headline {
-    font-size: clamp(1.75rem, 6.2vw, 2.75rem);
+    font-size: clamp(1.4rem, 6.2vw, 2.25rem);
     line-height: 1.2;
     overflow-wrap: break-word;
     word-break: break-word;
@@ -340,6 +346,13 @@
   }
 }
 
+@media (max-width: 480px) {
+  .hero__headline {
+    font-size: clamp(1.25rem, 6.2vw, 1.75rem);
+    line-height: 1.24;
+  }
+}
+
 @media (max-width: 380px) {
   .hero__ctas {
     max-width: 100%;
@@ -361,5 +374,14 @@
   .hero__float-card,
   .hero__scroll-indicator {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__grid,
+  .hero__orb--gold,
+  .hero__orb--ambient,
+  .hero__scroll-wheel::before {
+    animation: none !important;
   }
 }
