@@ -57,7 +57,7 @@ const run = async () => {
     console.log("\nOption 1: Recommended for Render Cloud Containers (Bypasses SMTP port blocks):");
     console.log("  - RESEND_API_KEY      (e.g., re_xxxxxxxxxxxxxxxxxxxxxxxxx)");
     console.log("  - SMTP_FROM           (e.g., Ashivam Technologies <onboarding@resend.dev> or your verified domain)");
-    console.log("  - ALERT_EMAIL         (e.g., hr@ashivamtechnologies.com)");
+    console.log("  - ALERT_EMAIL         (e.g., team.ashivam@gmail.com)");
     console.log("\nOption 2: Direct SMTP (May time out on Render free tier if outbound ports 465/587 blocked):");
     console.log("  - SMTP_HOST           (e.g., smtp.gmail.com or smtp.sendgrid.net)");
     console.log("  - SMTP_PORT           (e.g., 587 or 465)");

@@ -1,4 +1,10 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -170,10 +176,10 @@ const env = {
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
       : "Ashivam Technologies <teamashivam@gmail.com>"),
   alertEmail:
-    (process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
+    (process.env.ALERT_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.CONTACT_TO_EMAIL || "").trim() ||
     "team.ashivam@gmail.com",
   notificationRecipient:
-    (process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.COMPANY_EMAIL || "").trim() ||
+    (process.env.NOTIFICATION_RECIPIENT || process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || "").trim() ||
     "team.ashivam@gmail.com",
 
   smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 10000,

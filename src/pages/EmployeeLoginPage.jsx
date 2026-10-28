@@ -159,7 +159,7 @@ export default function EmployeeLoginPage() {
             <div className="employee-login-card__support">
               <p>
                 <strong>Need access assistance?</strong> Employee credentials are provisioned by Ashivam IT Administration. Contact your coordinator or email{' '}
-                <a href="mailto:it-support@ashivamtechnologies.com">it-support@ashivamtechnologies.com</a>.
+                <a href="mailto:team.ashivam@gmail.com">team.ashivam@gmail.com</a>.
               </p>
             </div>
 

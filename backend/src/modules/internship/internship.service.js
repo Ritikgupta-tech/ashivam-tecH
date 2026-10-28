@@ -55,6 +55,7 @@ export const createInternship = async (data) => {
   if (alertRecipient) {
     sendEmail({
       to: alertRecipient,
+      replyTo: data.email,
       subject: `[Ashivam Internship] New application for ${data.domain} from ${data.name}`,
       text: `A new student internship application has been submitted on the Ashivam Technologies website.\n\nDomain: ${data.domain}\nStudent Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCollege: ${data.college || "N/A"}\nCourse: ${data.course || "N/A"}\nDuration: ${data.duration || "N/A"}\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
       html: internshipAdminAlertTemplate({
