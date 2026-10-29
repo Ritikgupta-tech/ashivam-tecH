@@ -303,7 +303,7 @@ export default function MediaTab() {
               </div>
             )}
 
-            <form onSubmit={handleUploadSubmit}>
+            <form onSubmit={handleUploadSubmit} className="admin-modal-form">
               <div className="admin-modal-body">
                 <div className="admin-form-group">
                   <label className="admin-form-label" htmlFor="media-cat-select">

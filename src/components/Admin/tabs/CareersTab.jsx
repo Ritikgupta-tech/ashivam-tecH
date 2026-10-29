@@ -625,7 +625,7 @@ export default function CareersTab() {
               </div>
             )}
 
-            <form onSubmit={handleJobSubmit}>
+            <form onSubmit={handleJobSubmit} className="admin-modal-form">
               <div className="admin-modal-body">
                 <div className="admin-form-row">
                   <div className="admin-form-group">

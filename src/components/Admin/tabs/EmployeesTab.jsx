@@ -423,7 +423,7 @@ export default function EmployeesTab() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} className="admin-modal-form" noValidate>
               <div className="admin-modal-body">
                 <div className="admin-form-row">
                   <div className="admin-form-group">

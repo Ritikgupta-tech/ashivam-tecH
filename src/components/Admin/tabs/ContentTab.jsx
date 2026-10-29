@@ -413,7 +413,7 @@ export default function ContentTab() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="admin-modal-form">
               <div className="admin-modal-body">
                 <div className="admin-form-row">
                   <div className="admin-form-group">

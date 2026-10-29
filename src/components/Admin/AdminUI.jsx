@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import {
   SearchIcon,
   ChevronLeftIcon,
@@ -370,6 +370,83 @@ export function LoadingSkeleton({ rows = 4, height = 36 }) {
           style={{ height: `${height}px` }}
         />
       ))}
+    </div>
+  );
+}
+
+/**
+ * Accessible Modal dialog with viewport constraints, scrollable body,
+ * escape listener, and background scroll locking.
+ */
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  subtitle,
+  children,
+  footer,
+  maxWidth = '640px',
+  ariaLabel,
+}) {
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.classList.add('admin-modal-open');
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.classList.remove('admin-modal-open');
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="admin-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={ariaLabel || (typeof title === 'string' ? title : 'Modal Dialog')}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose?.();
+      }}
+    >
+      <div
+        className="admin-modal-card"
+        style={{ maxWidth }}
+        ref={cardRef}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="admin-modal-header">
+          <div>
+            <h3 className="admin-modal-title">{title}</h3>
+            {subtitle && <p className="admin-modal-subtitle">{subtitle}</p>}
+          </div>
+          <button
+            type="button"
+            className="admin-modal-close"
+            onClick={onClose}
+            aria-label="Close dialog"
+          >
+            <XMarkIcon size={18} />
+          </button>
+        </div>
+
+        {children}
+
+        {footer && <div className="admin-modal-footer">{footer}</div>}
+      </div>
     </div>
   );
 }

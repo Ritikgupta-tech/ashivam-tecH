@@ -414,7 +414,7 @@ export default function AdminsTab({ currentUser }) {
               </div>
             )}
 
-            <form onSubmit={handleCreateSubmit} noValidate>
+            <form onSubmit={handleCreateSubmit} className="admin-modal-form" noValidate>
               <div className="admin-modal-body">
                 <div className="admin-form-group">
                   <label className="admin-form-label" htmlFor="create-admin-name">

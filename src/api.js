@@ -318,6 +318,70 @@ export const deleteInternship = (id) =>
     method: 'DELETE',
   });
 
+export const convertInternshipApplication = (id, data) =>
+  request(`/internships/applications/${encodeURIComponent(id)}/convert`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const getInterns = (params) =>
+  request(`/internships/interns${buildQuery(params)}`);
+
+export const getInternById = (id) =>
+  request(`/internships/interns/${encodeURIComponent(id)}`);
+
+export const createIntern = (data) =>
+  request('/internships/interns', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateIntern = (id, data) =>
+  request(`/internships/interns/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const updateInternStatus = (id, data) =>
+  request(`/internships/interns/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const updateInternOnboarding = (id, data) =>
+  request(`/internships/interns/${encodeURIComponent(id)}/onboarding`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const deleteIntern = (id) =>
+  request(`/internships/interns/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+
+export const getInternshipPrograms = (params) =>
+  request(`/internships/programs${buildQuery(params)}`);
+
+export const getPublicInternshipPrograms = () =>
+  request('/internships/programs/public');
+
+export const createInternshipProgram = (data) =>
+  request('/internships/programs', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateInternshipProgram = (id, data) =>
+  request(`/internships/programs/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const deleteInternshipProgram = (id) =>
+  request(`/internships/programs/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+
 export const getEmployees = (params) =>
   request(`/employees${buildQuery(params)}`);
 
@@ -550,3 +614,9 @@ export const exportCareerApplicationsCsv = (params) =>
 
 export const exportAuditLogsCsv = (params) =>
   downloadAuthenticatedCsv(`/audit/export${buildQuery(params)}`, 'security_audit_export.csv');
+
+export const exportInternshipsCsv = (params) =>
+  downloadAuthenticatedCsv(`/internships/export${buildQuery(params)}`, 'internship_applications.csv');
+
+export const exportInternsCsv = (params) =>
+  downloadAuthenticatedCsv(`/internships/interns/export${buildQuery(params)}`, 'interns_roster.csv');

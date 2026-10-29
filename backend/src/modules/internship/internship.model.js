@@ -102,6 +102,47 @@ const internshipSchema = new mongoose.Schema(
       ref: "Admin",
       default: null,
     },
+
+    convertedToIntern: {
+      type: Boolean,
+      default: false,
+    },
+
+    internId: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    interviewDate: {
+      type: Date,
+      default: null,
+    },
+
+    interviewNotes: {
+      type: String,
+      trim: true,
+      maxlength: 3000,
+      default: null,
+    },
+
+    stipend: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    isUnpaid: {
+      type: Boolean,
+      default: false,
+    },
+
+    resume: {
+      originalName: { type: String, default: null },
+      storageKey: { type: String, default: null },
+      mimeType: { type: String, default: null },
+      size: { type: Number, default: 0 },
+    },
   },
   {
     timestamps: true,
