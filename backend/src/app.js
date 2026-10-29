@@ -74,16 +74,16 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    const isVercel = origin.endsWith(".vercel.app") || origin.includes("vercel.app");
-    const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
-
-    if (
-      env.allowedOrigins.includes(origin) ||
-      !env.isProduction ||
-      isVercel ||
-      isLocal
-    ) {
+    if (env.allowedOrigins.includes(origin)) {
       return callback(null, true);
+    }
+
+    // In non-production environments (development/test), allow local dev servers
+    if (!env.isProduction) {
+      const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
+      if (isLocal) {
+        return callback(null, true);
+      }
     }
 
     const error = new Error(`Origin ${origin} not allowed by CORS`);

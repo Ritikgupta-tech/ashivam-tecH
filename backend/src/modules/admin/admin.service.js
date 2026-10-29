@@ -83,48 +83,88 @@ export const createAdmin = async ({
   return getAdmin(admin._id);
 };
 
-export const updateAdmin = async (adminId, updates) => {
-  const admin = await Admin.findById(adminId);
+let adminMutationLock = Promise.resolve();
 
-  if (!admin) {
-    return null;
+const withAdminMutationLock = async (fn) => {
+  let release;
+  const nextLock = new Promise((resolve) => {
+    release = resolve;
+  });
+  const currentLock = adminMutationLock;
+  adminMutationLock = currentLock.then(() => nextLock);
+
+  try {
+    await currentLock;
+    return await fn();
+  } finally {
+    release();
   }
+};
 
-  if (updates.name !== undefined) {
-    admin.name = updates.name.trim();
-  }
+export const updateAdmin = async (adminId, updates, currentAdminId) => {
+  return withAdminMutationLock(async () => {
+    const admin = await Admin.findById(adminId);
 
-  if (updates.email !== undefined) {
-    const normalizedEmail = updates.email && typeof updates.email === "string" ? updates.email.trim().toLowerCase() : null;
-    if (normalizedEmail) {
-      const existingWithEmail = await Admin.findOne({
-        email: normalizedEmail,
-        _id: { $ne: adminId },
-      });
-      if (existingWithEmail) {
-        const error = new Error("Email already in use by another administrator");
-        error.statusCode = 409;
+    if (!admin) {
+      return null;
+    }
+
+    if (updates.name !== undefined) {
+      admin.name = updates.name.trim();
+    }
+
+    if (updates.email !== undefined) {
+      const normalizedEmail = updates.email && typeof updates.email === "string" ? updates.email.trim().toLowerCase() : null;
+      if (normalizedEmail) {
+        const existingWithEmail = await Admin.findOne({
+          email: normalizedEmail,
+          _id: { $ne: adminId },
+        });
+        if (existingWithEmail) {
+          const error = new Error("Email already in use by another administrator");
+          error.statusCode = 409;
+          throw error;
+        }
+      }
+      admin.email = normalizedEmail;
+    }
+
+    if (updates.password !== undefined) {
+      admin.passwordHash = await bcrypt.hash(updates.password, 12);
+      admin.passwordChangedAt = new Date();
+    }
+
+    if (updates.role !== undefined && updates.role !== admin.role) {
+      if (currentAdminId && adminId.toString() === currentAdminId.toString() && updates.role !== "Superadmin") {
+        const error = new Error("You cannot remove your own Superadmin role");
+        error.statusCode = 400;
         throw error;
       }
+
+      if (admin.role === "Superadmin" && updates.role !== "Superadmin" && admin.isActive) {
+        const activeSuperadmins = await Admin.countDocuments({
+          role: "Superadmin",
+          isActive: true,
+        });
+
+        if (activeSuperadmins <= 1) {
+          const error = new Error("At least one active Superadmin is required");
+          error.statusCode = 400;
+          throw error;
+        }
+      }
+
+      admin.role = updates.role;
     }
-    admin.email = normalizedEmail;
-  }
 
-  if (updates.password !== undefined) {
-    admin.passwordHash = await bcrypt.hash(updates.password, 12);
-  }
+    if (updates.permissions !== undefined) {
+      admin.permissions = updates.permissions;
+    }
 
-  if (updates.role !== undefined) {
-    admin.role = updates.role;
-  }
+    await admin.save();
 
-  if (updates.permissions !== undefined) {
-    admin.permissions = updates.permissions;
-  }
-
-  await admin.save();
-
-  return getAdmin(admin._id);
+    return getAdmin(admin._id);
+  });
 };
 
 export const updateAdminStatus = async (
@@ -132,43 +172,45 @@ export const updateAdminStatus = async (
   isActive,
   currentAdminId
 ) => {
-  if (adminId === currentAdminId && !isActive) {
-    const error = new Error(
-      "You cannot deactivate your own account"
-    );
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const admin = await Admin.findById(adminId);
-
-  if (!admin) {
-    return null;
-  }
-
-  if (
-    admin.role === "Superadmin" &&
-    admin.isActive &&
-    !isActive
-  ) {
-    const activeSuperadmins = await Admin.countDocuments({
-      role: "Superadmin",
-      isActive: true,
-    });
-
-    if (activeSuperadmins <= 1) {
+  return withAdminMutationLock(async () => {
+    if (adminId.toString() === currentAdminId?.toString() && !isActive) {
       const error = new Error(
-        "At least one active Superadmin is required"
+        "You cannot deactivate your own account"
       );
       error.statusCode = 400;
       throw error;
     }
-  }
 
-  admin.isActive = isActive;
-  await admin.save();
+    const admin = await Admin.findById(adminId);
 
-  return getAdmin(admin._id);
+    if (!admin) {
+      return null;
+    }
+
+    if (
+      admin.role === "Superadmin" &&
+      admin.isActive &&
+      !isActive
+    ) {
+      const activeSuperadmins = await Admin.countDocuments({
+        role: "Superadmin",
+        isActive: true,
+      });
+
+      if (activeSuperadmins <= 1) {
+        const error = new Error(
+          "At least one active Superadmin is required"
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
+    admin.isActive = isActive;
+    await admin.save();
+
+    return getAdmin(admin._id);
+  });
 };
 
 export const updateAdminRole = async (
@@ -176,43 +218,45 @@ export const updateAdminRole = async (
   role,
   currentAdminId
 ) => {
-  if (adminId === currentAdminId && role !== "Superadmin") {
-    const error = new Error(
-      "You cannot remove your own Superadmin role"
-    );
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const admin = await Admin.findById(adminId);
-
-  if (!admin) {
-    return null;
-  }
-
-  if (
-    admin.role === "Superadmin" &&
-    role !== "Superadmin" &&
-    admin.isActive
-  ) {
-    const activeSuperadmins = await Admin.countDocuments({
-      role: "Superadmin",
-      isActive: true,
-    });
-
-    if (activeSuperadmins <= 1) {
+  return withAdminMutationLock(async () => {
+    if (adminId.toString() === currentAdminId?.toString() && role !== "Superadmin") {
       const error = new Error(
-        "At least one active Superadmin is required"
+        "You cannot remove your own Superadmin role"
       );
       error.statusCode = 400;
       throw error;
     }
-  }
 
-  admin.role = role;
-  await admin.save();
+    const admin = await Admin.findById(adminId);
 
-  return getAdmin(admin._id);
+    if (!admin) {
+      return null;
+    }
+
+    if (
+      admin.role === "Superadmin" &&
+      role !== "Superadmin" &&
+      admin.isActive
+    ) {
+      const activeSuperadmins = await Admin.countDocuments({
+        role: "Superadmin",
+        isActive: true,
+      });
+
+      if (activeSuperadmins <= 1) {
+        const error = new Error(
+          "At least one active Superadmin is required"
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
+    admin.role = role;
+    await admin.save();
+
+    return getAdmin(admin._id);
+  });
 };
 
 export const updateAdminPermissions = async (
@@ -232,36 +276,38 @@ export const deleteAdmin = async (
   adminId,
   currentAdminId
 ) => {
-  if (adminId === currentAdminId) {
-    const error = new Error(
-      "You cannot delete your own account"
-    );
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const admin = await Admin.findById(adminId);
-
-  if (!admin) {
-    return null;
-  }
-
-  if (admin.role === "Superadmin" && admin.isActive) {
-    const activeSuperadmins = await Admin.countDocuments({
-      role: "Superadmin",
-      isActive: true,
-    });
-
-    if (activeSuperadmins <= 1) {
+  return withAdminMutationLock(async () => {
+    if (adminId.toString() === currentAdminId?.toString()) {
       const error = new Error(
-        "At least one active Superadmin is required"
+        "You cannot delete your own account"
       );
       error.statusCode = 400;
       throw error;
     }
-  }
 
-  await Admin.deleteOne({ _id: adminId });
+    const admin = await Admin.findById(adminId);
 
-  return true;
+    if (!admin) {
+      return null;
+    }
+
+    if (admin.role === "Superadmin" && admin.isActive) {
+      const activeSuperadmins = await Admin.countDocuments({
+        role: "Superadmin",
+        isActive: true,
+      });
+
+      if (activeSuperadmins <= 1) {
+        const error = new Error(
+          "At least one active Superadmin is required"
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
+    await Admin.deleteOne({ _id: adminId });
+
+    return true;
+  });
 };

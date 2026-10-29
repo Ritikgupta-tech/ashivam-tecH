@@ -204,9 +204,10 @@ export const errorHandler = (err, req, res, next) => {
 
   let clientMessage;
   if (statusCode >= 500) {
-    clientMessage = env.isProduction
-      ? "Internal server error"
-      : err.message || "An unexpected internal server error occurred";
+    clientMessage =
+      env.nodeEnv === "development"
+        ? err.message || "An unexpected internal server error occurred"
+        : "Internal server error";
   } else {
     clientMessage = scrubSensitivePatterns(err.message || "Request failed");
   }
@@ -225,8 +226,8 @@ export const errorHandler = (err, req, res, next) => {
     requestId,
   };
 
-  // Stack traces are strictly hidden in production
-  if (!env.isProduction && err.stack) {
+  // Stack traces are strictly disclosed ONLY in explicit development mode
+  if (env.nodeEnv === "development" && err.stack) {
     responseBody.stack = err.stack;
   }
 

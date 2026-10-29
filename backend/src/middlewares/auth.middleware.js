@@ -47,6 +47,20 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
+    if (admin.passwordChangedAt) {
+      const changedTimestamp = Math.floor(
+        admin.passwordChangedAt.getTime() / 1000
+      );
+      if (payload.iat && payload.iat < changedTimestamp) {
+        return res.status(401).json({
+          success: false,
+          message: "Password was changed recently. Please log in again.",
+          errors: {},
+          requestId: req.id,
+        });
+      }
+    }
+
     req.user = {
       id: admin._id.toString(),
       username: admin.username,

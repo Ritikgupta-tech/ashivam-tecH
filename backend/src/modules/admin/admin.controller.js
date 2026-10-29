@@ -85,7 +85,8 @@ export const updateAdminAccount = async (req, res, next) => {
 
     const admin = await updateAdmin(
       req.params.id,
-      req.body
+      req.body,
+      req.user?.id
     );
 
     if (!admin) {

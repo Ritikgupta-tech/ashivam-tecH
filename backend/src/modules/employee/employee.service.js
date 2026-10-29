@@ -1,8 +1,11 @@
 import Employee from "./employee.model.js";
 import { escapeRegex } from "../../utils/query.js";
 
-const EMPLOYEE_PROJECTION =
+export const EMPLOYEE_PROJECTION =
   "_id firstName lastName email phone profileImage designation department employmentType joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive createdAt updatedAt";
+
+export const PUBLIC_EMPLOYEE_PROJECTION =
+  "_id firstName lastName designation department profileImage bio skills socialLinks displayOrder isFeatured workLocation";
 
 const normalizeEmail = (email) =>
   email.trim().toLowerCase();
@@ -73,6 +76,7 @@ export const listEmployees = async ({
   isFeatured,
   sort = "displayOrder",
   order = "asc",
+  projection = EMPLOYEE_PROJECTION,
 }) => {
   const safePage = Math.max(
     Number(page) || 1,
@@ -121,7 +125,7 @@ export const listEmployees = async ({
   const [employees, total] =
     await Promise.all([
       Employee.find(filter)
-        .select(EMPLOYEE_PROJECTION)
+        .select(projection)
         .sort({
           [sortField]: sortDirection,
           createdAt: -1,
@@ -162,6 +166,7 @@ export const listPublicEmployees = async ({
     isActive: true,
     sort: "displayOrder",
     order: "asc",
+    projection: PUBLIC_EMPLOYEE_PROJECTION,
   });
 };
 
