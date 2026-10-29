@@ -19,7 +19,6 @@ const employeeSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
       maxlength: 160,
@@ -149,6 +148,15 @@ employeeSchema.virtual("fullName").get(function () {
 employeeSchema.set("toJSON", {
   virtuals: true,
 });
+
+employeeSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { deletedAt: null },
+    name: "email_active_unique",
+  }
+);
 
 employeeSchema.index({
   firstName: "text",

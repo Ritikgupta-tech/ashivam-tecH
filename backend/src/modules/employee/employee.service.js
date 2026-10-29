@@ -399,6 +399,43 @@ export const deleteEmployee = async (
   return true;
 };
 
+export const restoreEmployee = async (
+  employeeId,
+  adminId
+) => {
+  const employee =
+    await Employee.findOne({
+      _id: employeeId,
+      deletedAt: { $ne: null },
+    });
+
+  if (!employee) {
+    return null;
+  }
+
+  const existingActive =
+    await Employee.findOne({
+      email: employee.email,
+      deletedAt: null,
+    });
+
+  if (existingActive) {
+    const error = new Error(
+      "Cannot restore employee: another active employee is already using this email"
+    );
+    error.statusCode = 409;
+    throw error;
+  }
+
+  employee.deletedAt = null;
+  employee.isActive = true;
+  employee.updatedBy = adminId;
+
+  await employee.save();
+
+  return getEmployeeById(employee._id);
+};
+
 export const getEmployeeDepartments =
   async () => {
     return Employee.distinct("department", {

@@ -16,6 +16,10 @@ import {
 import {
   listPublicEmployees,
   PUBLIC_EMPLOYEE_PROJECTION,
+  createEmployee,
+  deleteEmployee,
+  restoreEmployee,
+  getEmployeeById,
 } from "../src/modules/employee/employee.service.js";
 import { generateAccessToken, verifyAccessToken } from "../src/utils/jwt.js";
 import { authenticate } from "../src/middlewares/auth.middleware.js";
@@ -26,6 +30,8 @@ before(async () => {
   await mongoose.connect(ISOLATED_MONGO_URI, {
     serverSelectionTimeoutMS: 5000,
   });
+  await Employee.syncIndexes();
+  await Admin.syncIndexes();
 });
 
 after(async () => {
@@ -328,46 +334,219 @@ test("AUD-07 - Stack traces and internal paths are strictly hidden outside devel
 });
 
 // ==========================================
-// AUD-08: Soft-Delete Email Uniqueness Evaluation on Real MongoDB
+// AUD-08: Partial Unique Index & Soft-Delete Email Lifecycle
 // ==========================================
-test("AUD-08 - Validates soft-delete email unique constraint and partial index behavior on real MongoDB", async () => {
-  const reuseEmail = `reuse.${Date.now()}@ashivamtechnologies.com`;
+test("AUD-08.1 - Two active employees cannot share an email", async () => {
+  const sharedEmail = `active-dupe-${Date.now()}@ashivamtechnologies.com`;
+  const adminId = new mongoose.Types.ObjectId().toString();
 
-  // Insert active employee
-  const emp1 = await Employee.create({
-    firstName: "Original",
-    lastName: "Employee",
-    email: reuseEmail,
-    designation: "Engineer",
-    department: "Engineering",
-    employmentType: "Full-time",
-    joiningDate: new Date(),
-  });
+  const emp1 = await createEmployee(
+    {
+      firstName: "Active",
+      lastName: "User1",
+      email: sharedEmail,
+      designation: "Frontend Engineer",
+      department: "Engineering",
+      employmentType: "Full-time",
+      joiningDate: new Date(),
+    },
+    adminId
+  );
 
-  // Soft-delete employee
-  emp1.deletedAt = new Date();
-  emp1.isActive = false;
-  await emp1.save();
+  assert.ok(emp1._id);
 
-  // With standard global unique index, creating another record with same email yields E11000
+  // Attempt to create second active employee via service with identical email
+  await assert.rejects(
+    async () => {
+      await createEmployee(
+        {
+          firstName: "Active",
+          lastName: "User2",
+          email: sharedEmail,
+          designation: "Backend Engineer",
+          department: "Engineering",
+          employmentType: "Full-time",
+          joiningDate: new Date(),
+        },
+        adminId
+      );
+    },
+    (err) => err.statusCode === 409 || err.code === 11000,
+    "Service must reject second active employee with duplicate email"
+  );
+
+  // Attempt direct insertion at database layer bypassing service
   await assert.rejects(
     async () => {
       await Employee.create({
-        firstName: "New",
-        lastName: "Candidate",
-        email: reuseEmail,
-        designation: "Engineer",
+        firstName: "Active",
+        lastName: "User3",
+        email: sharedEmail,
+        designation: "Fullstack Engineer",
         department: "Engineering",
         employmentType: "Full-time",
         joiningDate: new Date(),
+        deletedAt: null,
       });
     },
     (err) => err.code === 11000,
-    "Default global unique index prevents duplicate email even after soft delete"
+    "MongoDB partial unique index must reject direct insertion of duplicate active email"
   );
 
-  // Cleanup
+  await Employee.deleteMany({ email: sharedEmail });
+});
+
+test("AUD-08.2 - A soft-deleted employee's email can be reused by a new active employee", async () => {
+  const reuseEmail = `reuse-lifecycle-${Date.now()}@ashivamtechnologies.com`;
+  const adminId = new mongoose.Types.ObjectId().toString();
+
+  // 1. Create first employee
+  const original = await createEmployee(
+    {
+      firstName: "Original",
+      lastName: "Employee",
+      email: reuseEmail,
+      designation: "Lead Engineer",
+      department: "Engineering",
+      employmentType: "Full-time",
+      joiningDate: new Date("2023-01-01"),
+    },
+    adminId
+  );
+
+  // 2. Soft-delete first employee
+  const deleteResult = await deleteEmployee(original._id, adminId);
+  assert.equal(deleteResult, true);
+
+  // 3. Create a second employee reusing the exact same email
+  const newHire = await createEmployee(
+    {
+      firstName: "New",
+      lastName: "Hire",
+      email: reuseEmail,
+      designation: "Senior Engineer",
+      department: "Engineering",
+      employmentType: "Full-time",
+      joiningDate: new Date("2026-10-29"),
+    },
+    adminId
+  );
+
+  assert.ok(newHire._id, "New employee must be created successfully with reused email");
+  assert.notEqual(newHire._id.toString(), original._id.toString());
+  assert.equal(newHire.email, reuseEmail);
+  assert.equal(newHire.deletedAt, undefined);
+
+  // Both records must exist in the database
+  const countInDb = await Employee.countDocuments({ email: reuseEmail });
+  assert.equal(countInDb, 2, "Database must store both the archived and active employee records");
+
   await Employee.deleteMany({ email: reuseEmail });
+});
+
+test("AUD-08.3 - Soft-deleted historical records remain intact and immutable", async () => {
+  const auditEmail = `history-${Date.now()}@ashivamtechnologies.com`;
+  const adminId = new mongoose.Types.ObjectId().toString();
+
+  const original = await createEmployee(
+    {
+      firstName: "Historical",
+      lastName: "Archive",
+      email: auditEmail,
+      designation: "Principal Consultant",
+      department: "Advisory",
+      employmentType: "Contract",
+      joiningDate: new Date("2022-06-15"),
+      bio: "Historical personnel data",
+    },
+    adminId
+  );
+
+  await deleteEmployee(original._id, adminId);
+
+  // Querying active API methods returns null
+  const activeLookup = await getEmployeeById(original._id);
+  assert.equal(activeLookup, null, "Soft-deleted employee must not be returned by active lookup");
+
+  // Direct database inspection verifies all historical fields are intact
+  const historicalRecord = await Employee.findById(original._id);
+  assert.ok(historicalRecord);
+  assert.equal(historicalRecord.firstName, "Historical");
+  assert.equal(historicalRecord.lastName, "Archive");
+  assert.equal(historicalRecord.email, auditEmail);
+  assert.equal(historicalRecord.bio, "Historical personnel data");
+  assert.equal(historicalRecord.isActive, false);
+  assert.ok(historicalRecord.deletedAt instanceof Date);
+
+  await Employee.deleteMany({ email: auditEmail });
+});
+
+test("AUD-08.4 - Restoring an employee cannot create duplicate active emails", async () => {
+  const conflictEmail = `conflict-${Date.now()}@ashivamtechnologies.com`;
+  const adminId = new mongoose.Types.ObjectId().toString();
+
+  // Create and soft-delete Employee A
+  const empA = await createEmployee(
+    {
+      firstName: "Alice",
+      lastName: "Alum",
+      email: conflictEmail,
+      designation: "Developer",
+      department: "Engineering",
+      employmentType: "Full-time",
+      joiningDate: new Date("2021-03-01"),
+    },
+    adminId
+  );
+  await deleteEmployee(empA._id, adminId);
+
+  // Create Employee B with same email (active)
+  const empB = await createEmployee(
+    {
+      firstName: "Bob",
+      lastName: "Successor",
+      email: conflictEmail,
+      designation: "Developer",
+      department: "Engineering",
+      employmentType: "Full-time",
+      joiningDate: new Date("2026-10-01"),
+    },
+    adminId
+  );
+  assert.ok(empB._id);
+
+  // Attempt to restore Employee A while Employee B is active with the same email
+  await assert.rejects(
+    async () => {
+      await restoreEmployee(empA._id, adminId);
+    },
+    (err) => err.statusCode === 409,
+    "Restoring an employee when an active employee has the same email must be rejected with 409"
+  );
+
+  // Attempt direct database update on Employee A ({ deletedAt: null })
+  await assert.rejects(
+    async () => {
+      await Employee.updateOne({ _id: empA._id }, { $set: { deletedAt: null } });
+    },
+    (err) => err.code === 11000,
+    "MongoDB partial unique index must reject direct restoration creating active duplicate"
+  );
+
+  // Soft-delete Employee B
+  await deleteEmployee(empB._id, adminId);
+
+  // Now restoring Employee A must succeed because no active employee holds conflictEmail
+  const restoredEmpA = await restoreEmployee(empA._id, adminId);
+  assert.ok(restoredEmpA);
+  assert.equal(restoredEmpA._id.toString(), empA._id.toString());
+  assert.equal(restoredEmpA.email, conflictEmail);
+
+  const finalActiveCheck = await Employee.findOne({ _id: empA._id });
+  assert.equal(finalActiveCheck.deletedAt, null);
+  assert.equal(finalActiveCheck.isActive, true);
+
+  await Employee.deleteMany({ email: conflictEmail });
 });
 
 // ==========================================

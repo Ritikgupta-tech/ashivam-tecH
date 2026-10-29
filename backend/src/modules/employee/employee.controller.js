@@ -6,6 +6,7 @@ import {
   updateEmployee,
   updateEmployeeStatus,
   deleteEmployee,
+  restoreEmployee,
   getEmployeeDepartments,
   getEmployeeDesignations,
 } from "./employee.service.js";
@@ -309,6 +310,46 @@ export const remove = async (
       success: true,
       message:
         "Employee deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const restore = async (req, res, next) => {
+  try {
+    const adminId = getAdminId(req);
+
+    const employee =
+      await restoreEmployee(
+        req.params.employeeId,
+        adminId
+      );
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found or not deleted",
+      });
+    }
+
+    await createAuditLog({
+      adminId,
+      action: "RESTORE",
+      module: "employee",
+      entity: "Employee",
+      entityId: req.params.employeeId,
+      description:
+        "Employee restored",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Employee restored successfully",
+      data: {
+        employee,
+      },
     });
   } catch (error) {
     next(error);

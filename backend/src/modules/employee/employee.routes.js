@@ -8,6 +8,7 @@ import {
   update,
   updateStatus,
   remove,
+  restore,
   departments,
   designations,
 } from "./employee.controller.js";
@@ -55,5 +56,7 @@ router.patch("/:employeeId", ...adminAccess, update);
 router.patch("/:employeeId/status", ...adminAccess, updateStatus);
 
 router.delete("/:employeeId", ...superadminAccess, remove);
+
+router.patch("/:employeeId/restore", ...superadminAccess, restore);
 
 export default router;
