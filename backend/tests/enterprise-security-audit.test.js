@@ -599,6 +599,51 @@ test("Security - CORS preflight OPTIONS returns allowed methods and credentials"
   assert.equal(res.headers["access-control-allow-credentials"], "true");
 });
 
+test("Security - CORS permits approved local development origin (http://localhost:5173)", async () => {
+  const res = await request(app)
+    .options("/api/v1/auth/login")
+    .set("Origin", "http://localhost:5173")
+    .set("Access-Control-Request-Method", "POST");
+
+  assert.ok([200, 204].includes(res.status));
+  assert.equal(res.headers["access-control-allow-origin"], "http://localhost:5173");
+  assert.equal(res.headers["access-control-allow-credentials"], "true");
+});
+
+test("Security - Auth login accepts requests from approved local origin and rejects invalid credentials with 401", async () => {
+  const res = await request(app)
+    .post("/api/v1/auth/login")
+    .set("Origin", "http://localhost:5173")
+    .send({ username: "superadmin", password: "wrong_password_test" });
+
+  // Must reach authentication controller and return 401 (not 403 CORS rejection)
+  assert.equal(res.status, 401);
+  assert.equal(res.body.success, false);
+  assert.equal(res.body.message, "Invalid credentials");
+});
+
+test("Security - Auth login accepts requests from approved production origin", async () => {
+  const res = await request(app)
+    .post("/api/v1/auth/login")
+    .set("Origin", "https://ashivam-tec-h.vercel.app")
+    .send({ username: "superadmin", password: "wrong_password_test" });
+
+  assert.equal(res.status, 401);
+  assert.equal(res.body.success, false);
+  assert.equal(res.body.message, "Invalid credentials");
+});
+
+test("Security - CORS strictly blocks unapproved unknown origin with 403 Forbidden", async () => {
+  const res = await request(app)
+    .post("/api/v1/auth/login")
+    .set("Origin", "https://unauthorized-attacker.com")
+    .send({ username: "superadmin", password: "wrong_password_test" });
+
+  assert.equal(res.status, 403);
+  assert.equal(res.body.success, false);
+  assert.equal(res.body.message, "Access forbidden: origin not allowed by CORS policy");
+});
+
 // 9. Employee Creation Validation Errors Populated
 test("Security - Employee creation validation errors are populated in response envelope", async () => {
   const res = await request(app)

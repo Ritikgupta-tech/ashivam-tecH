@@ -1,7 +1,29 @@
 export const CLOUD_PROD_API_URL = 'https://ashivam-tech.onrender.com/api/v1';
 
-export const API_BASE_URL =
-  import.meta.env?.VITE_API_URL || CLOUD_PROD_API_URL;
+const resolveApiBaseUrl = () => {
+  const configured = import.meta.env?.VITE_API_URL;
+
+  // When running on localhost / 127.0.0.1 in the browser, direct cross-origin calls
+  // to production Render are blocked by production CORS (AUD-02).
+  // Route through Vite's local dev proxy (/api/v1) unless an explicit local backend URL is specified.
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ) {
+    if (
+      !configured ||
+      configured === CLOUD_PROD_API_URL ||
+      configured.includes('ashivam-tech.onrender.com')
+    ) {
+      return '/api/v1';
+    }
+    return configured;
+  }
+
+  return configured || CLOUD_PROD_API_URL;
+};
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 const DEFAULT_TIMEOUT_MS = 35000;
 const TOKEN_KEY = 'ashivam_admin_session_token';
@@ -74,6 +96,7 @@ export const request = async (path, options = {}) => {
       // If configured endpoint is unreachable (e.g. local backend refused connection), failover to live cloud backend
       if (
         API_BASE_URL !== CLOUD_PROD_API_URL &&
+        !API_BASE_URL.startsWith('/') &&
         networkErr.name !== 'AbortError'
       ) {
         response = await fetch(`${CLOUD_PROD_API_URL}${path}`, {
