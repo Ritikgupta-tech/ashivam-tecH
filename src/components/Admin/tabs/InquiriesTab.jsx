@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getInquiries, updateInquiryStatus, deleteInquiry } from '../../../api';
+import { getInquiries, updateInquiryStatus, deleteInquiry, exportInquiriesCsv } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
 import {
   MessageIcon,
+  DownloadIcon,
   EyeIcon,
   TrashIcon,
   RefreshIcon,
@@ -114,6 +115,23 @@ export default function InquiriesTab() {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportCsv = async () => {
+    try {
+      setExporting(true);
+      const params = {};
+      if (statusFilter !== 'all') params.status = statusFilter;
+      if (search.trim()) params.search = search.trim();
+      await exportInquiriesCsv(params);
+      toast.success('Inquiries exported to CSV successfully.');
+    } catch (err) {
+      toast.error(err.message || 'Failed to export inquiries');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Delete inquiry with confirmation
   const handleDelete = async (inquiry) => {
     const ok = await confirm({
@@ -158,15 +176,27 @@ export default function InquiriesTab() {
             Manage incoming business leads, technical consultation requests, and customer messages
           </p>
         </div>
-        <button
-          type="button"
-          className="admin-btn admin-btn--secondary admin-btn--sm"
-          onClick={fetchInquiriesList}
-          aria-label="Refresh inquiries list"
-        >
-          <RefreshIcon size={14} />
-          <span>Refresh</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={handleExportCsv}
+            disabled={exporting}
+            aria-label="Export inquiries to CSV"
+          >
+            <DownloadIcon size={14} />
+            <span>{exporting ? 'Exporting...' : 'Export CSV'}</span>
+          </button>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={fetchInquiriesList}
+            aria-label="Refresh inquiries list"
+          >
+            <RefreshIcon size={14} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {error && (

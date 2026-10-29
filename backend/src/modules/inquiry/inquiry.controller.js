@@ -4,6 +4,7 @@ import {
   listInquiries,
   updateInquiry,
   deleteInquiry,
+  exportInquiriesCsv,
 } from "./inquiry.service.js";
 
 import {
@@ -123,6 +124,20 @@ export const remove = async (req, res, next) => {
       message: "Inquiry deleted successfully",
       requestId: req.id,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const exportCsv = async (req, res, next) => {
+  try {
+    const csv = await exportInquiriesCsv({
+      status: req.query.status,
+      search: req.query.search,
+    });
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="inquiries_export.csv"');
+    return res.status(200).send(csv);
   } catch (error) {
     next(error);
   }

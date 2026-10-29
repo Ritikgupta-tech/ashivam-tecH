@@ -10,6 +10,7 @@ import {
   inquiryAdminAlertTemplate,
 } from "../notification/email.templates.js";
 import { escapeRegex } from "../../utils/query.js";
+import { toCsv } from "../../utils/csv.js";
 
 const inFlightInquiries = new Map();
 
@@ -214,4 +215,48 @@ export const deleteInquiry = async (id) => {
   }
 
   return inquiry;
+};
+
+export const exportInquiriesCsv = async ({ status, search } = {}) => {
+  const filter = {};
+  if (status && status !== "all") {
+    filter.status = status;
+  }
+  if (search) {
+    const regex = new RegExp(escapeRegex(search.trim()), "i");
+    filter.$or = [
+      { name: regex },
+      { email: regex },
+      { subject: regex },
+      { message: regex },
+    ];
+  }
+
+  const items = await Inquiry.find(filter)
+    .populate("assignedTo", "username name role")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const columns = [
+    {
+      key: "ref",
+      label: "Reference",
+      transform: (row) => row.referenceNumber || row._id?.toString() || "",
+    },
+    {
+      key: "date",
+      label: "Date",
+      transform: (row) => (row.createdAt ? new Date(row.createdAt).toISOString() : ""),
+    },
+    { key: "name", label: "Name" },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone", transform: (row) => row.phone || "N/A" },
+    { key: "company", label: "Company", transform: (row) => row.company || "N/A" },
+    { key: "subject", label: "Subject", transform: (row) => row.subject || "General Inquiry" },
+    { key: "status", label: "Status" },
+    { key: "message", label: "Message" },
+    { key: "notes", label: "Admin Notes", transform: (row) => row.adminNotes || "" },
+  ];
+
+  return toCsv(items, columns);
 };

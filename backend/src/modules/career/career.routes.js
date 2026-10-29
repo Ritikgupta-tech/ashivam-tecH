@@ -24,6 +24,7 @@ import {
   updateApplicationHandler,
   deleteApplicationHandler,
   downloadApplicationResumeHandler,
+  exportApplicationsCsvHandler,
 } from "./career.controller.js";
 
 const router = Router();
@@ -114,6 +115,14 @@ router.get(
   requireRole("Superadmin", "Admin"),
   requirePermission("careers"),
   getApplications
+);
+
+router.get(
+  "/admin/applications/export",
+  authenticate,
+  requireRole("Superadmin", "Admin"),
+  requirePermission("careers"),
+  exportApplicationsCsvHandler
 );
 
 router.get(

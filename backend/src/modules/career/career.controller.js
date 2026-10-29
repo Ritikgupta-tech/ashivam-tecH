@@ -13,6 +13,7 @@ import {
   updateApplication,
   deleteApplication,
   getApplicationResumeFile,
+  exportApplicationsCsv,
 } from "./career.service.js";
 
 import {
@@ -409,3 +410,21 @@ export const downloadApplicationResumeHandler = async (
 };
 
 export const downloadApplicationResume = downloadApplicationResumeHandler;
+
+export const exportApplicationsCsvHandler = async (req, res, next) => {
+  try {
+    const csv = await exportApplicationsCsv({
+      status: req.query.status,
+      job: req.query.job,
+      search: req.query.search,
+    });
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="job_applications_export.csv"'
+    );
+    return res.status(200).send(csv);
+  } catch (error) {
+    next(error);
+  }
+};

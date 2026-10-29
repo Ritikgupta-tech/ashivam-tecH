@@ -12,6 +12,7 @@ import {
   getAuditLog,
   removeAuditLog,
   removeAuditLogs,
+  exportAuditCsv,
 } from "./audit.controller.js";
 
 import {
@@ -30,6 +31,12 @@ router.get(
   "/",
   validateAuditQuery,
   getAuditLogs
+);
+
+router.get(
+  "/export",
+  validateAuditQuery,
+  exportAuditCsv
 );
 
 router.get(

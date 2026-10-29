@@ -15,6 +15,7 @@ import {
   getOne,
   update,
   remove,
+  exportCsv,
 } from "./inquiry.controller.js";
 
 const router = Router();
@@ -34,6 +35,14 @@ router.get(
   requireRole("Superadmin", "Admin"),
   requirePermission("inquiries"),
   getAll
+);
+
+router.get(
+  "/export",
+  authenticate,
+  requireRole("Superadmin", "Admin"),
+  requirePermission("inquiries"),
+  exportCsv
 );
 
 router.get(

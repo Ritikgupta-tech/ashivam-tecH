@@ -157,6 +157,16 @@ export const applyForJob = (jobId, formData) =>
     body: formData,
   });
 
+export const getPublicEmployees = () => request('/employees/public');
+
+export const getPublicSettings = () => request('/settings/public');
+
+export const getPublicContentBySection = (section) =>
+  request(`/content/public/section/${encodeURIComponent(section)}`);
+
+export const getPublicContentByKey = (key) =>
+  request(`/content/public/key/${encodeURIComponent(key)}`);
+
 /* -------------------------------------------------------------
  * Authentication Endpoints
  * ----------------------------------------------------------- */
@@ -169,17 +179,7 @@ export const loginAdmin = ({ username, password }) =>
 export const getMe = () => request('/auth/me');
 
 /* -------------------------------------------------------------
- * Dashboard Endpoints
- * ----------------------------------------------------------- */
-export const getDashboardOverview = () => request('/dashboard/overview');
-
-export const getDashboardSummary = () => request('/dashboard/summary');
-
-export const getDashboardRecentActivity = (limit = 10) =>
-  request(`/dashboard/recent-activity?limit=${encodeURIComponent(limit)}`);
-
-/* -------------------------------------------------------------
- * Module Management Endpoints
+ * Query Helper
  * ----------------------------------------------------------- */
 const buildQuery = (params = {}) => {
   const query = new URLSearchParams();
@@ -191,6 +191,22 @@ const buildQuery = (params = {}) => {
   const qs = query.toString();
   return qs ? `?${qs}` : '';
 };
+
+/* -------------------------------------------------------------
+ * Dashboard Endpoints
+ * ----------------------------------------------------------- */
+export const getDashboardOverview = (params) =>
+  request(`/dashboard/overview${buildQuery(params)}`);
+
+export const getDashboardSummary = (params) =>
+  request(`/dashboard/summary${buildQuery(params)}`);
+
+export const getDashboardRecentActivity = (limit = 10) =>
+  request(`/dashboard/recent-activity?limit=${encodeURIComponent(limit)}`);
+
+/* -------------------------------------------------------------
+ * Module Management Endpoints
+ * ----------------------------------------------------------- */
 
 export const getInquiries = (params) =>
   request(`/inquiries${buildQuery(params)}`);
@@ -484,3 +500,53 @@ export const deleteAdminAccount = (id) =>
   request(`/admin/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
+
+/* -------------------------------------------------------------
+ * Authenticated CSV Export Helpers
+ * ----------------------------------------------------------- */
+export const downloadAuthenticatedCsv = async (endpoint, fallbackFilename) => {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || 'Failed to download CSV export');
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get('content-disposition');
+  let filename = fallbackFilename;
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename=["']?([^"';]+)["']?/);
+    if (match && match[1]) {
+      filename = match[1];
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = blobUrl;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  window.URL.revokeObjectURL(blobUrl);
+
+  return { success: true, filename };
+};
+
+export const exportInquiriesCsv = (params) =>
+  downloadAuthenticatedCsv(`/inquiries/export${buildQuery(params)}`, 'inquiries_export.csv');
+
+export const exportCareerApplicationsCsv = (params) =>
+  downloadAuthenticatedCsv(
+    `/career/admin/applications/export${buildQuery(params)}`,
+    'job_applications_export.csv'
+  );
+
+export const exportAuditLogsCsv = (params) =>
+  downloadAuthenticatedCsv(`/audit/export${buildQuery(params)}`, 'security_audit_export.csv');

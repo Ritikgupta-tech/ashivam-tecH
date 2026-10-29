@@ -10,7 +10,7 @@ import {
  */
 export const overview = async (req, res, next) => {
   try {
-    const data = await getOverview();
+    const data = await getOverview({ range: req.query.range });
 
     return res.status(200).json({
       success: true,
@@ -31,7 +31,7 @@ export const summary = async (req, res, next) => {
       req.user?._id ||
       req.user?.sub;
 
-    const data = await getDashboardSummary(adminId);
+    const data = await getDashboardSummary(adminId, { range: req.query.range });
 
     return res.status(200).json({
       success: true,
@@ -65,7 +65,7 @@ export const recentActivity = async (req, res, next) => {
  */
 export const stats = async (req, res, next) => {
   try {
-    const data = await getDashboardStats();
+    const data = await getDashboardStats({ range: req.query.range });
 
     return res.status(200).json({
       success: true,

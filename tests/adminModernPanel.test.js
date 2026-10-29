@@ -214,3 +214,32 @@ test('Allowed tabs strictly hides restricted tabs from unauthorized roles', () =
   assert.equal(normalTabs.some((t) => t.id === 'admins'), false);
   assert.equal(normalTabs.some((t) => t.id === 'settings'), false);
 });
+
+// 8. CSV Sanitization and Formula Injection Defense
+test('CSV sanitization - Frontend sanitizeCsvCell neutralizes formula injection', async () => {
+  const { sanitizeCsvCell } = await import('../src/utils/csv.js');
+
+  assert.equal(sanitizeCsvCell('=cmd|calc!A0'), "'=cmd|calc!A0");
+  assert.equal(sanitizeCsvCell('+1+1'), "'+1+1");
+  assert.equal(sanitizeCsvCell('-10'), "'-10");
+  assert.equal(sanitizeCsvCell('@HYPERLINK'), "'@HYPERLINK");
+  assert.equal(sanitizeCsvCell('\tTabInjected'), "'\tTabInjected");
+  assert.equal(sanitizeCsvCell('Normal text'), 'Normal text');
+  assert.equal(sanitizeCsvCell(123), '123');
+  assert.equal(sanitizeCsvCell(null), '');
+  assert.equal(sanitizeCsvCell(undefined), '');
+});
+
+// 9. Public API Helpers & CSV Export Function Verification
+test('Public API helpers and export utilities are exported from src/api.js', async () => {
+  const api = await import('../src/api.js');
+
+  assert.equal(typeof api.getPublicEmployees, 'function');
+  assert.equal(typeof api.getPublicSettings, 'function');
+  assert.equal(typeof api.getPublicContentBySection, 'function');
+  assert.equal(typeof api.getPublicContentByKey, 'function');
+  assert.equal(typeof api.exportInquiriesCsv, 'function');
+  assert.equal(typeof api.exportCareerApplicationsCsv, 'function');
+  assert.equal(typeof api.exportAuditLogsCsv, 'function');
+  assert.equal(typeof api.getDashboardOverview, 'function');
+});

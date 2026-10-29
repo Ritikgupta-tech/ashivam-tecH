@@ -19,13 +19,14 @@ export default function OverviewTab({ onNavigateTab }) {
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [timeRange, setTimeRange] = useState("all");
 
   const fetchOverview = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [overviewRes, activityRes] = await Promise.allSettled([
-        getDashboardOverview(),
+        getDashboardOverview({ range: timeRange }),
         getDashboardRecentActivity(8),
       ]);
 
@@ -43,7 +44,7 @@ export default function OverviewTab({ onNavigateTab }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [timeRange]);
 
   useEffect(() => {
     fetchOverview();
@@ -101,15 +102,36 @@ export default function OverviewTab({ onNavigateTab }) {
             Live operational status across Ashivam Technologies core services
           </p>
         </div>
-        <button
-          type="button"
-          className="admin-btn admin-btn--secondary admin-btn--sm"
-          onClick={fetchOverview}
-          aria-label="Refresh overview data"
-        >
-          <RefreshIcon size={14} />
-          <span>Refresh</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="admin-segmented-tabs" role="tablist" aria-label="Time Range Filter">
+            {[
+              { id: 'all', label: 'All Time' },
+              { id: '90d', label: '90 Days' },
+              { id: '30d', label: '30 Days' },
+              { id: '7d', label: '7 Days' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={timeRange === tab.id}
+                className={`admin-segmented-btn ${timeRange === tab.id ? 'admin-segmented-btn--active' : ''}`}
+                onClick={() => setTimeRange(tab.id)}
+              >
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={fetchOverview}
+            aria-label="Refresh overview data"
+          >
+            <RefreshIcon size={14} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Primary Operational Metric Cards */}

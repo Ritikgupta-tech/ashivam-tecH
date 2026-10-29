@@ -27,7 +27,16 @@ const countDocuments = async (Model, filter = {}) => {
 /*
  * Get dashboard overview
  */
-export const getOverview = async () => {
+export const getOverview = async ({ range = "all" } = {}) => {
+  let dateFilter = {};
+  let startDate = null;
+  const validRanges = ["7d", "30d", "90d"];
+  if (validRanges.includes(range)) {
+    const days = parseInt(range, 10);
+    startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    dateFilter = { createdAt: { $gte: startDate } };
+  }
+
   const [
     admins,
     inquiries,
@@ -67,39 +76,39 @@ export const getOverview = async () => {
     contentDraft,
   ] = await Promise.all([
     countDocuments(Admin),
-    countDocuments(Inquiry),
+    countDocuments(Inquiry, dateFilter),
     countDocuments(Job),
-    countDocuments(Application),
-    countDocuments(Internship),
+    countDocuments(Application, dateFilter),
+    countDocuments(Internship, dateFilter),
     countDocuments(Employee),
-    countDocuments(HRDocument),
+    countDocuments(HRDocument, dateFilter),
     countDocuments(Content),
-    countDocuments(Media),
-    countDocuments(Notification),
-    countDocuments(AuditLog),
+    countDocuments(Media, dateFilter),
+    countDocuments(Notification, dateFilter),
+    countDocuments(AuditLog, dateFilter),
     // Status breakdowns
-    countDocuments(Inquiry, { status: "new" }),
-    countDocuments(Inquiry, { status: "in_progress" }),
-    countDocuments(Inquiry, { status: "resolved" }),
-    countDocuments(Inquiry, { status: "closed" }),
+    countDocuments(Inquiry, { ...dateFilter, status: "new" }),
+    countDocuments(Inquiry, { ...dateFilter, status: "in_progress" }),
+    countDocuments(Inquiry, { ...dateFilter, status: "resolved" }),
+    countDocuments(Inquiry, { ...dateFilter, status: "closed" }),
     countDocuments(Job, { isActive: true }),
     countDocuments(Job, { isActive: false }),
-    countDocuments(Application, { status: "applied" }),
-    countDocuments(Application, { status: "under_review" }),
-    countDocuments(Application, { status: "shortlisted" }),
-    countDocuments(Application, { status: "rejected" }),
-    countDocuments(Application, { status: "hired" }),
-    countDocuments(Internship, { status: "applied" }),
-    countDocuments(Internship, { status: "under_review" }),
-    countDocuments(Internship, { status: "selected" }),
-    countDocuments(Internship, { status: "in_progress" }),
-    countDocuments(Internship, { status: "completed" }),
-    countDocuments(Internship, { status: "rejected" }),
+    countDocuments(Application, { ...dateFilter, status: "applied" }),
+    countDocuments(Application, { ...dateFilter, status: "under_review" }),
+    countDocuments(Application, { ...dateFilter, status: "shortlisted" }),
+    countDocuments(Application, { ...dateFilter, status: "rejected" }),
+    countDocuments(Application, { ...dateFilter, status: "hired" }),
+    countDocuments(Internship, { ...dateFilter, status: "applied" }),
+    countDocuments(Internship, { ...dateFilter, status: "under_review" }),
+    countDocuments(Internship, { ...dateFilter, status: "selected" }),
+    countDocuments(Internship, { ...dateFilter, status: "in_progress" }),
+    countDocuments(Internship, { ...dateFilter, status: "completed" }),
+    countDocuments(Internship, { ...dateFilter, status: "rejected" }),
     countDocuments(Employee, { isActive: true }),
     countDocuments(Employee, { isActive: false }),
-    countDocuments(HRDocument, { status: "Pending" }),
-    countDocuments(HRDocument, { status: "Verified" }),
-    countDocuments(HRDocument, { status: "Rejected" }),
+    countDocuments(HRDocument, { ...dateFilter, status: "Pending" }),
+    countDocuments(HRDocument, { ...dateFilter, status: "Verified" }),
+    countDocuments(HRDocument, { ...dateFilter, status: "Rejected" }),
     countDocuments(Content, { status: "published" }),
     countDocuments(Content, { status: "draft" }),
   ]);
@@ -116,6 +125,8 @@ export const getOverview = async () => {
     media,
     notifications,
     auditLogs,
+    timeRange: range,
+    dateRange: startDate ? { start: startDate, end: new Date() } : null,
     breakdown: {
       inquiries: {
         new: inquiriesNew,
@@ -162,7 +173,7 @@ export const getOverview = async () => {
 /*
  * Get dashboard summary for current admin
  */
-export const getDashboardSummary = async (adminId) => {
+export const getDashboardSummary = async (adminId, { range = "all" } = {}) => {
   if (!adminId) {
     const error = new Error("Authenticated admin not found");
     error.statusCode = 401;
@@ -181,7 +192,7 @@ export const getDashboardSummary = async (adminId) => {
     throw error;
   }
 
-  const overview = await getOverview();
+  const overview = await getOverview({ range });
 
   return {
     summary: overview,
@@ -216,8 +227,8 @@ export const getRecentActivity = async ({
 /*
  * Get dashboard statistics
  */
-export const getDashboardStats = async () => {
-  const overview = await getOverview();
+export const getDashboardStats = async ({ range = "all" } = {}) => {
+  const overview = await getOverview({ range });
 
   return {
     ...overview,

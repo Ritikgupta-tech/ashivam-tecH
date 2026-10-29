@@ -7,6 +7,7 @@ import {
   getCareerApplications,
   updateApplicationStatus,
   downloadApplicationResume,
+  exportCareerApplicationsCsv,
 } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
@@ -84,6 +85,23 @@ export default function CareersTab() {
       setJobsLoading(false);
     }
   }, [toast]);
+
+  const [appsExporting, setAppsExporting] = useState(false);
+
+  const handleExportApplicationsCsv = async () => {
+    try {
+      setAppsExporting(true);
+      const params = {};
+      if (appStatusFilter !== 'all') params.status = appStatusFilter;
+      if (appSearch.trim()) params.search = appSearch.trim();
+      await exportCareerApplicationsCsv(params);
+      toast.success('Candidate applications exported to CSV successfully.');
+    } catch (err) {
+      toast.error(err.message || 'Failed to export applications');
+    } finally {
+      setAppsExporting(false);
+    }
+  };
 
   // Fetch applications
   const fetchAppsList = useCallback(async () => {

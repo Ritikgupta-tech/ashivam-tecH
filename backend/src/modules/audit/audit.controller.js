@@ -4,6 +4,7 @@ import {
   deleteAuditLog,
   clearAuditLogs,
   createAuditLog,
+  exportAuditLogsCsv,
 } from "./audit.service.js";
 
 export const getAuditLogs = async (req, res, next) => {
@@ -91,6 +92,20 @@ export const removeAuditLogs = async (req, res, next) => {
         deletedCount: result.deletedCount,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const exportAuditCsv = async (req, res, next) => {
+  try {
+    const csv = await exportAuditLogsCsv(req.query);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="security_audit_export.csv"'
+    );
+    return res.status(200).send(csv);
   } catch (error) {
     next(error);
   }

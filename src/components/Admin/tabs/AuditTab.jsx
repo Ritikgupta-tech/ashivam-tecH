@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getAuditLogs } from '../../../api';
+import { getAuditLogs, exportAuditLogsCsv } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import {
   ShieldCheckIcon,
+  DownloadIcon,
   EyeIcon,
   RefreshIcon,
   XMarkIcon,
@@ -34,6 +35,22 @@ export default function AuditTab() {
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
 
   const [selectedLog, setSelectedLog] = useState(null);
+
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportAuditCsv = async () => {
+    try {
+      setExporting(true);
+      const params = {};
+      if (actionFilter !== 'all') params.action = actionFilter;
+      if (search.trim()) params.search = search.trim();
+      await exportAuditLogsCsv(params);
+    } catch (err) {
+      setError(err.message || 'Failed to export audit logs');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const fetchAuditLogsList = useCallback(async () => {
     setLoading(true);
@@ -81,14 +98,26 @@ export default function AuditTab() {
             Immutable system audit logs tracking authentication, administrative mutations, and data access
           </p>
         </div>
-        <button
-          type="button"
-          className="admin-btn admin-btn--secondary admin-btn--sm"
-          onClick={fetchAuditLogsList}
-        >
-          <RefreshIcon size={14} />
-          <span>Refresh</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={handleExportAuditCsv}
+            disabled={exporting}
+            aria-label="Export audit trail to CSV"
+          >
+            <DownloadIcon size={14} />
+            <span>{exporting ? 'Exporting...' : 'Export CSV'}</span>
+          </button>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={fetchAuditLogsList}
+          >
+            <RefreshIcon size={14} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {error && (

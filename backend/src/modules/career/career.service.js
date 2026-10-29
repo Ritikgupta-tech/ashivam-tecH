@@ -12,6 +12,7 @@ import {
   careerAdminAlertTemplate,
 } from "../notification/email.templates.js";
 import { escapeRegex } from "../../utils/query.js";
+import { toCsv } from "../../utils/csv.js";
 import {
   uploadFile,
   getFileStream,
@@ -536,4 +537,63 @@ export const getApplicationResumeFile = async (id) => {
     mimeType: contentType || application.resume.mimeType || "application/pdf",
     originalName: application.resume.originalName || "resume.pdf",
   };
+};
+
+export const exportApplicationsCsv = async ({ status, job, search } = {}) => {
+  const filter = {};
+  if (status && status !== "all") {
+    filter.status = status;
+  }
+  if (job) {
+    validateObjectId(job, "Invalid job ID");
+    filter.job = job;
+  }
+  if (search) {
+    const regex = new RegExp(escapeRegex(search.trim()), "i");
+    filter.$or = [
+      { firstName: regex },
+      { lastName: regex },
+      { email: regex },
+      { phone: regex },
+    ];
+  }
+
+  const items = await Application.find(filter)
+    .populate("job", "title department location")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const columns = [
+    {
+      key: "ref",
+      label: "Reference",
+      transform: (row) => row.applicationReference || row._id?.toString() || "",
+    },
+    {
+      key: "date",
+      label: "Date",
+      transform: (row) => (row.createdAt ? new Date(row.createdAt).toISOString() : ""),
+    },
+    {
+      key: "candidate",
+      label: "Candidate Name",
+      transform: (row) => `${row.firstName || ""} ${row.lastName || ""}`.trim(),
+    },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone", transform: (row) => row.phone || "N/A" },
+    { key: "job", label: "Applied Position", transform: (row) => row.job?.title || "N/A" },
+    { key: "dept", label: "Department", transform: (row) => row.job?.department || "N/A" },
+    { key: "status", label: "Status" },
+    {
+      key: "experience",
+      label: "Experience",
+      transform: (row) =>
+        row.experienceYears !== undefined
+          ? `${row.experienceYears} yrs`
+          : row.experience || "N/A",
+    },
+    { key: "resume", label: "Resume File", transform: (row) => row.resume?.originalName || "N/A" },
+  ];
+
+  return toCsv(items, columns);
 };

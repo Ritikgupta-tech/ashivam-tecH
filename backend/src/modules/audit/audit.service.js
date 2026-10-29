@@ -1,5 +1,6 @@
 import AuditLog from "./audit.model.js";
 import { escapeRegex } from "../../utils/query.js";
+import { toCsv } from "../../utils/csv.js";
 
 export const createAuditLog = async ({
   req = null,
@@ -154,4 +155,88 @@ export const clearAuditLogs = async ({ before } = {}) => {
   }
 
   return AuditLog.deleteMany(filter);
+};
+
+export const exportAuditLogsCsv = async ({
+  search = "",
+  action = "",
+  entity = "",
+  status = "",
+  from = "",
+  to = "",
+} = {}) => {
+  const filter = {};
+
+  if (search) {
+    const escaped = escapeRegex(search.trim());
+    filter.$or = [
+      { action: { $regex: escaped, $options: "i" } },
+      { entity: { $regex: escaped, $options: "i" } },
+      { description: { $regex: escaped, $options: "i" } },
+      { "actor.username": { $regex: escaped, $options: "i" } },
+    ];
+  }
+
+  if (action && action !== "all") {
+    filter.action = action;
+  }
+
+  if (entity) {
+    filter.entity = entity;
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (from || to) {
+    filter.createdAt = {};
+
+    if (from) {
+      filter.createdAt.$gte = new Date(from);
+    }
+
+    if (to) {
+      const endDate = new Date(to);
+      endDate.setHours(23, 59, 59, 999);
+      filter.createdAt.$lte = endDate;
+    }
+  }
+
+  const items = await AuditLog.find(filter)
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const columns = [
+    {
+      key: "date",
+      label: "Timestamp (ISO)",
+      transform: (row) => (row.createdAt ? new Date(row.createdAt).toISOString() : ""),
+    },
+    { key: "action", label: "Action" },
+    { key: "entity", label: "Entity" },
+    {
+      key: "actor",
+      label: "Actor Username",
+      transform: (row) => row.actor?.username || "System",
+    },
+    {
+      key: "role",
+      label: "Actor Role",
+      transform: (row) => row.actor?.role || "N/A",
+    },
+    {
+      key: "ip",
+      label: "IP Address",
+      transform: (row) => row.request?.ip || "N/A",
+    },
+    { key: "status", label: "Status" },
+    {
+      key: "description",
+      label: "Description",
+      transform: (row) => row.description || "",
+    },
+  ];
+
+  return toCsv(items, columns);
 };
