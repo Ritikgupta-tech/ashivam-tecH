@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShieldIcon, ArrowRightIcon } from '../icons';
 import './Navbar.css';
@@ -9,11 +9,15 @@ const PRIMARY_NAV = [
   { label: 'Careers', path: '/careers' },
 ];
 
+// Unique ID for aria-controls association
+const MOBILE_MENU_ID = 'mobile-nav-drawer';
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef(null);
   const drawerRef = useRef(null);
+  const hamburgerRef = useRef(null);
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -65,16 +69,56 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
-  // Close menu on Escape key
+  // Close menu on Escape key — restores focus to hamburger
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && menuOpen) {
         setMenuOpen(false);
+        hamburgerRef.current?.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [menuOpen]);
+
+  /**
+   * Focus management on menu close:
+   * When the menu closes (menuOpen transitions false→true was already handled above),
+   * ensure no descendant of the drawer retains document focus before aria-hidden is applied.
+   * If a descendant has focus, return focus to the hamburger trigger.
+   *
+   * This prevents the browser warning:
+   * "Blocked aria-hidden on an element because its descendant retained focus."
+   */
+  useEffect(() => {
+    if (!menuOpen && drawerRef.current) {
+      if (drawerRef.current.contains(document.activeElement)) {
+        hamburgerRef.current?.focus();
+      }
+    }
+  }, [menuOpen]);
+
+  /**
+   * When opening the menu, move focus into the drawer so keyboard users can
+   * immediately navigate the links without tabbing through the entire page.
+   */
+  useEffect(() => {
+    if (menuOpen && drawerRef.current) {
+      // Focus the first focusable element inside the drawer
+      const firstFocusable = drawerRef.current.querySelector(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      firstFocusable?.focus();
+    }
+  }, [menuOpen]);
+
+  /** Close menu and explicitly return focus to hamburger (used by menu links & close button) */
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    // Returning focus is handled by the menuOpen effect above, which detects
+    // that a drawer descendant held focus at the moment of close and moves it
+    // to the hamburger button.
+  }, []);
 
   return (
     <>
@@ -142,9 +186,11 @@ export default function Navbar() {
 
             {/* Mobile & Tablet Hamburger Button */}
             <button
+              ref={hamburgerRef}
               className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={menuOpen}
+              aria-controls={MOBILE_MENU_ID}
               onClick={() => setMenuOpen(!menuOpen)}
             >
               <span className="navbar__ham-line" />
@@ -155,11 +201,19 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Mobile Navigation Drawer
+          inert: when the drawer is closed, the `inert` attribute prevents all
+          descendants from being focusable or accessible to assistive technology,
+          which guarantees aria-hidden is never applied while a descendant holds focus.
+          aria-hidden is kept as a redundant safety net for browsers that do not yet
+          support the inert attribute.
+      */}
       <div
+        id={MOBILE_MENU_ID}
         ref={drawerRef}
         className={`mobile-menu${menuOpen ? ' mobile-menu--open' : ''}`}
         aria-hidden={!menuOpen}
+        {...(!menuOpen ? { inert: '' } : {})}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
@@ -170,7 +224,7 @@ export default function Navbar() {
             <Link
               to="/"
               className="mobile-menu__logo"
-              onClick={() => setMenuOpen(false)}
+              onClick={closeMenu}
               aria-label="Ashivam Technologies — Home"
             >
               <img
@@ -188,7 +242,10 @@ export default function Navbar() {
             <button
               type="button"
               className="mobile-menu__close-btn"
-              onClick={() => setMenuOpen(false)}
+              onClick={() => {
+                closeMenu();
+                hamburgerRef.current?.focus();
+              }}
               aria-label="Close navigation menu"
             >
               ✕
@@ -201,7 +258,7 @@ export default function Navbar() {
                 <Link
                   to="/"
                   className={`mobile-menu__link${currentPath === '/' ? ' mobile-menu__link--active' : ''}`}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMenu}
                 >
                   <span>Home</span>
                   <ArrowRightIcon size={14} className="mobile-menu__link-arrow" />
@@ -216,7 +273,7 @@ export default function Navbar() {
                     <Link
                       to={item.path}
                       className={`mobile-menu__link${isActive ? ' mobile-menu__link--active' : ''}`}
-                      onClick={() => setMenuOpen(false)}
+                      onClick={closeMenu}
                     >
                       <span>{item.label}</span>
                       <ArrowRightIcon size={14} className="mobile-menu__link-arrow" />
@@ -232,7 +289,7 @@ export default function Navbar() {
             <Link
               to="/employee-login"
               className="btn btn-primary mobile-menu__employee-btn"
-              onClick={() => setMenuOpen(false)}
+              onClick={closeMenu}
             >
               <ShieldIcon size={16} />
               <span>Employee Login</span>
@@ -246,7 +303,9 @@ export default function Navbar() {
       {/* Mobile Backdrop */}
       <div
         className={`mobile-backdrop${menuOpen ? ' mobile-backdrop--visible' : ''}`}
-        onClick={() => setMenuOpen(false)}
+        onClick={() => {
+          closeMenu();
+        }}
         aria-hidden="true"
       />
     </>

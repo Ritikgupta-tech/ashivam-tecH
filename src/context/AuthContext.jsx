@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { AuthContext } from './authContextDef';
 import {
   getToken,
   setToken as saveToken,
@@ -12,8 +13,6 @@ import {
   setSessionHint,
   clearSessionHint,
 } from '../api';
-
-export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
