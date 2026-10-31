@@ -214,3 +214,45 @@ test('Web Locks & Single-Flight Coordination - Architecture integrity preserved'
   // Exposed API inspection for testing
   assert.ok(content.includes('window.__ashivamApi'), 'Must expose test harness on window.__ashivamApi');
 });
+
+test('Concurrent Refresh Execution - Simultaneous refresh callers share a single in-flight promise without duplicates', async () => {
+  let fetchCallCount = 0;
+  const originalFetch = global.fetch;
+
+  global.fetch = async (url) => {
+    if (url.includes('/auth/refresh')) {
+      fetchCallCount++;
+      // Simulate real-world network latency
+      await new Promise((r) => setTimeout(r, 30));
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: { accessToken: 'concurrent.refreshed.access.token' },
+        }),
+      };
+    }
+    return { ok: true, json: async () => ({}) };
+  };
+
+  try {
+    const { refreshSession } = await import('../src/api.js');
+
+    // Trigger 4 concurrent refresh calls simultaneously
+    const results = await Promise.all([
+      refreshSession(),
+      refreshSession(),
+      refreshSession(),
+      refreshSession(),
+    ]);
+
+    // Exactly 1 network fetch must be executed across all 4 concurrent requests
+    assert.equal(fetchCallCount, 1, 'Concurrent refresh requests must be deduplicated into a single network fetch');
+    assert.equal(results.length, 4);
+    results.forEach((r) => {
+      assert.equal(r.data.accessToken, 'concurrent.refreshed.access.token');
+    });
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
