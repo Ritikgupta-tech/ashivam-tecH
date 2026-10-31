@@ -27,9 +27,40 @@ export const API_BASE_URL = resolveApiBaseUrl();
 
 const DEFAULT_TIMEOUT_MS = 35000;
 const TOKEN_KEY = 'ashivam_admin_session_token';
+export const SESSION_HINT_KEY = 'ashivam_auth_hint';
 
 // In-memory fallback if sessionStorage is inaccessible
 let inMemoryToken = null;
+
+// Non-sensitive session hint management: indicates if this browser previously had an authenticated session
+export const hasSessionHint = () => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return false;
+    return window.localStorage.getItem(SESSION_HINT_KEY) === 'active';
+  } catch {
+    return false;
+  }
+};
+
+export const setSessionHint = () => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(SESSION_HINT_KEY, 'active');
+    }
+  } catch {
+    // Storage access restricted or disabled gracefully
+  }
+};
+
+export const clearSessionHint = () => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(SESSION_HINT_KEY);
+    }
+  } catch {
+    // Storage access restricted or disabled gracefully
+  }
+};
 
 // Cross-tab synchronization channel (strictly zero tokens transmitted over broadcast)
 export const broadcastAuthEvent = (event) => {
@@ -63,6 +94,7 @@ const runFetchRefresh = async () => {
       broadcastAuthEvent({ type: 'SESSION_REFRESHED', timestamp: Date.now() });
       return refreshJson;
     }
+    clearSessionHint();
     throw new Error(refreshJson.message || 'Session expired');
   } finally {
     refreshInFlightPromise = null;
@@ -96,7 +128,10 @@ const executeTokenRefresh = async () => {
 
 export const getToken = () => {
   try {
-    return sessionStorage.getItem(TOKEN_KEY) || inMemoryToken;
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      return window.sessionStorage.getItem(TOKEN_KEY) || inMemoryToken;
+    }
+    return inMemoryToken;
   } catch {
     return inMemoryToken;
   }
@@ -105,18 +140,27 @@ export const getToken = () => {
 export const setToken = (token) => {
   inMemoryToken = token;
   try {
-    if (token) {
-      sessionStorage.setItem(TOKEN_KEY, token);
-    } else {
-      sessionStorage.removeItem(TOKEN_KEY);
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      if (token) {
+        window.sessionStorage.setItem(TOKEN_KEY, token);
+      } else {
+        window.sessionStorage.removeItem(TOKEN_KEY);
+      }
     }
   } catch {
     // SessionStorage unavailable, in-memory preserved
+  }
+
+  if (token) {
+    setSessionHint();
+  } else {
+    clearSessionHint();
   }
 };
 
 export const clearToken = () => {
   setToken(null);
+  clearSessionHint();
 };
 
 export const request = async (path, options = {}) => {
@@ -749,5 +793,8 @@ if (typeof window !== 'undefined') {
     setToken,
     clearToken,
     broadcastAuthEvent,
+    hasSessionHint,
+    setSessionHint,
+    clearSessionHint,
   };
 }

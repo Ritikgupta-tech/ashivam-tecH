@@ -8,6 +8,9 @@ import {
   refreshSession,
   logoutAdmin,
   broadcastAuthEvent,
+  hasSessionHint,
+  setSessionHint,
+  clearSessionHint,
 } from '../api';
 
 export const AuthContext = createContext(null);
@@ -21,6 +24,22 @@ export function AuthProvider({ children }) {
   const verifySession = useCallback(async () => {
     const activeToken = getToken();
     if (!activeToken) {
+      // Determine if a legitimate session might exist:
+      // 1. A non-sensitive session hint exists in localStorage (previous login in this browser), OR
+      // 2. The client is explicitly navigating to a protected portal route (/admin or /employee-login)
+      const hasHint = hasSessionHint();
+      const isPortalRoute =
+        typeof window !== 'undefined' &&
+        (window.location.pathname.startsWith('/admin') ||
+         window.location.pathname.startsWith('/employee-login'));
+
+      if (!hasHint && !isPortalRoute) {
+        setUser(null);
+        setTokenState(null);
+        setIsLoading(false);
+        return;
+      }
+
       // Attempt sliding session silent restore via HttpOnly refresh cookie
       try {
         const refreshRes = await refreshSession();
@@ -28,13 +47,15 @@ export function AuthProvider({ children }) {
           const newToken = refreshRes.data.accessToken;
           const userData = refreshRes.data.user;
           saveToken(newToken);
+          setSessionHint();
           setTokenState(newToken);
           setUser(userData);
           setIsLoading(false);
           return;
         }
       } catch {
-        // No active refresh session exists
+        // No active refresh session exists or refresh token expired/revoked: clear stale hint
+        clearSessionHint();
       }
 
       setUser(null);
@@ -49,10 +70,12 @@ export function AuthProvider({ children }) {
         const userObj = response.data.user || response.data;
         setUser(userObj);
         setTokenState(activeToken);
+        setSessionHint();
       }
     } catch {
       // Token invalid, expired, or server rejected session
       removeToken();
+      clearSessionHint();
       setUser(null);
       setTokenState(null);
     } finally {
@@ -74,6 +97,7 @@ export function AuthProvider({ children }) {
       const { type } = event?.data || {};
       if (type === 'LOGOUT') {
         removeToken();
+        clearSessionHint();
         setUser(null);
         setTokenState(null);
         setAuthError(null);
@@ -88,6 +112,21 @@ export function AuthProvider({ children }) {
     };
   }, [verifySession]);
 
+  // Cross-tab synchronization via native storage event (fallback when BroadcastChannel is unavailable)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleStorage = (e) => {
+      if (e.key === 'ashivam_auth_hint' && !e.newValue) {
+        removeToken();
+        clearSessionHint();
+        setUser(null);
+        setTokenState(null);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const login = useCallback(async (username, password) => {
     setAuthError(null);
     try {
@@ -99,6 +138,7 @@ export function AuthProvider({ children }) {
       }
 
       saveToken(accessToken);
+      setSessionHint();
       setTokenState(accessToken);
       setUser(userData);
       broadcastAuthEvent({ type: 'LOGIN', timestamp: Date.now() });
@@ -112,6 +152,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     logoutAdmin().catch(() => {});
     removeToken();
+    clearSessionHint();
     setUser(null);
     setTokenState(null);
     setAuthError(null);
