@@ -15,11 +15,25 @@ export const supportsTransactions = () => {
       : mongoose.connection.client;
     const topology = client?.topology;
     const type = topology?.description?.type;
-    return (
+
+    if (
       type === "ReplicaSetWithPrimary" ||
       type === "Sharded" ||
       type === "LoadBalanced"
-    );
+    ) {
+      return true;
+    }
+
+    // Direct connections to a replica set primary or mongos also support multi-document transactions
+    if (topology?.description?.servers) {
+      for (const server of topology.description.servers.values()) {
+        if (server.type === "RSPrimary" || server.type === "Mongos") {
+          return true;
+        }
+      }
+    }
+
+    return false;
   } catch {
     return false;
   }
