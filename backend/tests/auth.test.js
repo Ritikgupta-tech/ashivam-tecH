@@ -302,3 +302,45 @@ test("Auth Lifecycle - POST /api/v1/auth/logout revokes session and clears cooki
     .set("X-Requested-With", "XMLHttpRequest");
   assert.equal(postLogoutRefresh.status, 401);
 });
+
+test("Auth HTTP Methods - GET /api/v1/auth/refresh returns 405 with Allow: POST header", async () => {
+  const response = await request(app).get("/api/v1/auth/refresh");
+
+  assert.equal(response.status, 405);
+  assert.equal(response.headers["allow"], "POST");
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /HTTP GET is not supported on \/api\/v1\/auth\/refresh/);
+  assert.ok(response.body.requestId, "Must return requestId");
+});
+
+test("Auth HTTP Methods - GET /api/v1/auth/login returns 405 with Allow: POST header", async () => {
+  const response = await request(app).get("/api/v1/auth/login");
+
+  assert.equal(response.status, 405);
+  assert.equal(response.headers["allow"], "POST");
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /HTTP GET is not supported on \/api\/v1\/auth\/login/);
+  assert.ok(response.body.requestId, "Must return requestId");
+});
+
+test("Auth HTTP Methods - GET /api/v1/auth/logout returns 405 with Allow: POST header", async () => {
+  const response = await request(app).get("/api/v1/auth/logout");
+
+  assert.equal(response.status, 405);
+  assert.equal(response.headers["allow"], "POST");
+  assert.equal(response.body.success, false);
+  assert.match(response.body.message, /HTTP GET is not supported on \/api\/v1\/auth\/logout/);
+  assert.ok(response.body.requestId, "Must return requestId");
+});
+
+test("Auth HTTP Methods - OPTIONS /api/v1/auth/refresh returns 204 preflight without 405 interception", async () => {
+  const response = await request(app)
+    .options("/api/v1/auth/refresh")
+    .set("Origin", "https://ashivam-tec-h.vercel.app")
+    .set("Access-Control-Request-Method", "POST");
+
+  assert.equal(response.status, 204);
+  assert.equal(response.headers["access-control-allow-origin"], "https://ashivam-tec-h.vercel.app");
+  assert.match(response.headers["access-control-allow-methods"], /POST/);
+  assert.notEqual(response.status, 405);
+});
