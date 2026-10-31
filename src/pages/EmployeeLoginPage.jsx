@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShieldIcon, ServerIcon, ArrowRightIcon } from '../components/icons';
 import Logo from '../components/ui/Logo';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import './EmployeeLoginPage.css';
 
 export default function EmployeeLoginPage() {
