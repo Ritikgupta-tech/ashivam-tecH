@@ -1,6 +1,31 @@
 import mongoose from "mongoose";
 
 /**
+ * Checks whether the active MongoDB connection topology supports multi-document transactions.
+ * Transactions require a replica set primary, a sharded mongos, or a load-balanced cluster.
+ * Standalone topologies (single-node instances) do NOT support multi-document transactions.
+ *
+ * @returns {boolean} True if transactions are supported, false otherwise.
+ */
+export const supportsTransactions = () => {
+  try {
+    if (mongoose.connection.readyState !== 1) return false;
+    const client = mongoose.connection.getClient
+      ? mongoose.connection.getClient()
+      : mongoose.connection.client;
+    const topology = client?.topology;
+    const type = topology?.description?.type;
+    return (
+      type === "ReplicaSetWithPrimary" ||
+      type === "Sharded" ||
+      type === "LoadBalanced"
+    );
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Executes a callback within a MongoDB session/transaction if the underlying
  * MongoDB topology supports multi-document transactions (e.g. ReplicaSet / Mongos).
  * Gracefully falls back to non-transactional execution on standalone topologies
@@ -10,6 +35,10 @@ import mongoose from "mongoose";
  * @returns {Promise<T>} The result returned by callback
  */
 export const withOptionalTransaction = async (callback) => {
+  if (!supportsTransactions()) {
+    return callback(null);
+  }
+
   let session = null;
   let transactionStarted = false;
 
@@ -43,6 +72,18 @@ export const withOptionalTransaction = async (callback) => {
     } catch {
       // Suppress abort error
     }
+
+    // Gracefully handle topologies that report supporting transactions but fail at execution time
+    const isTopologyError =
+      error &&
+      (error.name === "MongoServerError" || error.name === "MongoError") &&
+      (error.message?.includes("Transaction numbers are only allowed on a replica set member or mongos") ||
+        error.message?.includes("does not support retryable writes"));
+
+    if (isTopologyError) {
+      return callback(null);
+    }
+
     throw error;
   } finally {
     try {

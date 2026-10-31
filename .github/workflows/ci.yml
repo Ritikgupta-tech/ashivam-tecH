@@ -41,25 +41,29 @@ jobs:
   backend-verify:
     name: Backend Test Suite & Security Audit
     runs-on: ubuntu-24.04
-    services:
-      mongodb:
-        image: mongo:7.0
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     env:
       NODE_ENV: test
-      MONGODB_URI: mongodb://127.0.0.1:27017/ashivam_technologies_ci
+      MONGODB_URI: mongodb://127.0.0.1:27017/ashivam_technologies_ci?replicaSet=rs0&directConnection=true
       JWT_SECRET: ashivam-ci-test-jwt-secret-key-32-chars-minimum!
       JWT_REFRESH_SECRET: ashivam-ci-test-jwt-refresh-secret-key-32-chars-minimum!
       COMPANY_NOTIFICATION_EMAIL: team.ashivam@gmail.com
     steps:
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Start MongoDB Replica Set
+        run: |
+          docker run -d --name mongodb -p 27017:27017 mongo:7.0 mongod --replSet rs0 --bind_ip_all
+          until docker exec mongodb mongosh --eval "db.adminCommand('ping')" --quiet; do
+            echo "Waiting for MongoDB to be healthy..."
+            sleep 1
+          done
+          docker exec mongodb mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'127.0.0.1:27017'}]})"
+          until docker exec mongodb mongosh --eval "rs.isMaster().ismaster" --quiet | grep -q true; do
+            echo "Waiting for Replica Set election..."
+            sleep 1
+          done
+          echo "MongoDB replica set rs0 is ready on port 27017."
 
       - name: Setup Node.js 22
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0

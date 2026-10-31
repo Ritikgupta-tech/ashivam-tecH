@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -7,6 +8,14 @@ dotenv.config();
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const isProd = process.env.NODE_ENV === "production";
+
+const deriveRefreshSecret = (secret) => {
+  if (!secret) return null;
+  return crypto
+    .createHmac("sha256", secret)
+    .update("ashivam_technologies_jwt_refresh_token_derivation_secret_key_v1")
+    .digest("hex");
+};
 
 const parseOrigins = () => {
   const defaultOrigins = isProd
@@ -146,12 +155,13 @@ const env = {
     "mongodb://127.0.0.1:27017/ashivam_technologies",
 
   jwtSecret:
-    process.env.JWT_SECRET ||
+    (process.env.JWT_SECRET || "").trim() ||
     (process.env.NODE_ENV === "production"
       ? null
       : "ashivam-default-development-secret-key-32chars-min!"),
   jwtRefreshSecret:
-    process.env.JWT_REFRESH_SECRET ||
+    (process.env.JWT_REFRESH_SECRET || "").trim() ||
+    (process.env.JWT_SECRET ? deriveRefreshSecret(process.env.JWT_SECRET.trim()) : null) ||
     (process.env.NODE_ENV === "production"
       ? null
       : "ashivam-default-refresh-secret-key-32chars-min!"),
@@ -266,19 +276,21 @@ if (env.isProduction) {
       `Invalid COMPANY_NOTIFICATION_EMAIL: "${env.companyNotificationEmail}". Must be a valid email address.`
     );
   }
-  if (!process.env.JWT_SECRET) {
+  if (!env.jwtSecret) {
     throw new Error("JWT_SECRET environment variable is mandatory in production mode.");
   }
-  if (process.env.JWT_SECRET.length < 32) {
+  if (env.jwtSecret.length < 32) {
     throw new Error("JWT_SECRET must be at least 32 characters in production mode.");
   }
-  if (!process.env.JWT_REFRESH_SECRET) {
-    throw new Error("JWT_REFRESH_SECRET environment variable is mandatory in production mode.");
+  if (!env.jwtRefreshSecret) {
+    throw new Error(
+      "JWT_REFRESH_SECRET (or a valid JWT_SECRET to derive from) is mandatory in production mode."
+    );
   }
-  if (process.env.JWT_REFRESH_SECRET.length < 32) {
+  if (env.jwtRefreshSecret.length < 32) {
     throw new Error("JWT_REFRESH_SECRET must be at least 32 characters in production mode.");
   }
-  if (process.env.JWT_SECRET === process.env.JWT_REFRESH_SECRET) {
+  if (env.jwtSecret === env.jwtRefreshSecret) {
     throw new Error(
       "JWT_SECRET and JWT_REFRESH_SECRET must be distinct cryptographic secrets in production mode."
     );
