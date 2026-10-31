@@ -16,7 +16,8 @@
 | :--- | :---: | :--- |
 | **Local Verification Gate** | `LOCAL VERIFIED` | 328/328 tests passed (232 backend + 77 frontend + 19 browser E2E) |
 | **Credential Security Remediation** | `SECURITY REMEDIATED` | Password rotated, timestamp updated, all refresh token families revoked |
-| **GitHub Release Gate** | `GITHUB UPDATED` | Pushed to `origin/main` and `company/main` at commit `b20c1e4` |
+| **GitHub Release Gate** | `GITHUB UPDATED` | Pushed to `origin/main` and `company/main` at commit `67c7c90` |
+| **CI Automation Gate** | `CI PASSED` | GitHub Actions run `#41203754643` 100% green (Backend, Frontend, Docker) |
 | **Backend Deployment** | `BACKEND DEPLOYED` | Render production API live at `https://ashivam-tech.onrender.com/api/v1/health` (HTTP 200 OK) |
 | **Frontend Deployment** | `FRONTEND DEPLOYED` | Vercel production web platform live at `https://ashivam-tec-h.vercel.app` (HTTP 200 OK) |
 | **Overall Release Verification** | `PRODUCTION VERIFIED` | Live endpoints healthy, CSP/HSTS headers active, cross-origin cookies configured |
@@ -93,17 +94,18 @@ The Ashivam production infrastructure spans two distinct cloud domains:
 - **Company Remote:** `https://github.com/AshivamTechnologies/Official-Websites.git`
 - **Active Branch:** `main`
 
-### 5.2 Release Commit Information
-- **Commit SHA:** `b20c1e4501b82259799deef99f931abdb4b902cb`
-- **Commit Message:** `fix(auth): decouple useAuth for Fast Refresh, configure IPv4 loopback proxy and 0.0.0.0 host binding`
-- **Files Committed (7):**
-  1. `src/context/useAuth.js` (New dedicated hook module for Fast Refresh compliance)
-  2. `src/context/AuthContext.jsx` (Exported `AuthContext`, decoupled `useAuth`)
-  3. `src/components/Admin/AdminDashboard.jsx` (Updated import to `useAuth.js`)
-  4. `src/components/Admin/AdminLogin.jsx` (Updated import to `useAuth.js`)
-  5. `src/pages/EmployeeLoginPage.jsx` (Updated import to `useAuth.js`)
-  6. `vite.config.js` (Proxy target defaults to `http://127.0.0.1:5000` to prevent IPv6 ECONNREFUSED)
-  7. `backend/src/server.js` (Bound `app.listen` explicitly to `0.0.0.0` for IPv4 container networking)
+### 5.2 Release Commit Lineage
+- **Head Release Commit:** `67c7c90` (`fix(transaction): detect RSPrimary and Mongos server types for direct replica set connections`)
+- **Deployment Hardening Commit:** `1bee6f7` (`fix(deploy): derive fallback JWT refresh secret and initialize MongoDB replica set in CI`)
+- **Fast Refresh & Loopback Fix Commit:** `b20c1e4` (`fix(auth): decouple useAuth for Fast Refresh, configure IPv4 loopback proxy and 0.0.0.0 host binding`)
+
+### 5.3 GitHub Actions CI Verification
+- **Run ID:** `41203754643`
+- **Workflow:** `ci.yml` (`CI - Ashivam Official Platform`)
+- **Status:** **SUCCESS (All 3 jobs green)**
+  1. `Backend Test Suite & Security Audit`: **232/232 tests passed, 0 security vulnerabilities**
+  2. `Frontend Quality, Tests & Production Build`: **77/77 tests passed, 0 errors, build successful**
+  3. `Docker Build & Non-Root User Verification`: **Build succeeded, non-root user verified**
 
 ---
 
