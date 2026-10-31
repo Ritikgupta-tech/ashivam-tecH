@@ -21,8 +21,16 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
       - key: JWT_EXPIRES_IN
-        value: 1h
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: COOKIE_SAMESITE
+        value: none
+      - key: COOKIE_SECURE
+        value: "true"
       - key: TRUST_PROXY
         value: 1
       - key: LOGIN_RATE_LIMIT
@@ -51,6 +59,8 @@ services:
         sync: false
       - key: SMTP_FROM
         value: Ashivam Technologies <teamashivam@gmail.com>
+      - key: COMPANY_NOTIFICATION_EMAIL
+        value: team.ashivam@gmail.com
       - key: ALERT_EMAIL
         value: team.ashivam@gmail.com
       - key: EMAIL_FROM

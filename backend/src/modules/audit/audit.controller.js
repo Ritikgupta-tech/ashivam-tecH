@@ -44,26 +44,21 @@ export const getAuditLog = async (req, res, next) => {
 
 export const removeAuditLog = async (req, res, next) => {
   try {
-    const auditLog = await deleteAuditLog(req.params.id);
-
-    if (!auditLog) {
-      return res.status(404).json({
-        success: false,
-        message: "Audit log not found",
-      });
-    }
-
     await createAuditLog({
       req,
-      action: "DELETE",
+      action: "SECURITY_VIOLATION_ATTEMPT",
       entity: "AuditLog",
       entityId: req.params.id,
-      description: "Audit log deleted",
+      description: "Attempted to delete an immutable audit log record. Operation rejected.",
+      status: "failure",
+    }).catch((err) => {
+      console.warn("[Audit Violation Alert Error]", err.message);
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Audit log deleted successfully",
+    return res.status(403).json({
+      success: false,
+      message:
+        "Audit logs are strictly append-only and immutable. Deletion is prohibited for compliance and security.",
     });
   } catch (error) {
     next(error);
@@ -72,25 +67,23 @@ export const removeAuditLog = async (req, res, next) => {
 
 export const removeAuditLogs = async (req, res, next) => {
   try {
-    const result = await clearAuditLogs(req.body);
-
     await createAuditLog({
       req,
-      action: "DELETE_MANY",
+      action: "SECURITY_VIOLATION_ATTEMPT",
       entity: "AuditLog",
-      description: "Audit logs cleared",
+      description: "Attempted bulk deletion of immutable audit logs. Operation rejected.",
       metadata: {
         before: req.body.before || null,
-        deletedCount: result.deletedCount,
       },
+      status: "failure",
+    }).catch((err) => {
+      console.warn("[Audit Violation Alert Error]", err.message);
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Audit logs cleared successfully",
-      data: {
-        deletedCount: result.deletedCount,
-      },
+    return res.status(403).json({
+      success: false,
+      message:
+        "Audit logs are strictly append-only and immutable. Deletion is prohibited for compliance and security.",
     });
   } catch (error) {
     next(error);

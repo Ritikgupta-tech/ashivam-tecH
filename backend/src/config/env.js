@@ -99,6 +99,35 @@ const resolveAdminUrl = (clientBaseUrl) => {
 const resolvedClientUrl = resolveClientUrl();
 const resolvedAdminUrl = resolveAdminUrl(resolvedClientUrl);
 
+export const MANDATED_COMPANY_NOTIFICATION_EMAIL = "team.ashivam@gmail.com";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const resolveCompanyNotificationEmail = () => {
+  const candidate = (
+    process.env.COMPANY_NOTIFICATION_EMAIL ||
+    process.env.NOTIFICATION_RECIPIENT ||
+    process.env.ALERT_EMAIL ||
+    process.env.CONTACT_TO_EMAIL ||
+    ""
+  ).trim();
+
+  if (!candidate) {
+    return MANDATED_COMPANY_NOTIFICATION_EMAIL;
+  }
+
+  const clean = candidate.toLowerCase();
+  if (!EMAIL_REGEX.test(clean)) {
+    console.error(
+      `[Config Error] Invalid COMPANY_NOTIFICATION_EMAIL format: "${clean.replace(/[\r\n\t]/g, "")}". Defaulting to authorized company recipient: ${MANDATED_COMPANY_NOTIFICATION_EMAIL}`
+    );
+    return MANDATED_COMPANY_NOTIFICATION_EMAIL;
+  }
+
+  return clean;
+};
+
+const companyNotificationRecipient = resolveCompanyNotificationEmail();
+
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   isProduction: process.env.NODE_ENV === "production",
@@ -121,8 +150,21 @@ const env = {
     (process.env.NODE_ENV === "production"
       ? null
       : "ashivam-default-development-secret-key-32chars-min!"),
+  jwtRefreshSecret:
+    process.env.JWT_REFRESH_SECRET ||
+    (process.env.NODE_ENV === "production"
+      ? null
+      : "ashivam-default-refresh-secret-key-32chars-min!"),
 
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "15m",
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
+
+  // Cookie Configuration for Cross-Origin Authentication
+  cookieSameSite: (process.env.COOKIE_SAMESITE || (isProd ? "none" : "lax")).toLowerCase(),
+  cookieSecure:
+    process.env.COOKIE_SECURE !== undefined
+      ? process.env.COOKIE_SECURE === "true"
+      : isProd,
 
   // Rate Limiting Settings
   loginRateLimit: Number(process.env.LOGIN_RATE_LIMIT) || 5,
@@ -175,12 +217,10 @@ const env = {
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
       : "Ashivam Technologies <teamashivam@gmail.com>"),
-  alertEmail:
-    (process.env.ALERT_EMAIL || process.env.NOTIFICATION_RECIPIENT || process.env.CONTACT_TO_EMAIL || "").trim() ||
-    "team.ashivam@gmail.com",
-  notificationRecipient:
-    (process.env.NOTIFICATION_RECIPIENT || process.env.ALERT_EMAIL || process.env.CONTACT_TO_EMAIL || "").trim() ||
-    "team.ashivam@gmail.com",
+  // Centralized Authorized Company Notification Recipient (Mandated: team.ashivam@gmail.com)
+  companyNotificationEmail: companyNotificationRecipient,
+  alertEmail: companyNotificationRecipient,
+  notificationRecipient: companyNotificationRecipient,
 
   smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 10000,
   smtpGreetingTimeoutMs: Number(process.env.SMTP_GREETING_TIMEOUT_MS) || 10000,
@@ -221,11 +261,27 @@ const env = {
 };
 
 if (env.isProduction) {
+  if (!EMAIL_REGEX.test(env.companyNotificationEmail)) {
+    throw new Error(
+      `Invalid COMPANY_NOTIFICATION_EMAIL: "${env.companyNotificationEmail}". Must be a valid email address.`
+    );
+  }
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET environment variable is mandatory in production mode.");
   }
   if (process.env.JWT_SECRET.length < 32) {
     throw new Error("JWT_SECRET must be at least 32 characters in production mode.");
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    throw new Error("JWT_REFRESH_SECRET environment variable is mandatory in production mode.");
+  }
+  if (process.env.JWT_REFRESH_SECRET.length < 32) {
+    throw new Error("JWT_REFRESH_SECRET must be at least 32 characters in production mode.");
+  }
+  if (process.env.JWT_SECRET === process.env.JWT_REFRESH_SECRET) {
+    throw new Error(
+      "JWT_SECRET and JWT_REFRESH_SECRET must be distinct cryptographic secrets in production mode."
+    );
   }
   if (!process.env.MONGODB_URI) {
     throw new Error("MONGODB_URI environment variable is mandatory in production mode.");

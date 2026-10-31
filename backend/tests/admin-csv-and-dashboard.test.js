@@ -184,6 +184,38 @@ test("CSV Export: GET /api/v1/audit/export streams CSV for authenticated admin",
   assert.ok(res.text.includes("Timestamp (ISO),Action,Entity,Actor Username"));
 });
 
+test("CSV Export: GET /api/v1/employees/export requires authentication", async () => {
+  const res = await request(app).get("/api/v1/employees/export");
+  assert.equal(res.status, 401);
+});
+
+test("CSV Export: GET /api/v1/employees/export streams CSV for authenticated admin", async () => {
+  const res = await request(app)
+    .get("/api/v1/employees/export")
+    .set("Authorization", `Bearer ${testSuperadminToken}`);
+
+  assert.equal(res.status, 200);
+  assert.ok(res.headers["content-type"].includes("text/csv"));
+  assert.ok(res.headers["content-disposition"].includes("ashivam_employees_export.csv"));
+  assert.ok(res.text.includes("Employee ID,Full Name,Email,Phone,Department,Designation"));
+});
+
+test("CSV Export: GET /api/v1/hr-documents/export requires authentication", async () => {
+  const res = await request(app).get("/api/v1/hr-documents/export");
+  assert.equal(res.status, 401);
+});
+
+test("CSV Export: GET /api/v1/hr-documents/export streams CSV for authenticated admin", async () => {
+  const res = await request(app)
+    .get("/api/v1/hr-documents/export")
+    .set("Authorization", `Bearer ${testSuperadminToken}`);
+
+  assert.equal(res.status, 200);
+  assert.ok(res.headers["content-type"].includes("text/csv"));
+  assert.ok(res.headers["content-disposition"].includes("ashivam_hr_documents_export.csv"));
+  assert.ok(res.text.includes("Document ID,Employee Name,Employee Email,Department,Document Type"));
+});
+
 /* -------------------------------------------------------------
  * 3. Dashboard Overview Time-Range Filtering
  * ----------------------------------------------------------- */

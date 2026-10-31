@@ -163,7 +163,7 @@ test("Direct Intern: POST /api/v1/internships/interns provisions intern with col
   assert.equal(res.status, 201);
   assert.equal(res.body.success, true);
   assert.ok(res.body.data.internId);
-  assert.match(res.body.data.internId, new RegExp(`^ASH-INT-${currentYear}-\\d{3}$`));
+  assert.match(res.body.data.internId, new RegExp(`^ASH-INT-${currentYear}-\\d{3,}$`));
   assert.equal(res.body.data.name, "Priya Sharma");
   assert.equal(res.body.data.status, "active");
   assert.equal(res.body.data.onboarding.idProofVerified, true);

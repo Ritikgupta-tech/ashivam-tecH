@@ -138,6 +138,12 @@ const applicationSchema = new mongoose.Schema(
 
 applicationSchema.index({
   job: 1,
+  status: 1,
+  createdAt: -1,
+});
+
+applicationSchema.index({
+  job: 1,
   createdAt: -1,
 });
 

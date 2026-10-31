@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import IndustriesPage from './pages/IndustriesPage';
 import SolutionsPage from './pages/SolutionsPage';
@@ -17,8 +18,9 @@ function App() {
     <BrowserRouter>
       <RouteScrollWatcher />
       <div className="page-bg" aria-hidden="true" />
-      <AuthProvider>
-        <Routes>
+      <ErrorBoundary>
+        <AuthProvider>
+          <Routes>
           {/* Core Corporate Multi-Page Architecture */}
           <Route path="/" element={<HomePage />} />
           <Route path="/industries" element={<IndustriesPage />} />
@@ -54,7 +56,8 @@ function App() {
           {/* Unknown Route Catch-All (404 Experience) */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </AuthProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

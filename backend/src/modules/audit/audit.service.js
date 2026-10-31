@@ -141,20 +141,20 @@ export const getAuditLogById = async (id) => {
   return AuditLog.findById(id).lean();
 };
 
-export const deleteAuditLog = async (id) => {
-  return AuditLog.findByIdAndDelete(id);
+export const deleteAuditLog = async (_id) => {
+  const error = new Error(
+    "Audit logs are strictly append-only and immutable. Deletion is prohibited for compliance and non-repudiation."
+  );
+  error.statusCode = 403;
+  throw error;
 };
 
-export const clearAuditLogs = async ({ before } = {}) => {
-  const filter = {};
-
-  if (before) {
-    filter.createdAt = {
-      $lt: new Date(before),
-    };
-  }
-
-  return AuditLog.deleteMany(filter);
+export const clearAuditLogs = async () => {
+  const error = new Error(
+    "Audit logs are strictly append-only and immutable. Deletion is prohibited for compliance and non-repudiation."
+  );
+  error.statusCode = 403;
+  throw error;
 };
 
 export const exportAuditLogsCsv = async ({

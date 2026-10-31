@@ -28,6 +28,7 @@ import {
   notFoundHandler,
   errorHandler,
 } from "./middlewares/error.middleware.js";
+import csrfProtection from "./middlewares/csrf.middleware.js";
 
 const app = express();
 
@@ -60,9 +61,36 @@ app.use(
       policy: "cross-origin",
     },
     crossOriginEmbedderPolicy: false,
-    contentSecurityPolicy: false, // API server: avoid CSP blocking JSON responses
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        fontSrc: ["'self'", "https:", "data:"],
+        frameAncestors: ["'none'"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        objectSrc: ["'none'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    frameguard: { action: "deny" },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    noSniff: true,
   })
 );
+
+app.use((_req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=()"
+  );
+  next();
+});
 
 /*
  * Multi-Origin CORS configuration
@@ -92,7 +120,13 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Request-Id",
+    "X-Requested-With",
+    "X-CSRF-Token",
+  ],
   exposedHeaders: ["X-Request-Id"],
 };
 
@@ -118,6 +152,34 @@ app.use(
     limit: "1mb",
   })
 );
+
+/*
+ * Secure Cookie Parser Middleware (Zero-dependency native extraction)
+ */
+app.use((req, res, next) => {
+  req.cookies = {};
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+    cookieHeader.split(";").forEach((cookie) => {
+      const parts = cookie.split("=");
+      const key = parts[0]?.trim();
+      const value = parts.slice(1).join("=").trim();
+      if (key) {
+        try {
+          req.cookies[key] = decodeURIComponent(value);
+        } catch {
+          req.cookies[key] = value;
+        }
+      }
+    });
+  }
+  next();
+});
+
+/*
+ * Enterprise CSRF Defense Middleware
+ */
+app.use(csrfProtection);
 
 /*
  * Public static uploads (only genuinely public website media is served statically)

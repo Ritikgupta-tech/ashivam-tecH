@@ -56,8 +56,18 @@ after(async () => {
   }
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   sentMails = [];
+  if (dbConnected) {
+    try {
+      await mongoose.connection.collection("outboxjobs").deleteMany({
+        $or: [
+          { "payload.to": /^test-workflow-.*@example\.com$/ },
+          { "payload.replyTo": /^test-workflow-.*@example\.com$/ },
+        ],
+      });
+    } catch {}
+  }
   setTransporter({
     sendMail: async (mailOptions) => {
       sentMails.push(mailOptions);
@@ -98,8 +108,10 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
   assert.ok(inquiry._id);
   assert.equal(inquiry.name, inquiryData.name);
 
-  // Give asynchronous dispatches a moment to queue
-  await new Promise((r) => setTimeout(r, 100));
+  // Give asynchronous dispatches a moment to complete
+  for (let i = 0; i < 20 && sentMails.length < 2; i++) {
+    await new Promise((r) => setTimeout(r, 50));
+  }
 
   // Should have sent 2 emails: Admin Alert & Inquirer Confirmation
   assert.equal(sentMails.length, 2);
@@ -108,9 +120,10 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
     m.subject.includes("[Ashivam Inquiries]")
   );
   assert.ok(adminAlert, "Admin alert email was dispatched");
-  const targetAlertEmail = env.alertEmail || env.notificationRecipient;
-  assert.equal(adminAlert.to, targetAlertEmail.toLowerCase());
+  assert.equal(adminAlert.to, "team.ashivam@gmail.com", "Admin alert must go strictly to team.ashivam@gmail.com");
   assert.equal(adminAlert.replyTo, email.toLowerCase());
+  assert.equal(adminAlert.cc, undefined, "Zero CC allowed");
+  assert.equal(adminAlert.bcc, undefined, "Zero BCC allowed");
   assert.ok(adminAlert.html.includes("Aarav Sharma &lt;script&gt;alert(1)&lt;/script&gt;"));
   assert.ok(adminAlert.html.includes(inquiry._id.toString()));
   assert.ok(!adminAlert.html.includes("<script>alert(1)</script>"));
@@ -120,6 +133,9 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
   );
   assert.ok(userConfirm, "User confirmation email was dispatched");
   assert.equal(userConfirm.to, email.toLowerCase());
+  assert.equal(userConfirm.replyTo, "team.ashivam@gmail.com", "User confirmation Reply-To routes to team.ashivam@gmail.com");
+  assert.equal(userConfirm.cc, undefined, "Zero CC allowed");
+  assert.equal(userConfirm.bcc, undefined, "Zero BCC allowed");
   assert.ok(userConfirm.html.includes(inquiry._id.toString()));
 });
 
@@ -213,7 +229,10 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
   assert.ok(application._id);
   assert.equal(application.status, "applied");
 
-  await new Promise((r) => setTimeout(r, 100));
+  // Give asynchronous dispatches a moment to complete
+  for (let i = 0; i < 20 && sentMails.length < 2; i++) {
+    await new Promise((r) => setTimeout(r, 50));
+  }
 
   // Should have sent 2 emails: Admin Alert & Candidate Confirmation
   assert.equal(sentMails.length, 2);
@@ -222,9 +241,10 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
     m.subject.includes("[Ashivam Careers] New application for Senior Cloud Engineer")
   );
   assert.ok(adminAlert, "Career admin alert was dispatched");
-  const targetAlertEmail = env.alertEmail || env.notificationRecipient;
-  assert.equal(adminAlert.to, targetAlertEmail.toLowerCase());
+  assert.equal(adminAlert.to, "team.ashivam@gmail.com", "Career alert must go strictly to team.ashivam@gmail.com");
   assert.equal(adminAlert.replyTo, candidateEmail.toLowerCase());
+  assert.equal(adminAlert.cc, undefined, "Zero CC allowed");
+  assert.equal(adminAlert.bcc, undefined, "Zero BCC allowed");
   assert.ok(adminAlert.html.includes(application._id.toString()));
   assert.ok(adminAlert.html.includes("Rohan Verma"));
   assert.ok(adminAlert.html.includes("Senior Cloud Engineer"));
@@ -238,6 +258,9 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
   );
   assert.ok(candidateConfirm, "Candidate confirmation email was dispatched");
   assert.equal(candidateConfirm.to, candidateEmail.toLowerCase());
+  assert.equal(candidateConfirm.replyTo, "team.ashivam@gmail.com", "Candidate confirmation Reply-To routes to team.ashivam@gmail.com");
+  assert.equal(candidateConfirm.cc, undefined, "Zero CC allowed");
+  assert.equal(candidateConfirm.bcc, undefined, "Zero BCC allowed");
   assert.ok(candidateConfirm.html.includes(application._id.toString()));
   assert.ok(candidateConfirm.html.includes("Rohan"));
   assert.ok(candidateConfirm.html.includes("Senior Cloud Engineer"));

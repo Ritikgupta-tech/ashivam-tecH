@@ -5,6 +5,8 @@ import HRDocument from "./hrDocument.model.js";
 import Employee from "../employee/employee.model.js";
 import { createAuditLog } from "../audit/audit.service.js";
 import { escapeRegex } from "../../utils/query.js";
+import { toCsv } from "../../utils/csv.js";
+import { validateFileSignature } from "../../services/storage.service.js";
 
 const UPLOAD_DIRECTORY = path.resolve(
   "uploads",
@@ -16,6 +18,8 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -56,7 +60,7 @@ const validateFile = (file) => {
 
   if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
     const error = new Error(
-      "Only PDF, JPEG, PNG and WEBP files are allowed"
+      "Only PDF, JPEG, PNG, WEBP, DOC and DOCX files are allowed"
     );
     error.statusCode = 400;
     throw error;
@@ -65,6 +69,15 @@ const validateFile = (file) => {
   if (file.size > MAX_FILE_SIZE) {
     const error = new Error(
       "Document file cannot exceed 10 MB"
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const ext = path.extname(file.originalname || "").toLowerCase();
+  if (file.buffer && !validateFileSignature(file.buffer, file.mimetype, ext)) {
+    const error = new Error(
+      "File content signature does not match allowed file types (magic bytes validation failed)"
     );
     error.statusCode = 400;
     throw error;
@@ -392,6 +405,15 @@ export const getDocumentFile = async (
     throw error;
   }
 
+  // Path traversal guard: verify filePath resides strictly inside UPLOAD_DIRECTORY
+  const resolvedUploadDir = path.resolve(UPLOAD_DIRECTORY);
+  const resolvedTarget = path.resolve(document.filePath);
+  if (!resolvedTarget.startsWith(resolvedUploadDir + path.sep) && resolvedTarget !== resolvedUploadDir) {
+    const error = new Error("Invalid or unauthorized file path location");
+    error.statusCode = 400;
+    throw error;
+  }
+
   try {
     await fs.access(document.filePath);
   } catch {
@@ -454,3 +476,72 @@ export const getEmployeeDocumentSummary =
       expired,
     };
   };
+
+export const exportHrDocumentsCsv = async ({
+  employee,
+  documentType,
+  status,
+  search,
+} = {}) => {
+  const filter = {
+    isDeleted: { $ne: true },
+  };
+
+  if (employee) filter.employee = employee;
+  if (documentType && documentType !== "all") filter.documentType = documentType;
+  if (status && status !== "all") filter.status = status;
+  if (search) {
+    const regex = new RegExp(escapeRegex(search.trim()), "i");
+    filter.$or = [
+      { title: regex },
+      { originalName: regex },
+      { documentNumber: regex },
+    ];
+  }
+
+  const docs = await HRDocument.find(filter)
+    .populate("employee", "_id employeeId firstName lastName email department")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const columns = [
+    { key: "id", label: "Document ID", transform: (d) => d._id?.toString() || "" },
+    {
+      key: "employee",
+      label: "Employee Name",
+      transform: (d) =>
+        d.employee ? `${d.employee.firstName || ""} ${d.employee.lastName || ""}`.trim() : "N/A",
+    },
+    {
+      key: "employeeEmail",
+      label: "Employee Email",
+      transform: (d) => d.employee?.email || "N/A",
+    },
+    {
+      key: "department",
+      label: "Department",
+      transform: (d) => d.employee?.department || "N/A",
+    },
+    { key: "documentType", label: "Document Type" },
+    { key: "title", label: "Title" },
+    { key: "originalName", label: "File Name" },
+    {
+      key: "fileSize",
+      label: "File Size (KB)",
+      transform: (d) => (d.fileSize ? Math.round(d.fileSize / 1024) : 0),
+    },
+    { key: "status", label: "Verification Status" },
+    {
+      key: "createdAt",
+      label: "Uploaded Date",
+      transform: (d) => (d.createdAt ? new Date(d.createdAt).toISOString().slice(0, 10) : ""),
+    },
+    {
+      key: "expiryDate",
+      label: "Expiry Date",
+      transform: (d) => (d.expiryDate ? new Date(d.expiryDate).toISOString().slice(0, 10) : "N/A"),
+    },
+  ];
+
+  return toCsv(docs, columns);
+};

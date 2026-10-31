@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../ui/Logo';
+import { Modal } from './AdminUI';
+import { changeAdminPassword } from '../../api';
 import {
   MenuIcon,
   XMarkIcon,
@@ -44,6 +46,53 @@ export default function AdminShell({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef(null);
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('New password and confirm password do not match');
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters long');
+      return;
+    }
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      setPasswordError('New password must be different from current password');
+      return;
+    }
+
+    try {
+      setPasswordSubmitting(true);
+      await changeAdminPassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      setPasswordSuccess('Password updated successfully! Please re-login with your new credentials.');
+      setTimeout(() => {
+        setShowPasswordModal(false);
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setPasswordSuccess('');
+      }, 1800);
+    } catch (err) {
+      setPasswordError(err.message || 'Failed to update password');
+    } finally {
+      setPasswordSubmitting(false);
+    }
+  };
 
   // Close menus on outside click
   useEffect(() => {
@@ -182,6 +231,17 @@ export default function AdminShell({
                   </Link>
                   <button
                     type="button"
+                    className="admin-dropdown-link"
+                    role="menuitem"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      setShowPasswordModal(true);
+                    }}
+                  >
+                    Change Password
+                  </button>
+                  <button
+                    type="button"
                     className="admin-dropdown-link admin-dropdown-link--danger"
                     role="menuitem"
                     onClick={() => {
@@ -261,6 +321,116 @@ export default function AdminShell({
           {children}
         </main>
       </div>
+
+      {/* Self-Service Change Password Modal */}
+      <Modal
+        isOpen={showPasswordModal}
+        onClose={() => {
+          if (!passwordSubmitting) {
+            setShowPasswordModal(false);
+            setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            setPasswordError('');
+            setPasswordSuccess('');
+          }
+        }}
+        title="Change Account Password"
+        subtitle={`Update credentials for @${user?.username}`}
+        maxWidth="480px"
+      >
+        <form
+          className="admin-modal-form"
+          onSubmit={handlePasswordSubmit}
+        >
+          <div className="admin-modal-body">
+            {passwordError && (
+              <div className="admin-alert admin-alert--error" role="alert">
+                <span>{passwordError}</span>
+              </div>
+            )}
+            {passwordSuccess && (
+              <div className="admin-alert admin-alert--success" role="status">
+                <span>{passwordSuccess}</span>
+              </div>
+            )}
+
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="current-password-input">
+                Current Password *
+              </label>
+              <input
+                id="current-password-input"
+                type="password"
+                required
+                className="admin-form-input"
+                value={passwordForm.currentPassword}
+                onChange={(e) =>
+                  setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                }
+                autoComplete="current-password"
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="new-password-input">
+                New Password (minimum 8 characters) *
+              </label>
+              <input
+                id="new-password-input"
+                type="password"
+                required
+                minLength={8}
+                className="admin-form-input"
+                value={passwordForm.newPassword}
+                onChange={(e) =>
+                  setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+                }
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="confirm-password-input">
+                Confirm New Password *
+              </label>
+              <input
+                id="confirm-password-input"
+                type="password"
+                required
+                minLength={8}
+                className="admin-form-input"
+                value={passwordForm.confirmPassword}
+                onChange={(e) =>
+                  setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+                }
+                autoComplete="new-password"
+              />
+            </div>
+          </div>
+
+          <div className="admin-modal-footer">
+            <button
+              type="button"
+              className="admin-btn admin-btn--secondary"
+              disabled={passwordSubmitting}
+              onClick={() => {
+                setShowPasswordModal(false);
+                setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                setPasswordError('');
+                setPasswordSuccess('');
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="admin-btn admin-btn--primary"
+              disabled={passwordSubmitting}
+            >
+              {passwordSubmitting ? 'Updating...' : 'Update Password'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

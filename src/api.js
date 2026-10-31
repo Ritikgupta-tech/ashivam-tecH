@@ -1,7 +1,7 @@
 export const CLOUD_PROD_API_URL = 'https://ashivam-tech.onrender.com/api/v1';
 
 const resolveApiBaseUrl = () => {
-  const configured = import.meta.env?.VITE_API_URL;
+  const configured = import.meta.env?.VITE_API_URL || import.meta.env?.VITE_API_BASE_URL;
 
   // When running on localhost / 127.0.0.1 in the browser, direct cross-origin calls
   // to production Render are blocked by production CORS (AUD-02).
@@ -30,6 +30,69 @@ const TOKEN_KEY = 'ashivam_admin_session_token';
 
 // In-memory fallback if sessionStorage is inaccessible
 let inMemoryToken = null;
+
+// Cross-tab synchronization channel (strictly zero tokens transmitted over broadcast)
+export const broadcastAuthEvent = (event) => {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    try {
+      const channel = new BroadcastChannel('ashivam_auth_sync');
+      channel.postMessage(event);
+      channel.close();
+    } catch {
+      // BroadcastChannel unavailable or restricted gracefully
+    }
+  }
+};
+
+let refreshInFlightPromise = null;
+
+const runFetchRefresh = async () => {
+  try {
+    const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      credentials: 'include',
+    });
+    const refreshJson = await refreshRes.json().catch(() => ({}));
+    if (refreshRes.ok && refreshJson.data?.accessToken) {
+      const newToken = refreshJson.data.accessToken;
+      setToken(newToken);
+      broadcastAuthEvent({ type: 'SESSION_REFRESHED', timestamp: Date.now() });
+      return refreshJson;
+    }
+    throw new Error(refreshJson.message || 'Session expired');
+  } finally {
+    refreshInFlightPromise = null;
+  }
+};
+
+const executeTokenRefresh = async () => {
+  if (refreshInFlightPromise) {
+    return refreshInFlightPromise;
+  }
+
+  // Cross-tab coordination: Use Web Locks API if supported to serialize concurrent refresh calls across tabs
+  if (
+    typeof window !== 'undefined' &&
+    typeof navigator !== 'undefined' &&
+    navigator.locks &&
+    typeof navigator.locks.request === 'function'
+  ) {
+    refreshInFlightPromise = navigator.locks.request(
+      'ashivam_auth_refresh_lock',
+      async () => {
+        return runFetchRefresh();
+      }
+    );
+  } else {
+    refreshInFlightPromise = runFetchRefresh();
+  }
+
+  return refreshInFlightPromise;
+};
 
 export const getToken = () => {
   try {
@@ -72,7 +135,10 @@ export const request = async (path, options = {}) => {
   }
 
   const token = getToken();
-  const headers = { ...customHeaders };
+  const headers = {
+    'X-Requested-With': 'XMLHttpRequest',
+    ...customHeaders,
+  };
 
   // Set Content-Type only if body is not FormData
   if (!(restOptions.body instanceof FormData) && !headers['Content-Type']) {
@@ -90,6 +156,7 @@ export const request = async (path, options = {}) => {
       response = await fetch(`${API_BASE_URL}${path}`, {
         ...restOptions,
         headers,
+        credentials: restOptions.credentials || 'include',
         signal: controller.signal,
       });
     } catch (networkErr) {
@@ -102,6 +169,7 @@ export const request = async (path, options = {}) => {
         response = await fetch(`${CLOUD_PROD_API_URL}${path}`, {
           ...restOptions,
           headers,
+          credentials: restOptions.credentials || 'include',
           signal: controller.signal,
         });
       } else {
@@ -112,8 +180,35 @@ export const request = async (path, options = {}) => {
     const result = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      // Auto-clear token on 401 Unauthorized for authenticated requests
-      if (response.status === 401 && token && path !== '/auth/login') {
+      // Auto-refresh sliding session on 401 Unauthorized for authenticated requests
+      if (
+        response.status === 401 &&
+        token &&
+        path !== '/auth/login' &&
+        path !== '/auth/refresh'
+      ) {
+        try {
+          const refreshJson = await executeTokenRefresh();
+          if (refreshJson?.data?.accessToken) {
+            const newToken = refreshJson.data.accessToken;
+
+            // Transparently retry the original failed request with the new access token
+            headers['Authorization'] = `Bearer ${newToken}`;
+            const retryResponse = await fetch(`${API_BASE_URL}${path}`, {
+              ...restOptions,
+              headers,
+              credentials: 'include',
+            });
+            const retryResult = await retryResponse.json().catch(() => ({}));
+            if (retryResponse.ok) {
+              return retryResult;
+            }
+          }
+        } catch {
+          // Coordinated token refresh failed, proceed to clear token
+        }
+        clearToken();
+      } else if (response.status === 401 && token && path !== '/auth/login') {
         clearToken();
       }
 
@@ -177,6 +272,25 @@ export const loginAdmin = ({ username, password }) =>
   });
 
 export const getMe = () => request('/auth/me');
+
+export const changeAdminPassword = ({ currentPassword, newPassword }) =>
+  request('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+
+export const refreshSession = () => executeTokenRefresh();
+
+export const logoutAdmin = async () => {
+  try {
+    return await request('/auth/logout', {
+      method: 'POST',
+    });
+  } finally {
+    clearToken();
+    broadcastAuthEvent({ type: 'LOGOUT', timestamp: Date.now() });
+  }
+};
 
 /* -------------------------------------------------------------
  * Query Helper
@@ -620,3 +734,20 @@ export const exportInternshipsCsv = (params) =>
 
 export const exportInternsCsv = (params) =>
   downloadAuthenticatedCsv(`/internships/interns/export${buildQuery(params)}`, 'interns_roster.csv');
+
+export const exportEmployeesCsv = (params) =>
+  downloadAuthenticatedCsv(`/employees/export${buildQuery(params)}`, 'ashivam_employees_export.csv');
+
+export const exportHrDocumentsCsv = (params) =>
+  downloadAuthenticatedCsv(`/hr-documents/export${buildQuery(params)}`, 'ashivam_hr_documents_export.csv');
+
+if (typeof window !== 'undefined') {
+  window.__ashivamApi = {
+    request,
+    executeTokenRefresh,
+    getToken,
+    setToken,
+    clearToken,
+    broadcastAuthEvent,
+  };
+}

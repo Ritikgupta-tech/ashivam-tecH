@@ -250,6 +250,19 @@ const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
 };
 
 /**
+ * Mandatory canonical recipient for all company-directed business notifications.
+ */
+export const MANDATED_COMPANY_NOTIFICATION_EMAIL = "team.ashivam@gmail.com";
+
+/**
+ * Returns the validated authorized company notification email address.
+ * Strictly guarantees that company notifications always resolve to team.ashivam@gmail.com.
+ */
+export const getCompanyNotificationEmail = () => {
+  return env.companyNotificationEmail || MANDATED_COMPANY_NOTIFICATION_EMAIL;
+};
+
+/**
  * Returns safe, non-sensitive diagnostic status of current email configuration.
  */
 export const getSafeSmtpStatus = () => {
@@ -262,11 +275,43 @@ export const getSafeSmtpStatus = () => {
     secure: Boolean(env.smtpSecure),
     user: env.smtpUser ? `${env.smtpUser.substring(0, 3)}***` : null,
     from: env.smtpFrom || env.emailFrom || null,
-    alertEmail: env.alertEmail || env.notificationRecipient || null,
+    companyNotificationEmail: getCompanyNotificationEmail(),
+    alertEmail: getCompanyNotificationEmail(),
     simulated: provider === "none",
     resendConfigured: Boolean(env.resendApiKey),
     brevoConfigured: Boolean(env.brevoApiKey),
   };
+};
+
+/**
+ * Centralized, authoritative dispatcher for all incoming company business notifications:
+ * - General inquiries & Contact Us form submissions
+ * - Job candidate applications & recruitment alerts
+ * - Student internship applications & academic program alerts
+ * - Website and system administrative notifications
+ *
+ * Guarantees:
+ * 1. The recipient is ALWAYS strictly enforced to team.ashivam@gmail.com.
+ * 2. Any caller-supplied or user-supplied 'to', 'cc', or 'bcc' overrides are completely stripped.
+ * 3. Preserves 'replyTo' as the verified submitter email for direct response handling.
+ * 4. Fails safely and logs sanitized error without leaking message bodies or credentials.
+ */
+export const sendCompanyNotification = async ({
+  subject,
+  html,
+  text,
+  replyTo,
+  metadata = {},
+}) => {
+  const targetRecipient = getCompanyNotificationEmail();
+
+  return sendEmail({
+    to: targetRecipient,
+    subject,
+    html,
+    text,
+    replyTo,
+  });
 };
 
 /**

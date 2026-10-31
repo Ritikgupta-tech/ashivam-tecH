@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import Admin from "../../models/admin.model.js";
+import RefreshToken from "../../models/refreshToken.model.js";
+import { withDistributedLock } from "../../utils/distributedLock.js";
 
 const ADMIN_PROJECTION =
   "_id username name email role permissions isActive lastLoginAt createdAt updatedAt";
@@ -83,22 +85,11 @@ export const createAdmin = async ({
   return getAdmin(admin._id);
 };
 
-let adminMutationLock = Promise.resolve();
-
-const withAdminMutationLock = async (fn) => {
-  let release;
-  const nextLock = new Promise((resolve) => {
-    release = resolve;
+export const withAdminMutationLock = async (fn) => {
+  return withDistributedLock("admin_mutation", fn, {
+    ttlMs: 20000,
+    timeoutMs: 45000,
   });
-  const currentLock = adminMutationLock;
-  adminMutationLock = currentLock.then(() => nextLock);
-
-  try {
-    await currentLock;
-    return await fn();
-  } finally {
-    release();
-  }
 };
 
 export const updateAdmin = async (adminId, updates, currentAdminId) => {
@@ -132,6 +123,29 @@ export const updateAdmin = async (adminId, updates, currentAdminId) => {
     if (updates.password !== undefined) {
       admin.passwordHash = await bcrypt.hash(updates.password, 12);
       admin.passwordChangedAt = new Date();
+    }
+
+    if (updates.isActive !== undefined && updates.isActive !== admin.isActive) {
+      if (currentAdminId && adminId.toString() === currentAdminId.toString() && !updates.isActive) {
+        const error = new Error("You cannot deactivate your own account");
+        error.statusCode = 400;
+        throw error;
+      }
+
+      if (admin.role === "Superadmin" && admin.isActive && !updates.isActive) {
+        const activeSuperadmins = await Admin.countDocuments({
+          role: "Superadmin",
+          isActive: true,
+        });
+
+        if (activeSuperadmins <= 1) {
+          const error = new Error("At least one active Superadmin is required");
+          error.statusCode = 400;
+          throw error;
+        }
+      }
+
+      admin.isActive = updates.isActive;
     }
 
     if (updates.role !== undefined && updates.role !== admin.role) {
@@ -208,6 +222,13 @@ export const updateAdminStatus = async (
 
     admin.isActive = isActive;
     await admin.save();
+
+    if (!isActive) {
+      await RefreshToken.updateMany(
+        { userId: admin._id },
+        { $set: { isRevoked: true } }
+      );
+    }
 
     return getAdmin(admin._id);
   });
@@ -307,6 +328,7 @@ export const deleteAdmin = async (
     }
 
     await Admin.deleteOne({ _id: adminId });
+    await RefreshToken.deleteMany({ userId: adminId });
 
     return true;
   });

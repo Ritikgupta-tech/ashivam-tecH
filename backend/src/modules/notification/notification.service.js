@@ -1,7 +1,9 @@
 import Notification from "./notification.model.js";
 import Admin from "../../models/admin.model.js";
+import env from "../../config/env.js";
 import {
   sendEmail,
+  getCompanyNotificationEmail,
 } from "./email.service.js";
 import {
   notificationEmailTemplate,
@@ -49,12 +51,19 @@ export const createAndSendNotification = async ({
     });
 
   if (sendEmailNotification) {
-    const admin = await Admin.findById(recipient);
+    let targetEmail = null;
+    if (recipient && typeof recipient === "string" && recipient.match(/^[0-9a-fA-F]{24}$/)) {
+      const admin = await Admin.findById(recipient);
+      if (admin?.email) targetEmail = admin.email;
+    }
+    if (!targetEmail) {
+      targetEmail = getCompanyNotificationEmail();
+    }
 
-    if (admin?.email) {
+    if (targetEmail) {
       try {
         await sendEmail({
-          to: admin.email,
+          to: targetEmail,
           subject: title,
           html: notificationEmailTemplate({
             title,

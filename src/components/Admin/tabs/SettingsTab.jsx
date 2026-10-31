@@ -159,7 +159,7 @@ export default function SettingsTab() {
                   className="admin-form-input"
                   value={company.email || ''}
                   onChange={(e) => handleFieldChange('company', 'email', e.target.value)}
-                  placeholder="contact@ashivamtechnologies.com"
+                  placeholder="team.ashivam@gmail.com"
                 />
               </div>
             </div>

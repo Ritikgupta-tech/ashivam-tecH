@@ -5,6 +5,9 @@ import {
   clearToken as removeToken,
   getMe,
   loginAdmin,
+  refreshSession,
+  logoutAdmin,
+  broadcastAuthEvent,
 } from '../api';
 
 const AuthContext = createContext(null);
@@ -15,48 +18,75 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  // Validate session on initial load if token exists
-  useEffect(() => {
-    let isMounted = true;
-
-    const verifySession = async () => {
-      const activeToken = getToken();
-      if (!activeToken) {
-        if (isMounted) {
-          setUser(null);
-          setTokenState(null);
+  const verifySession = useCallback(async () => {
+    const activeToken = getToken();
+    if (!activeToken) {
+      // Attempt sliding session silent restore via HttpOnly refresh cookie
+      try {
+        const refreshRes = await refreshSession();
+        if (refreshRes?.data?.accessToken) {
+          const newToken = refreshRes.data.accessToken;
+          const userData = refreshRes.data.user;
+          saveToken(newToken);
+          setTokenState(newToken);
+          setUser(userData);
           setIsLoading(false);
+          return;
         }
-        return;
+      } catch {
+        // No active refresh session exists
       }
 
-      try {
-        const response = await getMe();
-        if (isMounted && response?.data) {
-          const userObj = response.data.user || response.data;
-          setUser(userObj);
-          setTokenState(activeToken);
-        }
-      } catch (err) {
-        // Token invalid, expired, or server rejected session
+      setUser(null);
+      setTokenState(null);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await getMe();
+      if (response?.data) {
+        const userObj = response.data.user || response.data;
+        setUser(userObj);
+        setTokenState(activeToken);
+      }
+    } catch {
+      // Token invalid, expired, or server rejected session
+      removeToken();
+      setUser(null);
+      setTokenState(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Initial session verification
+  useEffect(() => {
+    verifySession();
+  }, [verifySession]);
+
+  // Cross-tab synchronization via BroadcastChannel (strictly zero tokens transmitted)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('BroadcastChannel' in window)) return;
+    const channel = new BroadcastChannel('ashivam_auth_sync');
+
+    channel.onmessage = (event) => {
+      const { type } = event?.data || {};
+      if (type === 'LOGOUT') {
         removeToken();
-        if (isMounted) {
-          setUser(null);
-          setTokenState(null);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        setUser(null);
+        setTokenState(null);
+        setAuthError(null);
+      } else if (type === 'LOGIN' || type === 'SESSION_REFRESHED') {
+        // Synchronize authenticated state across tabs without transferring credentials
+        verifySession();
       }
     };
-
-    verifySession();
 
     return () => {
-      isMounted = false;
+      channel.close();
     };
-  }, []);
+  }, [verifySession]);
 
   const login = useCallback(async (username, password) => {
     setAuthError(null);
@@ -71,6 +101,7 @@ export function AuthProvider({ children }) {
       saveToken(accessToken);
       setTokenState(accessToken);
       setUser(userData);
+      broadcastAuthEvent({ type: 'LOGIN', timestamp: Date.now() });
       return { success: true, user: userData };
     } catch (err) {
       setAuthError(err.message || 'Login failed');
@@ -79,10 +110,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
+    logoutAdmin().catch(() => {});
     removeToken();
     setUser(null);
     setTokenState(null);
     setAuthError(null);
+    broadcastAuthEvent({ type: 'LOGOUT', timestamp: Date.now() });
   }, []);
 
   const hasPermission = useCallback(

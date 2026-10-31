@@ -3,12 +3,23 @@ import Intern from "./intern.model.js";
 import InternshipProgram from "./internshipProgram.model.js";
 import { toCsv } from "../../utils/csv.js";
 import Admin from "../../models/admin.model.js";
+import Counter from "../../models/counter.model.js";
+import { withDistributedLock } from "../../utils/distributedLock.js";
 import env from "../../config/env.js";
-import { sendEmail } from "../notification/email.service.js";
+import {
+  sendEmail,
+  sendCompanyNotification,
+  getCompanyNotificationEmail,
+} from "../notification/email.service.js";
+import {
+  enqueueOutboxEmail,
+  processOutboxJob,
+} from "../notification/outbox.service.js";
 import {
   internshipConfirmationTemplate,
   internshipAdminAlertTemplate,
 } from "../notification/email.templates.js";
+import { withOptionalTransaction } from "../../utils/transaction.js";
 
 import { ACTIVE_INTERNSHIP_STATUSES } from "./internship.constants.js";
 
@@ -49,46 +60,69 @@ export const createInternship = async (data) => {
     );
   }
 
-  const created = await Internship.create(data);
+  const { doc, jobs } = await withOptionalTransaction(async (session) => {
+    const createOptions = session ? { session } : {};
+    const [createdDoc] = await Internship.create([data], createOptions);
 
-  // Background non-blocking notifications
-  const alertRecipient = env.alertEmail || env.notificationRecipient;
-  const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
+    const outboxJobs = [];
 
-  if (alertRecipient) {
-    sendEmail({
-      to: alertRecipient,
-      replyTo: data.email,
-      subject: `[Ashivam Internship] New application for ${data.domain} from ${data.name}`,
-      text: `A new student internship application has been submitted on the Ashivam Technologies website.\n\nDomain: ${data.domain}\nStudent Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCollege: ${data.college || "N/A"}\nCourse: ${data.course || "N/A"}\nDuration: ${data.duration || "N/A"}\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
-      html: internshipAdminAlertTemplate({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        college: data.college,
-        domain: data.domain,
-        reviewUrl: adminReviewUrl,
-      }),
-    }).catch((err) => {
-      console.warn("[Internship Alert] Background dispatch error:", err.message);
+    // Background non-blocking notifications via durable Outbox
+    const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
+    const internRef = createdDoc._id.toString();
+
+    // Workflow 5: Internship Application Notification (Company Alert - strictly team.ashivam@gmail.com)
+    const job1 = await enqueueOutboxEmail({
+      eventType: "INTERNSHIP_COMPANY_ALERT",
+      dedupKey: `outbox:internship:company:${internRef}`,
+      session,
+      autoProcess: false,
+      payload: {
+        isCompanyAlert: true,
+        replyTo: data.email,
+        subject: `[Ashivam Internship] New application for ${data.domain} from ${data.name}`,
+        text: `A new student internship application has been submitted on the Ashivam Technologies website.\n\nDomain: ${data.domain}\nStudent Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nCollege: ${data.college || "N/A"}\nCourse: ${data.course || "N/A"}\nDuration: ${data.duration || "N/A"}\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
+        html: internshipAdminAlertTemplate({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          college: data.college,
+          domain: data.domain,
+          reviewUrl: adminReviewUrl,
+        }),
+      },
     });
+    if (job1) outboxJobs.push(job1);
+
+    // Workflow 6: Student Internship Application Confirmation (Preserves Reply-To reaching authorized company mailbox)
+    if (data.email) {
+      const job2 = await enqueueOutboxEmail({
+        eventType: "INTERNSHIP_STUDENT_CONFIRMATION",
+        dedupKey: `outbox:internship:student:${internRef}`,
+        session,
+        autoProcess: false,
+        payload: {
+          to: data.email,
+          replyTo: getCompanyNotificationEmail(),
+          subject: `Internship Application Received - Ashivam Technologies [${data.domain}]`,
+          text: `Hello ${data.name},\n\nThank you for applying for the ${data.domain} internship at Ashivam Technologies. We have successfully received your application.\n\nOur academic programs team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Academic Programs\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
+          html: internshipConfirmationTemplate({
+            name: data.name,
+            domain: data.domain,
+          }),
+        },
+      });
+      if (job2) outboxJobs.push(job2);
+    }
+
+    return { doc: createdDoc, jobs: outboxJobs };
+  });
+
+  // Post-commit dispatch of the transaction's specific outbox jobs
+  for (const j of jobs) {
+    processOutboxJob(j).catch(() => {});
   }
 
-  if (data.email) {
-    sendEmail({
-      to: data.email,
-      subject: `Internship Application Received - Ashivam Technologies [${data.domain}]`,
-      text: `Hello ${data.name},\n\nThank you for applying for the ${data.domain} internship at Ashivam Technologies. We have successfully received your application.\n\nOur academic programs team will review your qualifications and reach out if your profile aligns with our needs.\n\nBest regards,\nAshivam Technologies Academic Programs\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
-      html: internshipConfirmationTemplate({
-        name: data.name,
-        domain: data.domain,
-      }),
-    }).catch((err) => {
-      console.warn("[Internship Confirmation] Background dispatch error:", err.message);
-    });
-  }
-
-  return created;
+  return doc;
 };
 
 export const listInternships = async ({
@@ -192,28 +226,65 @@ export const deleteInternship = async (id) => {
 /* -------------------------------------------------------------
  * Collision-Safe Intern ID Generation & Onboarding Workflow
  * ----------------------------------------------------------- */
-export const generateNextInternId = async () => {
-  const year = new Date().getFullYear();
-  const prefix = `ASH-INT-${year}-`;
-  const latest = await Intern.findOne({ internId: new RegExp(`^${prefix}`) })
-    .sort({ internId: -1 })
-    .select("internId")
-    .lean();
+export const withInternAllocationLock = async (fn) => {
+  return withDistributedLock("intern_allocation", fn, {
+    ttlMs: 20000,
+    timeoutMs: 45000,
+  });
+};
 
-  let nextNum = 1;
-  if (latest && latest.internId) {
-    const parts = latest.internId.split("-");
-    const num = parseInt(parts[parts.length - 1], 10);
-    if (!isNaN(num)) {
-      nextNum = num + 1;
+export const getNextInternSequence = async (year) => {
+  const seqKey = `intern_id_${year}`;
+
+  const counterExists = await Counter.exists({ _id: seqKey });
+  if (!counterExists) {
+    const prefix = `ASH-INT-${year}-`;
+    const existing = await Intern.find({ internId: new RegExp(`^${prefix}`) })
+      .select("internId")
+      .lean();
+
+    let maxNum = 0;
+    for (const item of existing) {
+      if (item.internId) {
+        const parts = item.internId.split("-");
+        const num = parseInt(parts[parts.length - 1], 10);
+        if (!isNaN(num) && num > maxNum) {
+          maxNum = num;
+        }
+      }
+    }
+
+    try {
+      await Counter.create({
+        _id: seqKey,
+        seq: maxNum,
+      });
+    } catch (err) {
+      if (err.code !== 11000) throw err;
     }
   }
 
-  const candidateId = `${prefix}${String(nextNum).padStart(3, "0")}`;
-  const exists = await Intern.exists({ internId: candidateId });
-  if (exists) {
-    return `${prefix}${String(nextNum + Math.floor(Math.random() * 1000)).padStart(4, "0")}`;
+  const updated = await Counter.findOneAndUpdate(
+    { _id: seqKey },
+    { $inc: { seq: 1 } },
+    { returnDocument: "after", upsert: true }
+  );
+
+  return updated.seq;
+};
+
+export const generateNextInternId = async () => {
+  const year = new Date().getFullYear();
+  const prefix = `ASH-INT-${year}-`;
+
+  let seq = await getNextInternSequence(year);
+  let candidateId = `${prefix}${String(seq).padStart(3, "0")}`;
+
+  while (await Intern.exists({ internId: candidateId })) {
+    seq = await getNextInternSequence(year);
+    candidateId = `${prefix}${String(seq).padStart(3, "0")}`;
   }
+
   return candidateId;
 };
 
@@ -222,121 +293,148 @@ export const convertApplicationToIntern = async ({
   adminId = null,
   internData = {},
 }) => {
-  assertValidId(applicationId);
+  return withInternAllocationLock(async () => {
+    assertValidId(applicationId);
 
-  const application = await Internship.findById(applicationId);
-  if (!application) {
-    throw httpError(404, "Internship application not found");
-  }
+    // Atomically claim conversion on the application document to prevent duplicate active allocations
+    const application = await Internship.findOneAndUpdate(
+      {
+        _id: applicationId,
+        convertedToIntern: { $ne: true },
+      },
+      {
+        $set: {
+          convertedToIntern: true,
+          status: "selected",
+        },
+      },
+      { returnDocument: "after" }
+    );
 
-  if (application.convertedToIntern) {
-    throw httpError(409, "Candidate has already been converted to an active intern");
-  }
+    if (!application) {
+      const existing = await Internship.findById(applicationId);
+      if (!existing) {
+        throw httpError(404, "Internship application not found");
+      }
+      throw httpError(409, "Candidate has already been converted to an active intern");
+    }
 
-  const generatedId = await generateNextInternId();
-  const joiningDate = internData.joiningDate ? new Date(internData.joiningDate) : new Date();
-  let expectedEndDate = null;
-  if (internData.expectedEndDate) {
-    expectedEndDate = new Date(internData.expectedEndDate);
-  } else {
-    expectedEndDate = new Date(joiningDate.getTime() + 90 * 24 * 60 * 60 * 1000);
-  }
+    try {
+      const generatedId = await generateNextInternId();
+      const joiningDate = internData.joiningDate ? new Date(internData.joiningDate) : new Date();
+      let expectedEndDate = null;
+      if (internData.expectedEndDate) {
+        expectedEndDate = new Date(internData.expectedEndDate);
+      } else {
+        expectedEndDate = new Date(joiningDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+      }
 
-  const newIntern = await Intern.create({
-    internId: generatedId,
-    applicationId: application._id,
-    name: internData.name || application.name,
-    email: internData.email || application.email,
-    phone: internData.phone || application.phone,
-    college: internData.college || application.college,
-    course: internData.course || application.course || "",
-    domain: internData.domain || application.domain,
-    department: internData.department || "Software Engineering",
-    designation: internData.designation || `${internData.domain || application.domain} Intern`,
-    mentorName: internData.mentorName || "",
-    joiningDate,
-    expectedEndDate,
-    duration: internData.duration || application.duration || "3 Months",
-    workLocation: internData.workLocation || "Remote",
-    stipend: Number(internData.stipend) || 0,
-    isUnpaid: Boolean(internData.isUnpaid),
-    onboarding: {
-      status: internData.onboardingStatus || "pending",
-      idProofVerified: Boolean(internData.idProofVerified),
-      collegeNocVerified: Boolean(internData.collegeNocVerified),
-      agreementSigned: Boolean(internData.agreementSigned),
-      ndaSigned: Boolean(internData.ndaSigned),
-    },
-    status: "active",
-    performanceNotes: internData.performanceNotes || "",
-    createdBy: adminId,
+      const newIntern = await Intern.create({
+        internId: generatedId,
+        applicationId: application._id,
+        name: internData.name || application.name,
+        email: internData.email || application.email,
+        phone: internData.phone || application.phone,
+        college: internData.college || application.college,
+        course: internData.course || application.course || "",
+        domain: internData.domain || application.domain,
+        department: internData.department || "Software Engineering",
+        designation: internData.designation || `${internData.domain || application.domain} Intern`,
+        mentorName: internData.mentorName || "",
+        joiningDate,
+        expectedEndDate,
+        duration: internData.duration || application.duration || "3 Months",
+        workLocation: internData.workLocation || "Remote",
+        stipend: Number(internData.stipend) || 0,
+        isUnpaid: Boolean(internData.isUnpaid),
+        onboarding: {
+          status: internData.onboardingStatus || "pending",
+          idProofVerified: Boolean(internData.idProofVerified),
+          collegeNocVerified: Boolean(internData.collegeNocVerified),
+          agreementSigned: Boolean(internData.agreementSigned),
+          ndaSigned: Boolean(internData.ndaSigned),
+        },
+        status: "active",
+        performanceNotes: internData.performanceNotes || "",
+        createdBy: adminId,
+      });
+
+      application.internId = generatedId;
+      await application.save();
+
+      return {
+        intern: newIntern,
+        application,
+      };
+    } catch (createErr) {
+      // Revert the atomic claim if intern creation failed
+      await Internship.findByIdAndUpdate(applicationId, {
+        $set: {
+          convertedToIntern: false,
+          status: "pending",
+        },
+      });
+      throw createErr;
+    }
   });
-
-  application.status = "selected";
-  application.convertedToIntern = true;
-  application.internId = generatedId;
-  await application.save();
-
-  return {
-    intern: newIntern,
-    application,
-  };
 };
 
 export const createInternDirectly = async (data, adminId = null) => {
-  if (!data.name || !data.email || !data.phone || !data.college || !data.domain) {
-    throw httpError(400, "Name, email, phone, college, and domain are required");
-  }
+  return withInternAllocationLock(async () => {
+    if (!data.name || !data.email || !data.phone || !data.college || !data.domain) {
+      throw httpError(400, "Name, email, phone, college, and domain are required");
+    }
 
-  const existingActive = await Intern.findOne({
-    email: data.email.toLowerCase().trim(),
-    status: { $in: ["active", "on_hold", "extended"] },
-    deletedAt: null,
+    const existingActive = await Intern.findOne({
+      email: data.email.toLowerCase().trim(),
+      status: { $in: ["active", "on_hold", "extended"] },
+      deletedAt: null,
+    });
+
+    if (existingActive) {
+      throw httpError(409, `An active intern record already exists for ${data.email}`);
+    }
+
+    const internId = await generateNextInternId();
+    const joiningDate = data.joiningDate ? new Date(data.joiningDate) : new Date();
+    let expectedEndDate = null;
+    if (data.expectedEndDate) {
+      expectedEndDate = new Date(data.expectedEndDate);
+    } else {
+      expectedEndDate = new Date(joiningDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+    }
+
+    const intern = await Intern.create({
+      internId,
+      name: data.name.trim(),
+      email: data.email.toLowerCase().trim(),
+      phone: data.phone.trim(),
+      college: data.college.trim(),
+      course: data.course ? data.course.trim() : "",
+      domain: data.domain.trim(),
+      department: data.department || "Software Engineering",
+      designation: data.designation || `${data.domain} Intern`,
+      mentorName: data.mentorName || "",
+      joiningDate,
+      expectedEndDate,
+      duration: data.duration || "3 Months",
+      workLocation: data.workLocation || "Remote",
+      stipend: Number(data.stipend) || 0,
+      isUnpaid: Boolean(data.isUnpaid),
+      onboarding: {
+        status: data.onboardingStatus || "pending",
+        idProofVerified: Boolean(data.idProofVerified),
+        collegeNocVerified: Boolean(data.collegeNocVerified),
+        agreementSigned: Boolean(data.agreementSigned),
+        ndaSigned: Boolean(data.ndaSigned),
+      },
+      status: data.status || "active",
+      performanceNotes: data.performanceNotes || "",
+      createdBy: adminId,
+    });
+
+    return intern;
   });
-
-  if (existingActive) {
-    throw httpError(409, `An active intern record already exists for ${data.email}`);
-  }
-
-  const internId = await generateNextInternId();
-  const joiningDate = data.joiningDate ? new Date(data.joiningDate) : new Date();
-  let expectedEndDate = null;
-  if (data.expectedEndDate) {
-    expectedEndDate = new Date(data.expectedEndDate);
-  } else {
-    expectedEndDate = new Date(joiningDate.getTime() + 90 * 24 * 60 * 60 * 1000);
-  }
-
-  const intern = await Intern.create({
-    internId,
-    name: data.name.trim(),
-    email: data.email.toLowerCase().trim(),
-    phone: data.phone.trim(),
-    college: data.college.trim(),
-    course: data.course ? data.course.trim() : "",
-    domain: data.domain.trim(),
-    department: data.department || "Software Engineering",
-    designation: data.designation || `${data.domain} Intern`,
-    mentorName: data.mentorName || "",
-    joiningDate,
-    expectedEndDate,
-    duration: data.duration || "3 Months",
-    workLocation: data.workLocation || "Remote",
-    stipend: Number(data.stipend) || 0,
-    isUnpaid: Boolean(data.isUnpaid),
-    onboarding: {
-      status: data.onboardingStatus || "pending",
-      idProofVerified: Boolean(data.idProofVerified),
-      collegeNocVerified: Boolean(data.collegeNocVerified),
-      agreementSigned: Boolean(data.agreementSigned),
-      ndaSigned: Boolean(data.ndaSigned),
-    },
-    status: data.status || "active",
-    performanceNotes: data.performanceNotes || "",
-    createdBy: adminId,
-  });
-
-  return intern;
 };
 
 export const listInterns = async ({

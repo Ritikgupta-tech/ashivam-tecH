@@ -82,3 +82,28 @@ export const publicFormLimiter = rateLimit({
   validate: { xForwardedForHeader: false },
   handler: createRateLimitHandler("Too many submissions. Please try again later."),
 });
+
+/*
+ * Rate limiter for token refresh requests to prevent token rotation replay flooding.
+ */
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: env.isTest ? 1000 : 30, // 30 refresh calls per 15 min per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  handler: createRateLimitHandler("Too many token refresh attempts. Please try again later."),
+});
+
+/*
+ * Rate limiter for password change requests to prevent brute force attacks.
+ */
+export const passwordChangeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: env.isTest ? 50 : 5, // 5 password change attempts per 15 min per IP
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  handler: createRateLimitHandler("Too many password change attempts. Please try again later."),
+});

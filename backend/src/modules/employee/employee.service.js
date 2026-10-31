@@ -1,5 +1,6 @@
 import Employee from "./employee.model.js";
 import { escapeRegex } from "../../utils/query.js";
+import { toCsv } from "../../utils/csv.js";
 
 export const EMPLOYEE_PROJECTION =
   "_id firstName lastName email phone profileImage designation department employmentType joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive createdAt updatedAt";
@@ -451,3 +452,51 @@ export const getEmployeeDesignations =
       isActive: true,
     });
   };
+
+export const exportEmployeesCsv = async ({
+  search,
+  department,
+  designation,
+  employmentType,
+  workLocation,
+  isActive,
+  isFeatured,
+} = {}) => {
+  const filter = buildSearchFilter({
+    search,
+    department,
+    designation,
+    employmentType,
+    workLocation,
+    isActive,
+    isFeatured,
+  });
+
+  const employees = await Employee.find(filter)
+    .sort({ department: 1, lastName: 1, firstName: 1 })
+    .lean();
+
+  const columns = [
+    { key: "id", label: "Employee ID", transform: (e) => e._id?.toString() || "" },
+    {
+      key: "name",
+      label: "Full Name",
+      transform: (e) => `${e.firstName || ""} ${e.lastName || ""}`.trim(),
+    },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone", transform: (e) => e.phone || "" },
+    { key: "department", label: "Department" },
+    { key: "designation", label: "Designation" },
+    { key: "employmentType", label: "Employment Type", transform: (e) => e.employmentType || "Full-time" },
+    { key: "workLocation", label: "Work Location", transform: (e) => e.workLocation || "" },
+    {
+      key: "joiningDate",
+      label: "Joining Date",
+      transform: (e) => (e.joiningDate ? new Date(e.joiningDate).toISOString().slice(0, 10) : ""),
+    },
+    { key: "status", label: "Status", transform: (e) => (e.isActive ? "Active" : "Inactive") },
+    { key: "featured", label: "Featured on Website", transform: (e) => (e.isFeatured ? "Yes" : "No") },
+  ];
+
+  return toCsv(employees, columns);
+};

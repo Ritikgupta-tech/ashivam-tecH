@@ -149,6 +149,7 @@ const internshipSchema = new mongoose.Schema(
   }
 );
 
+internshipSchema.index({ domain: 1, status: 1, convertedToIntern: 1 });
 internshipSchema.index({ status: 1, createdAt: -1 });
 internshipSchema.index({ email: 1, domain: 1 });
 internshipSchema.index({ domain: 1, createdAt: -1 });

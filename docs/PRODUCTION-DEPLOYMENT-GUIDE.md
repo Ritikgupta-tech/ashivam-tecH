@@ -58,8 +58,9 @@
    SMTP_SECURE=false
    SMTP_USER=apikey
    SMTP_PASSWORD=<YOUR_SENDGRID_API_KEY>
-   EMAIL_FROM=Ashivam Technologies <no-reply@ashivamtechnologies.com>
-   NOTIFICATION_RECIPIENT=contact@ashivamtechnologies.com
+   EMAIL_FROM=Ashivam Technologies <teamashivam@gmail.com>
+   COMPANY_NOTIFICATION_EMAIL=team.ashivam@gmail.com
+   NOTIFICATION_RECIPIENT=team.ashivam@gmail.com
    ```
 
 ### Phase 3: Backend Deployment (Render / Docker / VPS)

@@ -119,7 +119,12 @@ const FORBIDDEN_URL_CHARS = /[\s<>"'`]/;
  * values with whitespace/quotes/angle brackets are rejected.
  */
 export const normalizeHttpUrl = (value, maxLength = 300) => {
-  if (value.length > maxLength || FORBIDDEN_URL_CHARS.test(value)) {
+  if (
+    typeof value !== "string" ||
+    !value.trim() ||
+    value.length > maxLength ||
+    FORBIDDEN_URL_CHARS.test(value)
+  ) {
     return null;
   }
 
@@ -134,12 +139,26 @@ export const normalizeHttpUrl = (value, maxLength = 300) => {
       return null;
     }
 
-    if (!url.hostname.includes(".")) {
+    const host = url.hostname.toLowerCase();
+
+    if (!host.includes(".")) {
       return null;
     }
 
-    /* IP-address hosts (e.g. 127.0.0.1, http://127 -> 0.0.0.127, [::1]) */
-    if (/^[\d.]+$/.test(url.hostname) || url.hostname.startsWith("[")) {
+    /* IP-address hosts (IPv4 dotted decimal, dwords, and bracketed IPv6 like [::1]) */
+    if (/^[\d.]+$/.test(host) || host.startsWith("[") || host.endsWith("]")) {
+      return null;
+    }
+
+    /* Reserved, internal, and local domains */
+    if (
+      host.endsWith(".local") ||
+      host.endsWith(".localhost") ||
+      host.endsWith(".internal") ||
+      host.endsWith(".arpa") ||
+      host.endsWith(".home") ||
+      host.endsWith(".corp")
+    ) {
       return null;
     }
 

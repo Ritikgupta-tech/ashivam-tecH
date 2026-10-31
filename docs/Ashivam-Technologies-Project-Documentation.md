@@ -363,7 +363,7 @@ npm run dev
 | `SMTP_USER` | Conditional | `""` | Authentication username for SMTP gateway. | Yes (Process restart) |
 | `SMTP_PASSWORD` | Conditional | `""` | Authentication secret / application token for SMTP gateway. | Yes (Process restart) |
 | `EMAIL_FROM` | **Mandatory** | `Ashivam Technologies <no-reply...>` | Verified sender email header displayed to recipients. | Yes (Process restart) |
-| `NOTIFICATION_RECIPIENT` | **Mandatory** | `contact@ashivamtechnologies.com` | Company inbox where inbound lead inquiries and job applications are alerted. | Yes (Process restart) |
+| `COMPANY_NOTIFICATION_EMAIL` | **Mandatory** | `team.ashivam@gmail.com` | Sole authorized company recipient inbox where inbound lead inquiries, career/internship applications, and system alerts are sent. (Aliases: `NOTIFICATION_RECIPIENT`, `ALERT_EMAIL`). | Yes (Process restart) |
 | `STORAGE_PROVIDER` | **Mandatory (Prod)** | `local` (Dev) / `s3` (Prod) | Object storage mode (`s3` required for non-ephemeral storage in cloud). | Yes (Process restart) |
 | `S3_BUCKET` | Conditional | `""` | Target AWS S3 or Cloudflare R2 bucket name. Mandatory if storage is `s3`. | Yes (Process restart) |
 | `S3_REGION` | Conditional | `us-east-1` | S3 bucket region (e.g. `ap-south-1` for Mumbai, or `auto` for R2). | Yes (Process restart) |

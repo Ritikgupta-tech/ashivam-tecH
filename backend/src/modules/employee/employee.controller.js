@@ -9,6 +9,7 @@ import {
   restoreEmployee,
   getEmployeeDepartments,
   getEmployeeDesignations,
+  exportEmployeesCsv,
 } from "./employee.service.js";
 
 import {
@@ -391,6 +392,20 @@ export const designations = async (
         items,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const exportCsv = async (req, res, next) => {
+  try {
+    const csv = await exportEmployeesCsv(req.query);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="ashivam_employees_export.csv"'
+    );
+    return res.status(200).send(csv);
   } catch (error) {
     next(error);
   }

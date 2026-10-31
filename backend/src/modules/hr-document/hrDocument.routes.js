@@ -11,6 +11,7 @@ import {
   downloadDocument,
   viewDocument,
   getEmployeeSummary,
+  exportCsv,
 } from "./hrDocument.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -108,6 +109,18 @@ router.get(
 router.get(
   "/employee/:employeeId/summary",
   getEmployeeSummary
+);
+
+/*
+ * Export HR documents CSV
+ *
+ * GET /api/v1/hr-documents/export
+ *
+ * Keep this route BEFORE /:id.
+ */
+router.get(
+  "/export",
+  exportCsv
 );
 
 /*

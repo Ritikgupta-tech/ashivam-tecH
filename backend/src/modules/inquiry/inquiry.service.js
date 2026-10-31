@@ -3,14 +3,21 @@ import Inquiry from "./inquiry.model.js";
 import env from "../../config/env.js";
 import {
   sendEmail,
+  sendCompanyNotification,
+  getCompanyNotificationEmail,
   sanitizeEmailHeader,
 } from "../notification/email.service.js";
+import {
+  enqueueOutboxEmail,
+  processOutboxJob,
+} from "../notification/outbox.service.js";
 import {
   inquiryConfirmationTemplate,
   inquiryAdminAlertTemplate,
 } from "../notification/email.templates.js";
 import { escapeRegex } from "../../utils/query.js";
 import { toCsv } from "../../utils/csv.js";
+import { withOptionalTransaction } from "../../utils/transaction.js";
 
 const inFlightInquiries = new Map();
 
@@ -37,49 +44,68 @@ export const createInquiry = async (data) => {
 
   const creationTask = (async () => {
     try {
-      const inquiry = await Inquiry.create(data);
-      const refNum = inquiry.referenceNumber || inquiry._id.toString();
-      const alertRecipient = env.alertEmail || env.notificationRecipient;
-      const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
-
-      // Background non-blocking notification to admin (Workflow 1: Contact Inquiry Notification)
-      if (alertRecipient) {
+      const { inquiry, jobs } = await withOptionalTransaction(async (session) => {
+        const createOptions = session ? { session } : {};
+        const [created] = await Inquiry.create([data], createOptions);
+        const refNum = created.referenceNumber || created._id.toString();
+        const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
         const safeName = sanitizeEmailHeader(data.name);
         const safeSubject = sanitizeEmailHeader(data.subject || "General Inquiry");
 
-        sendEmail({
-          to: alertRecipient,
-          replyTo: data.email,
-          subject: `[Ashivam Inquiries] New message from ${safeName}: ${safeSubject} [${refNum}]`,
-          text: `A new inquiry has been submitted on the Ashivam Technologies website.\n\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || "N/A"}\nSubject: ${data.subject || "General Inquiry"}\nReference: ${refNum}\n\nMessage:\n${data.message}\n`,
-          html: inquiryAdminAlertTemplate({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            subject: data.subject,
-            message: data.message,
-            referenceNumber: refNum,
-            reviewUrl: adminReviewUrl,
-          }),
-        }).catch((err) => {
-          console.warn("[Inquiry Alert] Background dispatch error:", err.message);
-        });
-      }
+        const outboxJobs = [];
 
-      // Background non-blocking confirmation to applicant
-      if (data.email) {
-        sendEmail({
-          to: data.email,
-          subject: `Inquiry Received - Ashivam Technologies [${refNum}]`,
-          text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
-          html: inquiryConfirmationTemplate({
-            name: data.name,
-            subject: data.subject,
-            referenceNumber: refNum,
-          }),
-        }).catch((err) => {
-          console.warn("[Inquiry Confirmation] Background dispatch error:", err.message);
+        // Background durable notification to company via Outbox (Workflow 1: Contact Inquiry Notification)
+        const job1 = await enqueueOutboxEmail({
+          eventType: "INQUIRY_COMPANY_ALERT",
+          dedupKey: `outbox:inquiry:company:${refNum}`,
+          session,
+          autoProcess: false,
+          payload: {
+            isCompanyAlert: true,
+            replyTo: data.email,
+            subject: `[Ashivam Inquiries] New message from ${safeName}: ${safeSubject} [${refNum}]`,
+            text: `A new inquiry has been submitted on the Ashivam Technologies website.\n\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone || "N/A"}\nSubject: ${data.subject || "General Inquiry"}\nReference: ${refNum}\n\nMessage:\n${data.message}\n`,
+            html: inquiryAdminAlertTemplate({
+              name: data.name,
+              email: data.email,
+              phone: data.phone,
+              subject: data.subject,
+              message: data.message,
+              referenceNumber: refNum,
+              reviewUrl: adminReviewUrl,
+            }),
+          },
         });
+        if (job1) outboxJobs.push(job1);
+
+        // Background durable confirmation to customer via Outbox (Preserves Reply-To reaching authorized company mailbox)
+        if (data.email) {
+          const job2 = await enqueueOutboxEmail({
+            eventType: "INQUIRY_CUSTOMER_CONFIRMATION",
+            dedupKey: `outbox:inquiry:customer:${refNum}`,
+            session,
+            autoProcess: false,
+            payload: {
+              to: data.email,
+              replyTo: getCompanyNotificationEmail(),
+              subject: `Inquiry Received - Ashivam Technologies [${refNum}]`,
+              text: `Hello ${data.name},\n\nThank you for reaching out to Ashivam Technologies. We have received your inquiry regarding "${data.subject || "General Inquiry"}".\n\nReference: ${refNum}\n\nOur team is reviewing your message and will respond shortly.\n\nBest regards,\nAshivam Technologies Team\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
+              html: inquiryConfirmationTemplate({
+                name: data.name,
+                subject: data.subject,
+                referenceNumber: refNum,
+              }),
+            },
+          });
+          if (job2) outboxJobs.push(job2);
+        }
+
+        return { inquiry: created, jobs: outboxJobs };
+      });
+
+      // Post-commit dispatch of the transaction's specific outbox jobs
+      for (const j of jobs) {
+        processOutboxJob(j).catch(() => {});
       }
 
       return inquiry;

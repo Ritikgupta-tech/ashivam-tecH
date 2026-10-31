@@ -14,7 +14,7 @@ const run = async () => {
   console.log("==================================================");
 
   const safeFrom = env.smtpFrom || env.emailFrom;
-  const safeAlert = env.alertEmail || env.notificationRecipient;
+  const safeCompanyNotification = env.companyNotificationEmail || env.alertEmail || "team.ashivam@gmail.com";
   const emailStatus = getSafeSmtpStatus();
 
   console.log(`Environment:           ${env.nodeEnv}`);
@@ -46,7 +46,7 @@ const run = async () => {
     }`
   );
   console.log(`Sender (From):         ${safeFrom}`);
-  console.log(`Alert Recipient:       ${safeAlert || "(not set)"}`);
+  console.log(`Company Notification:  ${safeCompanyNotification}`);
   console.log(
     `Timeouts (Connect/Sock):${env.smtpConnectionTimeoutMs}ms / ${env.smtpSocketTimeoutMs}ms`
   );
@@ -55,16 +55,16 @@ const run = async () => {
   if (!emailStatus.configured) {
     console.log("[Status] No email provider is fully configured in the current environment.");
     console.log("\nOption 1: Recommended for Render Cloud Containers (Bypasses SMTP port blocks):");
-    console.log("  - RESEND_API_KEY      (e.g., re_xxxxxxxxxxxxxxxxxxxxxxxxx)");
-    console.log("  - SMTP_FROM           (e.g., Ashivam Technologies <onboarding@resend.dev> or your verified domain)");
-    console.log("  - ALERT_EMAIL         (e.g., team.ashivam@gmail.com)");
+    console.log("  - RESEND_API_KEY              (e.g., re_xxxxxxxxxxxxxxxxxxxxxxxxx)");
+    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <onboarding@resend.dev> or your verified domain)");
+    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., team.ashivam@gmail.com)");
     console.log("\nOption 2: Direct SMTP (May time out on Render free tier if outbound ports 465/587 blocked):");
-    console.log("  - SMTP_HOST           (e.g., smtp.gmail.com or smtp.sendgrid.net)");
-    console.log("  - SMTP_PORT           (e.g., 587 or 465)");
-    console.log("  - SMTP_USER           (e.g., your email or apikey)");
-    console.log("  - SMTP_PASSWORD       (SMTP password or app password)");
-    console.log("  - SMTP_FROM           (e.g., Ashivam Technologies <teamashivam@gmail.com>)");
-    console.log("  - ALERT_EMAIL         (e.g., team.ashivam@gmail.com)");
+    console.log("  - SMTP_HOST                   (e.g., smtp.gmail.com or smtp.sendgrid.net)");
+    console.log("  - SMTP_PORT                   (e.g., 587 or 465)");
+    console.log("  - SMTP_USER                   (e.g., your email or apikey)");
+    console.log("  - SMTP_PASSWORD               (SMTP password or app password)");
+    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <teamashivam@gmail.com>)");
+    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., team.ashivam@gmail.com)");
     console.log("\n[Notice] The application operates safely in SIMULATED mode until configured.");
     return;
   }

@@ -11,6 +11,7 @@ import {
   restore,
   departments,
   designations,
+  exportCsv,
 } from "./employee.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -44,6 +45,8 @@ const superadminAccess = [
 router.get("/departments", ...adminAccess, departments);
 
 router.get("/designations", ...adminAccess, designations);
+
+router.get("/export", ...adminAccess, exportCsv);
 
 router.get("/", ...adminAccess, list);
 

@@ -6,6 +6,7 @@ import {
   updateHrDocumentStatus,
   deleteHrDocument,
   downloadHrDocument,
+  exportHrDocumentsCsv,
 } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
@@ -39,6 +40,7 @@ export default function DocumentsTab() {
   const [limit, setLimit] = useState(15);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
   const [downloadingId, setDownloadingId] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -209,6 +211,21 @@ export default function DocumentsTab() {
     []
   );
 
+  const handleExportCsv = async () => {
+    try {
+      setExporting(true);
+      const params = {};
+      if (typeFilter !== 'all') params.documentType = typeFilter;
+      if (search.trim()) params.search = search.trim();
+      await exportHrDocumentsCsv(params);
+      toast.success('HR documents exported successfully');
+    } catch (err) {
+      toast.error(err.message || 'Failed to export HR documents');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="admin-tab-container">
       <div className="admin-page-header">
@@ -219,6 +236,16 @@ export default function DocumentsTab() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={handleExportCsv}
+            disabled={exporting}
+            aria-label="Export HR documents list as CSV"
+          >
+            <DownloadIcon size={14} />
+            <span>{exporting ? 'Exporting...' : 'Export CSV'}</span>
+          </button>
           <button
             type="button"
             className="admin-btn admin-btn--primary admin-btn--sm"

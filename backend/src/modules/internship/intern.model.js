@@ -184,6 +184,13 @@ const internSchema = new mongoose.Schema(
 
 internSchema.index({ status: 1, createdAt: -1 });
 internSchema.index({ email: 1, domain: 1 });
+internSchema.index(
+  { applicationId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { applicationId: { $type: "objectId" } },
+  }
+);
 
 const Intern =
   mongoose.models.Intern || mongoose.model("Intern", internSchema);

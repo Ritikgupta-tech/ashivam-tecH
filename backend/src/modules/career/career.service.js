@@ -5,14 +5,21 @@ import Application from "./application.model.js";
 import env from "../../config/env.js";
 import {
   sendEmail,
+  sendCompanyNotification,
+  getCompanyNotificationEmail,
   sanitizeEmailHeader,
 } from "../notification/email.service.js";
+import {
+  enqueueOutboxEmail,
+  processOutboxJob,
+} from "../notification/outbox.service.js";
 import {
   careerConfirmationTemplate,
   careerAdminAlertTemplate,
 } from "../notification/email.templates.js";
 import { escapeRegex } from "../../utils/query.js";
 import { toCsv } from "../../utils/csv.js";
+import { withOptionalTransaction } from "../../utils/transaction.js";
 import {
   uploadFile,
   getFileStream,
@@ -294,11 +301,82 @@ export const createApplication = async (
 
   let application;
   try {
-    application = await Application.create({
-      ...data,
-      job: jobId,
-      resume: resumeData,
+    const { doc, jobs } = await withOptionalTransaction(async (session) => {
+      const createOptions = session ? { session } : {};
+      const [createdDoc] = await Application.create(
+        [
+          {
+            ...data,
+            job: jobId,
+            resume: resumeData,
+          },
+        ],
+        createOptions
+      );
+
+      const appRef = createdDoc._id.toString();
+      const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
+
+      const outboxJobs = [];
+
+      // Workflow 2: Career Application Notification (Company Alert - strictly team.ashivam@gmail.com)
+      const safeJobTitle = sanitizeEmailHeader(job.title);
+      const safeCandidateName = `${sanitizeEmailHeader(data.firstName)} ${sanitizeEmailHeader(data.lastName)}`.trim();
+
+      const job1 = await enqueueOutboxEmail({
+        eventType: "CAREER_COMPANY_ALERT",
+        dedupKey: `outbox:career:company:${appRef}`,
+        session,
+        autoProcess: false,
+        payload: {
+          isCompanyAlert: true,
+          replyTo: data.email,
+          subject: `[Ashivam Careers] New application for ${safeJobTitle}: ${safeCandidateName} [${appRef}]`,
+          text: `A new job application has been submitted on the Ashivam Technologies website.\n\nPosition: ${job.title}\nCandidate: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nApplication Reference: ${appRef}\nResume File: ${resumeData.originalName || "Uploaded"} (Saved in secure storage; review via admin portal)\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
+          html: careerAdminAlertTemplate({
+            candidateName: `${data.firstName} ${data.lastName}`,
+            email: data.email,
+            phone: data.phone,
+            jobTitle: job.title,
+            resumeFileName: resumeData.originalName || "Uploaded",
+            applicationReference: appRef,
+            reviewUrl: adminReviewUrl,
+          }),
+        },
+      });
+      if (job1) outboxJobs.push(job1);
+
+      // Workflow 3: Candidate Application Confirmation (Preserves Reply-To reaching authorized company mailbox)
+      if (data.email) {
+        const job2 = await enqueueOutboxEmail({
+          eventType: "CAREER_CANDIDATE_CONFIRMATION",
+          dedupKey: `outbox:career:candidate:${appRef}`,
+          session,
+          autoProcess: false,
+          payload: {
+            to: data.email,
+            replyTo: getCompanyNotificationEmail(),
+            subject: `Application Received - Ashivam Technologies [${safeJobTitle}] [${appRef}]`,
+            text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nApplication Reference: ${appRef}\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our open positions.\n\nBest regards,\nAshivam Technologies Talent Acquisition\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
+            html: careerConfirmationTemplate({
+              firstName: data.firstName,
+              jobTitle: job.title,
+              applicationReference: appRef,
+            }),
+          },
+        });
+        if (job2) outboxJobs.push(job2);
+      }
+
+      return { doc: createdDoc, jobs: outboxJobs };
     });
+
+    application = doc;
+
+    // Post-commit dispatch of the transaction's specific outbox jobs
+    for (const j of jobs) {
+      processOutboxJob(j).catch(() => {});
+    }
   } catch (dbError) {
     if (resumeData) {
       await deleteFile({
@@ -310,53 +388,6 @@ export const createApplication = async (
       }).catch(() => {});
     }
     throw dbError;
-  }
-
-  // Background non-blocking notifications
-  const appRef = application._id.toString();
-  const alertRecipient = env.alertEmail || env.notificationRecipient;
-  const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
-
-  // Workflow 2: Career Application Notification (Admin Alert)
-  if (alertRecipient) {
-    const safeJobTitle = sanitizeEmailHeader(job.title);
-    const safeCandidateName = `${sanitizeEmailHeader(data.firstName)} ${sanitizeEmailHeader(data.lastName)}`.trim();
-
-    sendEmail({
-      to: alertRecipient,
-      replyTo: data.email,
-      subject: `[Ashivam Careers] New application for ${safeJobTitle}: ${safeCandidateName} [${appRef}]`,
-      text: `A new job application has been submitted on the Ashivam Technologies website.\n\nPosition: ${job.title}\nCandidate: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nApplication Reference: ${appRef}\nResume File: ${resumeData.originalName || "Uploaded"} (Saved in secure storage; review via admin portal)\n\nAdmin Review: ${adminReviewUrl || "Admin Portal"}\n`,
-      html: careerAdminAlertTemplate({
-        candidateName: `${data.firstName} ${data.lastName}`,
-        email: data.email,
-        phone: data.phone,
-        jobTitle: job.title,
-        resumeFileName: resumeData.originalName || "Uploaded",
-        applicationReference: appRef,
-        reviewUrl: adminReviewUrl,
-      }),
-    }).catch((err) => {
-      console.warn("[Career Alert] Background dispatch error:", err.message);
-    });
-  }
-
-  // Workflow 3: Candidate Application Confirmation
-  if (data.email) {
-    const safeJobTitle = sanitizeEmailHeader(job.title);
-
-    sendEmail({
-      to: data.email,
-      subject: `Application Received - Ashivam Technologies [${safeJobTitle}] [${appRef}]`,
-      text: `Hello ${data.firstName},\n\nThank you for applying for the position of ${job.title} at Ashivam Technologies. We have successfully received your application.\n\nApplication Reference: ${appRef}\n\nOur hiring team will review your qualifications and reach out if your profile aligns with our open positions.\n\nBest regards,\nAshivam Technologies Talent Acquisition\n${env.clientUrl || "https://ashivam-tec-h.vercel.app"}`,
-      html: careerConfirmationTemplate({
-        firstName: data.firstName,
-        jobTitle: job.title,
-        applicationReference: appRef,
-      }),
-    }).catch((err) => {
-      console.warn("[Career Confirmation] Background dispatch error:", err.message);
-    });
   }
 
   return formatApplicationResponse(application);

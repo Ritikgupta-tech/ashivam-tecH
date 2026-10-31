@@ -15,7 +15,12 @@ import {
 import {
   sanitizeEmailHeader,
   sendEmail,
+  sendCompanyNotification,
+  getCompanyNotificationEmail,
+  MANDATED_COMPANY_NOTIFICATION_EMAIL,
   verifyEmailTransport,
+  setTransporter,
+  resetTransporter,
 } from "../src/modules/notification/email.service.js";
 
 test("Email Templates - escapeHtml neutralizes HTML/XSS injection", () => {
@@ -561,5 +566,42 @@ test("Email Templates - all templates render bulletproof action buttons with val
     message: "An anomaly was detected.",
   });
   assert.ok(secAlert.includes(`href="${adminBase}"`));
+});
+
+test("Company Notification: getCompanyNotificationEmail strictly returns team.ashivam@gmail.com", () => {
+  assert.equal(MANDATED_COMPANY_NOTIFICATION_EMAIL, "team.ashivam@gmail.com");
+  assert.equal(getCompanyNotificationEmail(), "team.ashivam@gmail.com");
+});
+
+test("Company Notification: sendCompanyNotification routes strictly to team.ashivam@gmail.com and strips overrides", async () => {
+  const sent = [];
+  setTransporter({
+    sendMail: async (opts) => {
+      sent.push(opts);
+      return { messageId: "<test-company-notif-1@ashivam>", response: "250 OK" };
+    },
+    verify: async () => true,
+  });
+
+  try {
+    const result = await sendCompanyNotification({
+      to: "malicious.override@evil.com",
+      cc: "unauthorized.cc@evil.com",
+      bcc: "sneaky.bcc@evil.com",
+      subject: "Test Company Notification",
+      text: "Hello Team",
+      html: "<p>Hello Team</p>",
+      replyTo: "applicant@example.com",
+    });
+
+    assert.equal(result.accepted, true);
+    assert.equal(sent.length, 1);
+    assert.equal(sent[0].to, "team.ashivam@gmail.com", "to must be team.ashivam@gmail.com");
+    assert.equal(sent[0].replyTo, "applicant@example.com", "replyTo must be preserved");
+    assert.equal(sent[0].cc, undefined, "cc must be stripped");
+    assert.equal(sent[0].bcc, undefined, "bcc must be stripped");
+  } finally {
+    resetTransporter();
+  }
 });
 

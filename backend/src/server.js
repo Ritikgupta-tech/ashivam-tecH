@@ -18,6 +18,10 @@ import {
   getSafeSmtpStatus,
   verifyEmailTransport,
 } from "./modules/notification/email.service.js";
+import {
+  startOutboxWorker,
+  stopOutboxWorker,
+} from "./modules/notification/outbox.service.js";
 
 const startServer = async () => {
   process.on("uncaughtException", (error) => {
@@ -31,6 +35,7 @@ const startServer = async () => {
 
   try {
     await connectDatabase();
+    startOutboxWorker();
   } catch (err) {
     console.error("[Server] Boot failed due to database connection error:", err.message);
     process.exit(1);
@@ -40,6 +45,9 @@ const startServer = async () => {
     console.log(`[Ashivam Backend] Operational on port ${env.port} (${env.nodeEnv})`);
 
     const emailStatus = getSafeSmtpStatus();
+    console.log(
+      `[Email Service] Company Notification Recipient: ${emailStatus.companyNotificationEmail}`
+    );
     if (emailStatus.configured) {
       console.log(
         `[Email Service] Provider: ${emailStatus.provider.toUpperCase()} | Configured (from: ${emailStatus.from})`
@@ -68,6 +76,8 @@ const startServer = async () => {
 
   const shutdown = async (signal) => {
     console.log(`[Server] ${signal} signal received. Initiating graceful shutdown...`);
+
+    stopOutboxWorker();
 
     server.close(async () => {
       await disconnectDatabase();

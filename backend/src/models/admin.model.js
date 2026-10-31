@@ -25,9 +25,7 @@ const adminSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
       maxlength: 120,
-      default: null,
-      sparse: true,
-      index: true,
+      default: undefined,
     },
 
     passwordHash: {
@@ -69,5 +67,14 @@ const adminSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+adminSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { email: { $type: "string" } },
+  }
+);
+adminSchema.index({ role: 1, isActive: 1 });
 
 export default mongoose.model("Admin", adminSchema);

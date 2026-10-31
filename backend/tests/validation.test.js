@@ -55,7 +55,18 @@ test("Validation Utils - normalizeHttpUrl", () => {
     "https://ashivamtechnologies.com/"
   );
   assert.equal(normalizeHttpUrl("javascript:alert(1)"), null);
+  assert.equal(normalizeHttpUrl("data:text/html,payload"), null);
   assert.equal(normalizeHttpUrl("http://localhost"), null);
+  assert.equal(normalizeHttpUrl("http://127.0.0.1"), null);
+  assert.equal(normalizeHttpUrl("http://10.0.0.1"), null);
+  assert.equal(normalizeHttpUrl("http://192.168.1.1"), null);
+  assert.equal(normalizeHttpUrl("http://169.254.169.254"), null);
+  assert.equal(normalizeHttpUrl("http://[::1]"), null);
+  assert.equal(normalizeHttpUrl("http://internal.service.local"), null);
+  assert.equal(normalizeHttpUrl("http://db.internal"), null);
+  assert.equal(normalizeHttpUrl(null), null);
+  assert.equal(normalizeHttpUrl(undefined), null);
+  assert.equal(normalizeHttpUrl(12345), null);
 });
 
 test("Query Utils - escapeRegex defends against ReDoS", () => {

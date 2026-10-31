@@ -5,6 +5,7 @@ import {
   updateEmployee,
   updateEmployeeStatus,
   deleteEmployee,
+  exportEmployeesCsv,
 } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
@@ -15,6 +16,7 @@ import {
   RefreshIcon,
   XMarkIcon,
   PencilSquareIcon,
+  DownloadIcon,
 } from '../../icons';
 
 export default function EmployeesTab() {
@@ -34,6 +36,7 @@ export default function EmployeesTab() {
   const [showModal, setShowModal] = useState(false);
   const [editingEmp, setEditingEmp] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
   const [form, setForm] = useState({
@@ -225,6 +228,21 @@ export default function EmployeesTab() {
     }
   };
 
+  const handleExportCsv = async () => {
+    try {
+      setExporting(true);
+      const params = {};
+      if (deptFilter !== 'all') params.department = deptFilter;
+      if (search.trim()) params.search = search.trim();
+      await exportEmployeesCsv(params);
+      toast.success('Employee directory exported successfully');
+    } catch (err) {
+      toast.error(err.message || 'Failed to export employee directory');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const columns = useMemo(
     () => [
       { key: 'employee', label: 'Employee' },
@@ -246,6 +264,16 @@ export default function EmployeesTab() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={handleExportCsv}
+            disabled={exporting}
+            aria-label="Export employee directory as CSV"
+          >
+            <DownloadIcon size={14} />
+            <span>{exporting ? 'Exporting...' : 'Export CSV'}</span>
+          </button>
           <button
             type="button"
             className="admin-btn admin-btn--primary admin-btn--sm"

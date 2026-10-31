@@ -94,5 +94,38 @@ const auditLogSchema = new mongoose.Schema(
 auditLogSchema.index({ createdAt: -1 });
 auditLogSchema.index({ "actor.userId": 1, createdAt: -1 });
 auditLogSchema.index({ entity: 1, action: 1, createdAt: -1 });
+auditLogSchema.index({ action: 1, entity: 1, "actor.userId": 1, createdAt: -1 });
+
+// Strictly enforce immutability: Audit logs cannot be modified or deleted
+const forbidAuditMutation = function () {
+  const err = new Error(
+    "Audit logs are strictly append-only and immutable for compliance and security."
+  );
+  err.statusCode = 403;
+  throw err;
+};
+
+// Document-level middleware: forbid updating an existing audit document via save()
+auditLogSchema.pre("save", function () {
+  if (!this.isNew) {
+    forbidAuditMutation();
+  }
+});
+
+// Query-level middleware: forbid all update, replacement, and deletion queries
+auditLogSchema.pre(
+  [
+    "updateOne",
+    "updateMany",
+    "findOneAndUpdate",
+    "findOneAndReplace",
+    "replaceOne",
+    "deleteOne",
+    "deleteMany",
+    "findOneAndDelete",
+    "findOneAndRemove",
+  ],
+  forbidAuditMutation
+);
 
 export default mongoose.model("AuditLog", auditLogSchema);
