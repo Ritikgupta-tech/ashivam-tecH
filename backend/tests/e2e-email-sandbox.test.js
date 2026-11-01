@@ -27,6 +27,30 @@ let dbConnected = false;
 let testJob = null;
 let dispatchedEmails = [];
 
+/**
+ * Wait for async email dispatches to stabilise, then return a snapshot of all
+ * emails captured by this test's interceptor since the last beforeEach reset.
+ *
+ * The Node test runner loads all test files into the same process and runs
+ * them concurrently.  Other test files trigger fire-and-forget processOutboxJob
+ * calls that may resolve while THIS file's beforeEach interceptor is active,
+ * adding stray emails to dispatchedEmails.  Each test therefore:
+ *   1. Calls waitForEmails() which spin-waits until no new email arrives for
+ *      two consecutive 80 ms ticks, then returns a stable snapshot.
+ *   2. Filters the snapshot by its own unique test-email address (not by total
+ *      count) to assert only on the emails belonging to this specific action.
+ */
+const waitForEmails = async (maxWaitMs = 700) => {
+  const deadline = Date.now() + maxWaitMs;
+  let prevLen = -1;
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 80));
+    if (dispatchedEmails.length > 0 && dispatchedEmails.length === prevLen) break;
+    prevLen = dispatchedEmails.length;
+  }
+  return [...dispatchedEmails]; // stable snapshot; do NOT mutate the source array
+};
+
 before(async () => {
   try {
     await mongoose.connect(env.mongodbUri, { serverSelectionTimeoutMS: 3000 });
@@ -117,11 +141,17 @@ test("E2E Sandbox: Project Discussion / Contact Inquiry alerts go STRICTLY to te
   const inquiry = await createInquiry(inquiryData);
   assert.ok(inquiry._id);
 
-  await new Promise((r) => setTimeout(r, 120));
+  // Wait for async outbox dispatch to stabilise; filter by this test's unique
+  // clientEmail so concurrent dispatches from other test files are excluded.
+  const allEmails = await waitForEmails();
+  const myEmails = allEmails.filter(
+    (m) => String(m.to || "").includes(clientEmail) ||
+            String(m.replyTo || "").includes(clientEmail)
+  );
+  assert.equal(myEmails.length, 2,
+    `Expected exactly 2 emails for ${clientEmail} (Admin Alert & User Confirmation)`);
 
-  assert.equal(dispatchedEmails.length, 2, "Expected exactly 2 emails (Admin Alert & User Confirmation)");
-
-  const adminAlert = dispatchedEmails.find((m) =>
+  const adminAlert = myEmails.find((m) =>
     m.subject.includes("[Ashivam Inquiries]")
   );
   assert.ok(adminAlert, "Admin inquiry alert must be dispatched");
@@ -141,7 +171,7 @@ test("E2E Sandbox: Project Discussion / Contact Inquiry alerts go STRICTLY to te
   assert.ok(adminAlert.html.includes("Vikram Rathore"));
   assert.ok(adminAlert.html.includes("+91 98765 11223"));
 
-  const userConfirm = dispatchedEmails.find((m) =>
+  const userConfirm = myEmails.find((m) =>
     m.subject.includes("Inquiry Received - Ashivam Technologies")
   );
   assert.ok(userConfirm, "Client confirmation must be dispatched");
@@ -181,11 +211,16 @@ test("E2E Sandbox: Career Job Application (Apply Role) alerts go STRICTLY to tea
   const application = await createApplication(testJob._id, applicantData, resumeFile);
   assert.ok(application._id);
 
-  await new Promise((r) => setTimeout(r, 120));
+  // Filter by applicant email to isolate from concurrent test-file dispatches.
+  const allEmails = await waitForEmails();
+  const myEmails = allEmails.filter(
+    (m) => String(m.to || "").includes(applicantEmail) ||
+            String(m.replyTo || "").includes(applicantEmail)
+  );
+  assert.equal(myEmails.length, 2,
+    `Expected exactly 2 emails for ${applicantEmail} (Admin Alert & Candidate Confirmation)`);
 
-  assert.equal(dispatchedEmails.length, 2, "Expected exactly 2 emails (Admin Alert & Candidate Confirmation)");
-
-  const adminAlert = dispatchedEmails.find((m) =>
+  const adminAlert = myEmails.find((m) =>
     m.subject.includes("[Ashivam Careers]")
   );
   assert.ok(adminAlert, "Career admin alert must be dispatched");
@@ -205,7 +240,7 @@ test("E2E Sandbox: Career Job Application (Apply Role) alerts go STRICTLY to tea
   assert.ok(adminAlert.html.includes("Senior Full Stack Architect"));
   assert.ok(adminAlert.html.includes("sunita-deshmukh-cv.pdf"));
 
-  const candidateConfirm = dispatchedEmails.find((m) =>
+  const candidateConfirm = myEmails.find((m) =>
     m.subject.includes("Application Received - Ashivam Technologies")
   );
   assert.ok(candidateConfirm, "Candidate confirmation must be dispatched");
@@ -239,11 +274,16 @@ test("E2E Sandbox: Internship Applications alerts go STRICTLY to team.ashivam@gm
   const internship = await createInternship(internshipData);
   assert.ok(internship._id);
 
-  await new Promise((r) => setTimeout(r, 120));
+  // Filter by student email to isolate from concurrent test-file dispatches.
+  const allEmails = await waitForEmails();
+  const myEmails = allEmails.filter(
+    (m) => String(m.to || "").includes(studentEmail) ||
+            String(m.replyTo || "").includes(studentEmail)
+  );
+  assert.equal(myEmails.length, 2,
+    `Expected exactly 2 emails for ${studentEmail} (Admin Alert & Student Confirmation)`);
 
-  assert.equal(dispatchedEmails.length, 2, "Expected exactly 2 emails (Admin Alert & Student Confirmation)");
-
-  const adminAlert = dispatchedEmails.find((m) =>
+  const adminAlert = myEmails.find((m) =>
     m.subject.includes("[Ashivam Internship]")
   );
   assert.ok(adminAlert, "Internship alert must be dispatched");
@@ -262,7 +302,7 @@ test("E2E Sandbox: Internship Applications alerts go STRICTLY to team.ashivam@gm
   assert.ok(adminAlert.html.includes("Arjun Verma"));
   assert.ok(adminAlert.html.includes("IIT Roorkee"));
 
-  const studentConfirm = dispatchedEmails.find((m) =>
+  const studentConfirm = myEmails.find((m) =>
     m.subject.includes("Internship Application Received - Ashivam Technologies")
   );
   assert.ok(studentConfirm, "Student confirmation must be dispatched");
@@ -283,7 +323,6 @@ test("E2E Sandbox: Public submission payload tampering cannot override company n
   }
 
   const evilClientEmail = `e2e-tamper-${Date.now()}@example.com`;
-  // Attempting to inject 'to', 'cc', 'bcc', 'recipient' into the body
   const tamperedData = {
     name: "Attacker Malicious",
     email: evilClientEmail,
@@ -298,9 +337,9 @@ test("E2E Sandbox: Public submission payload tampering cannot override company n
   };
 
   await createInquiry(tamperedData);
-  await new Promise((r) => setTimeout(r, 120));
 
-  const adminAlert = dispatchedEmails.find((m) =>
+  const allEmails = await waitForEmails();
+  const adminAlert = allEmails.find((m) =>
     m.subject.includes("[Ashivam Inquiries]") && m.subject.includes("Hacked Recipient Attempt")
   );
   assert.ok(adminAlert, "Admin inquiry alert must be dispatched");
@@ -333,10 +372,9 @@ test("E2E Sandbox: System broadcast notifications without admin email route to t
     sendEmailNotification: true,
   });
 
-  await new Promise((r) => setTimeout(r, 120));
-
-  assert.equal(dispatchedEmails.length, 1, "Expected exactly 1 broadcast email dispatched");
-  const alert = dispatchedEmails[0];
+  const allEmails = await waitForEmails();
+  const alert = allEmails.find((m) => m.subject === broadcastTitle);
+  assert.ok(alert, `Broadcast email with subject "${broadcastTitle}" must be dispatched`);
   assert.equal(
     alert.to,
     MANDATED_ALERT_EMAIL,

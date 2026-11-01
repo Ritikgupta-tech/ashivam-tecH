@@ -56,28 +56,45 @@ test('App.jsx defines all required enterprise routes including dedicated pages a
   assert.ok(fs.existsSync(appPath), 'App.jsx must exist');
   const content = fs.readFileSync(appPath, 'utf8');
 
+  // Parse the <Routes> block from the JSX so we only inspect actual route definitions,
+  // not import statements or comments that might contain component names.
+  const routesBlockMatch = content.match(/<Routes>([\s\S]*?)<\/Routes>/);
+  assert.ok(routesBlockMatch, 'App.jsx must contain a <Routes> block');
+  const routesBlock = routesBlockMatch[1];
+
   const requiredRoutes = [
-    { path: '/', element: 'HomePage' },
-    { path: '/industries', element: 'IndustriesPage' },
-    { path: '/solutions', element: 'SolutionsPage' },
-    { path: '/careers', element: 'CareersPage' },
-    { path: '/employee-login', element: 'EmployeePortalSelector' },
+    { path: '/',                      element: 'HomePage' },
+    { path: '/industries',            element: 'IndustriesPage' },
+    { path: '/solutions',             element: 'SolutionsPage' },
+    { path: '/careers',               element: 'CareersPage' },
+    { path: '/employee-login',        element: 'EmployeePortalSelector' },
     { path: '/employee-login/employee', element: 'EmployeeLoginPage' },
-    { path: '/employee-login/admin', element: 'AdminLogin' },
-    { path: '*', element: 'NotFoundPage' },
+    { path: '/employee-login/admin',  element: 'AdminLogin' },
+    { path: '*',                      element: 'NotFoundPage' },
   ];
 
   requiredRoutes.forEach(({ path: routePath, element }) => {
-    // Routes may be wrapped in <Suspense> for lazy-loading (PERF-01).
-    // Accept both the direct form  element={<Component }
-    // and the Suspense-wrapped form element={\n<Suspense…><Component
-    // by checking that the route path and component name both appear
-    // in close proximity in the file.
-    const hasRoutePath = content.includes(`path="${routePath}"`) || content.includes(`path='${routePath}'`);
-    const hasElement = content.includes(`<${element}`);
+    // Build a regex that matches a <Route ... path="<routePath>" ... > block that
+    // also contains the expected element (possibly inside a <Suspense> wrapper for
+    // lazy-loaded admin chunks).  The regex anchors on the Route opening tag and
+    // looks for the element component name within that Route's attribute region.
+    const escapedPath = routePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Match the Route tag with path attribute, then look for the element within
+    // the element={...} attribute which may span multiple lines.
+    const routeWithElement = new RegExp(
+      `<Route[^>]*path=["']${escapedPath}["'][^>]*element=\\{[^}]*<${element}` +
+      `|` +
+      // Also match when element={} comes before path= (JSX attribute order varies)
+      `<Route[^>]*element=\\{[^}]*<${element}[^}]*\\}[^>]*path=["']${escapedPath}["']` +
+      `|` +
+      // Suspense-wrapped: element={\n  <Suspense ...>\n    <Component  (multiline)
+      `path=["']${escapedPath}["'][\\s\\S]{0,200}<${element}`
+    );
+
     assert.ok(
-      hasRoutePath && hasElement,
-      `Route ${routePath} must be mapped to <${element} /> in App.jsx`
+      routeWithElement.test(routesBlock),
+      `Route "${routePath}" must render <${element} /> (directly or via Suspense) inside the <Routes> block`
     );
   });
 });
