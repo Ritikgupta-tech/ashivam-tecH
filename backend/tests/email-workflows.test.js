@@ -108,15 +108,22 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
   assert.ok(inquiry._id);
   assert.equal(inquiry.name, inquiryData.name);
 
-  // Give asynchronous dispatches a moment to complete
-  for (let i = 0; i < 20 && sentMails.length < 2; i++) {
-    await new Promise((r) => setTimeout(r, 50));
+  // Give asynchronous dispatches a moment to complete — filter by unique test email
+  // to remain immune to concurrent stray dispatches from other test files loaded in the same process
+  const deadline1 = Date.now() + 700;
+  let stableCount1 = -1;
+  while (Date.now() < deadline1) {
+    const cur = sentMails.filter((m) => m.to === email || m.replyTo === email).length;
+    if (cur === stableCount1 && cur >= 2) break;
+    stableCount1 = cur;
+    await new Promise((r) => setTimeout(r, 80));
   }
+  const emailMails = sentMails.filter((m) => m.to === email || m.replyTo === email);
 
   // Should have sent 2 emails: Admin Alert & Inquirer Confirmation
-  assert.equal(sentMails.length, 2);
+  assert.equal(emailMails.length, 2);
 
-  const adminAlert = sentMails.find((m) =>
+  const adminAlert = emailMails.find((m) =>
     m.subject.includes("[Ashivam Inquiries]")
   );
   assert.ok(adminAlert, "Admin alert email was dispatched");
@@ -128,7 +135,7 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
   assert.ok(adminAlert.html.includes(inquiry._id.toString()));
   assert.ok(!adminAlert.html.includes("<script>alert(1)</script>"));
 
-  const userConfirm = sentMails.find((m) =>
+  const userConfirm = emailMails.find((m) =>
     m.subject.includes("Inquiry Received - Ashivam Technologies")
   );
   assert.ok(userConfirm, "User confirmation email was dispatched");
@@ -154,17 +161,27 @@ test("Workflow 1 - Deduplication: rapid retry with same inquiry returns existing
   };
 
   const first = await createInquiry(inquiryData);
-  await new Promise((r) => setTimeout(r, 100));
-  const mailsCountAfterFirst = sentMails.length;
-  assert.equal(mailsCountAfterFirst, 2);
+  // Spin-wait until dispatches for this specific email stabilise (immune to concurrent test file
+  // dispatches landing in sentMails — we filter by unique test email address)
+  const deadline = Date.now() + 700;
+  let lastCount = -1;
+  while (Date.now() < deadline) {
+    const count = sentMails.filter((m) => m.to === email || m.replyTo === email).length;
+    if (count === lastCount && count >= 2) break;
+    lastCount = count;
+    await new Promise((r) => setTimeout(r, 80));
+  }
+  const mailsForEmailAfterFirst = sentMails.filter((m) => m.to === email || m.replyTo === email);
+  assert.equal(mailsForEmailAfterFirst.length, 2, `Expected 2 emails for ${email} after first submission`);
 
-  // Second submission within 60s
+  // Second submission within 60s — should be deduplicated
   const second = await createInquiry(inquiryData);
-  await new Promise((r) => setTimeout(r, 100));
+  await new Promise((r) => setTimeout(r, 200));
 
-  assert.equal(second._id.toString(), first._id.toString());
-  // No extra emails dispatched
-  assert.equal(sentMails.length, mailsCountAfterFirst);
+  assert.equal(second._id.toString(), first._id.toString(), "Second submission must return same inquiry ID");
+  // No extra emails dispatched for this address
+  const mailsForEmailAfterSecond = sentMails.filter((m) => m.to === email || m.replyTo === email);
+  assert.equal(mailsForEmailAfterSecond.length, mailsForEmailAfterFirst.length, "No extra emails dispatched for deduplicated inquiry");
 });
 
 test("Workflow 1 - Email transport failure does not roll back or fail database save of inquiry", async (t) => {
@@ -229,15 +246,21 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
   assert.ok(application._id);
   assert.equal(application.status, "applied");
 
-  // Give asynchronous dispatches a moment to complete
-  for (let i = 0; i < 20 && sentMails.length < 2; i++) {
-    await new Promise((r) => setTimeout(r, 50));
+  // Give asynchronous dispatches a moment to complete — filter by unique candidate email
+  const deadline2 = Date.now() + 700;
+  let stableCount2 = -1;
+  while (Date.now() < deadline2) {
+    const cur = sentMails.filter((m) => m.to === candidateEmail || m.replyTo === candidateEmail).length;
+    if (cur === stableCount2 && cur >= 2) break;
+    stableCount2 = cur;
+    await new Promise((r) => setTimeout(r, 80));
   }
+  const careerMails = sentMails.filter((m) => m.to === candidateEmail || m.replyTo === candidateEmail);
 
   // Should have sent 2 emails: Admin Alert & Candidate Confirmation
-  assert.equal(sentMails.length, 2);
+  assert.equal(careerMails.length, 2);
 
-  const adminAlert = sentMails.find((m) =>
+  const adminAlert = careerMails.find((m) =>
     m.subject.includes("[Ashivam Careers] New application for Senior Cloud Engineer")
   );
   assert.ok(adminAlert, "Career admin alert was dispatched");
@@ -253,7 +276,7 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
   assert.ok(adminAlert.html.includes("rohan-verma-resume.pdf"));
   assert.ok(adminAlert.html.includes("Retained in secure storage; access via admin portal"));
 
-  const candidateConfirm = sentMails.find((m) =>
+  const candidateConfirm = careerMails.find((m) =>
     m.subject.includes("Application Received - Ashivam Technologies [Senior Cloud Engineer]")
   );
   assert.ok(candidateConfirm, "Candidate confirmation email was dispatched");
@@ -291,11 +314,18 @@ test("Workflow 2 & 3 - Duplicate candidate submission for same job returns 409 a
     size: VALID_PDF_BUFFER.length,
   };
 
-  // First application succeeds
+  // First application succeeds — wait for dispatches, filter by unique candidate email
   await createApplication(testJob._id, candidateData, mockFile);
-  await new Promise((r) => setTimeout(r, 100));
-  const mailCount = sentMails.length;
-  assert.equal(mailCount, 2);
+  const deadline3 = Date.now() + 700;
+  let stableCount3 = -1;
+  while (Date.now() < deadline3) {
+    const cur = sentMails.filter((m) => m.to === candidateEmail || m.replyTo === candidateEmail).length;
+    if (cur === stableCount3 && cur >= 2) break;
+    stableCount3 = cur;
+    await new Promise((r) => setTimeout(r, 80));
+  }
+  const mailCountAfterFirst = sentMails.filter((m) => m.to === candidateEmail || m.replyTo === candidateEmail).length;
+  assert.equal(mailCountAfterFirst, 2);
 
   // Second application with identical email and job must be rejected
   await assert.rejects(
@@ -305,9 +335,10 @@ test("Workflow 2 & 3 - Duplicate candidate submission for same job returns 409 a
     { statusCode: 409, message: "You have already applied for this position" }
   );
 
-  await new Promise((r) => setTimeout(r, 100));
-  // No extra emails sent
-  assert.equal(sentMails.length, mailCount);
+  await new Promise((r) => setTimeout(r, 200));
+  // No extra emails sent for this candidate
+  const mailCountAfterSecond = sentMails.filter((m) => m.to === candidateEmail || m.replyTo === candidateEmail).length;
+  assert.equal(mailCountAfterSecond, mailCountAfterFirst);
 });
 
 test("Workflow 2 & 3 - Email transport failure does not roll back or delete valid application", async (t) => {
