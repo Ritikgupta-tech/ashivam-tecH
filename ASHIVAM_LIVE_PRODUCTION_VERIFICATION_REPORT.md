@@ -1,10 +1,11 @@
 # Ashivam Technologies — Live Production Verification Report
 
-> **Test Date:** 2026-11-01T07:04 UTC  
-> **Tested By:** Engineering Audit (automated curl / PowerShell)  
+> **Initial Test Date:** 2026-11-01T07:04 UTC  
+> **Updated Verification:** 2026-11-01T07:49 UTC (post-push `acbc534`)  
+> **Tested By:** Engineering Audit (automated PowerShell)  
 > **Backend:** `https://ashivam-tech.onrender.com/api/v1`  
 > **Frontend:** `https://ashivam-tec-h.vercel.app`  
-> **Commit under test:** `fbbc218` (pushed) — `d330790` (local, unpushed — awaiting push authorization)
+> **Deployed commit:** `acbc534` (origin/main + company/main, both pushed)
 
 ---
 
@@ -12,17 +13,22 @@
 
 | Check | Result | Status |
 |---|---|---|
-| Backend health endpoint | HTTP 200, database: connected | ✅ |
-| `GET /auth/refresh` → 405 | HTTP 405, Allow: POST | ✅ |
+| Backend health endpoint | HTTP 200, `database: connected`, uptime: 87s | ✅ |
+| `GET /auth/refresh` → 405 | HTTP 405, `Allow: POST` | ✅ |
 | `POST /auth/refresh` (no cookie) → 401 | HTTP 401 | ✅ |
 | Frontend availability | HTTP 200 | ✅ |
-| Frontend `X-Frame-Options` | DENY | ✅ |
-| Frontend CSP header | Not present | ⏳ Pending push of `d330790` |
+| Frontend `X-Frame-Options` | `DENY` | ✅ |
+| Frontend CSP header | **Now LIVE** — `default-src 'self'; script-src 'self'; ...` | ✅ |
+| Frontend `Referrer-Policy` | `strict-origin-when-cross-origin` | ✅ |
+| Frontend `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), interest-cohort=()` | ✅ |
 | Backend CSP header | Present (Helmet) | ✅ |
 | Backend HSTS | Present | ✅ |
+| Backend `X-Content-Type-Options` | `nosniff` | ✅ |
+| Backend `X-Frame-Options` | `DENY` | ✅ |
+| Public career jobs endpoint | HTTP 200, live job data returned | ✅ |
 | Backend Cloudflare CDN | Active (CF-RAY, cf-cache-status) | ✅ |
 
-**Overall: 8/9 checks pass.** The one pending item (Frontend CSP) will be live after `d330790` is pushed to `origin/main` and Vercel auto-deploys.
+**Overall: 14/14 checks pass.** All security headers now live. Frontend CSP confirmed deployed via Vercel after push of `acbc534`.
 
 ---
 
