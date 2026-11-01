@@ -132,6 +132,9 @@
 }
 
 .career-card__location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.8125rem;
   color: var(--clr-text-muted);
   font-weight: 500;
@@ -184,6 +187,17 @@
   font-size: 0.8125rem;
   color: var(--clr-text-muted);
   flex-wrap: wrap;
+}
+
+.career-card__meta-details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.career-card__meta-icon {
+  color: var(--clr-gold, #d4af37);
+  flex-shrink: 0;
 }
 
 .career-card__meta-details strong {
@@ -588,8 +602,14 @@
 }
 
 .career-upload-icon {
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 0.35rem;
+}
+
+.career-upload-svg {
+  color: var(--clr-gold, #d4af37);
 }
 
 .career-upload-text {

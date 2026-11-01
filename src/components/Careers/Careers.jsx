@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowRightIcon } from '../icons';
+import {
+  ArrowRightIcon,
+  MapPinIcon,
+  BriefcaseIcon,
+  TargetIcon,
+  PaperclipIcon,
+} from '../icons';
 import { getPublicJobs, applyForJob } from '../../api';
 import { isLegitimatePublishedJob } from '../../utils/careerPublishing';
 import './Careers.css';
@@ -326,7 +332,10 @@ export default function Careers() {
                       <span className="career-card__badge-type">{job.employmentType}</span>
                     </div>
                     {job.location && (
-                      <span className="career-card__location">📍 {job.location}</span>
+                      <span className="career-card__location">
+                        <MapPinIcon size={14} className="career-card__meta-icon" aria-hidden="true" />
+                        {job.location}
+                      </span>
                     )}
                   </div>
 
@@ -349,10 +358,16 @@ export default function Careers() {
                   <div className="career-card__footer">
                     <div className="career-card__meta-details">
                       {job.experience && (
-                        <span>🎯 Experience: <strong>{job.experience}</strong></span>
+                        <span>
+                          <TargetIcon size={14} className="career-card__meta-icon" aria-hidden="true" />
+                          Experience: <strong>{job.experience}</strong>
+                        </span>
                       )}
                       {job.salary && (
-                        <span>💼 Compensation: <strong>{job.salary}</strong></span>
+                        <span>
+                          <BriefcaseIcon size={14} className="career-card__meta-icon" aria-hidden="true" />
+                          Compensation: <strong>{job.salary}</strong>
+                        </span>
                       )}
                     </div>
 
@@ -568,7 +583,7 @@ export default function Careers() {
                         disabled={submitting}
                       />
                       <div className="career-upload-icon" aria-hidden="true">
-                        📎
+                        <PaperclipIcon size={24} className="career-upload-svg" />
                       </div>
                       <div className="career-upload-text">
                         {resumeFile ? resumeFile.name : 'Click to select or drag and drop your resume'}

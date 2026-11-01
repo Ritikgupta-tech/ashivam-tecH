@@ -665,6 +665,24 @@ export function InformationCircleIcon({ size = 20, className = '', ...props }) {
   );
 }
 
+export function PaperclipIcon({ size = 20, className = '', ...props }) {
+  return (
+    <IconBase size={size} className={className} stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </IconBase>
+  );
+}
+
+export function TargetIcon({ size = 20, className = '', ...props }) {
+  return (
+    <IconBase size={size} className={className} stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </IconBase>
+  );
+}
+
 // ----------------- CENTRALIZED ICON MAPS -----------------
 
 export const TECH_ICON_MAP = {
