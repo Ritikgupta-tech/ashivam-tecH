@@ -103,16 +103,43 @@ The Ashivam Technologies platform has undergone a comprehensive multi-phase engi
 | Command | `cd backend && npm test` |
 | Verified | 2026-11-01 ✅ |
 
-### Playwright E2E Tests
+### Playwright E2E Tests (Real Browser — Microsoft Edge 157.0.4341.30)
 | Metric | Result |
 |---|---|
-| Status | Pending (Chromium install in progress) |
-| Test File | `tests/e2e-browser-staging.js` (588 lines, 19+ scenarios) |
-| Prerequisites | MongoDB connectivity, Playwright Chromium, built `dist/` |
+| Total Scenarios | 19 |
+| Passed | **19** |
+| Failed | **0** |
+| Exit Code | 0 |
+| Browser | Microsoft Edge 157.0.4341.30 (system-installed, via `channel: 'msedge'`) |
+| Backend | Embedded staging server on port 5099 |
+| Frontend | Embedded static server on port 5199 |
+| Database | MongoDB Atlas (live connection, staging fixtures auto-created) |
 | Command | `npm run test:e2e` |
+| Verified | 2026-11-01T08:01 UTC ✅ |
 
-> [!IMPORTANT]
-> E2E tests have not been run in this session due to Playwright Chromium installation in progress. This is the primary condition blocking full PRODUCTION READY status.
+**E2E Scenarios Passed:**
+
+| ID | Scenario |
+|---|---|
+| E2E-VIS-01 | Public homepage loads with brand title and primary navigation |
+| E2E-VIS-02 | Navigation bar mounted with accessible controls |
+| E2E-VIS-03 | Contact form enforces validation on invalid inputs |
+| E2E-VIS-04 | Contact inquiry submitted and persisted to MongoDB |
+| E2E-VIS-05 | Career/Internship application submitted with 201 confirmation |
+| E2E-AUTH-01 | Admin login rejects invalid credentials with clear feedback |
+| E2E-AUTH-02 | Admin login authenticates and navigates to /admin |
+| E2E-AUTH-03 | HttpOnly refresh token cookie set with secure attributes |
+| E2E-AUTH-04 | Admin dashboard renders with live data from backend |
+| E2E-AUTH-05 | Logout terminates session across tabs via BroadcastChannel |
+| E2E-CONC-01 | Multi-tab concurrent API requests — no token collision; replay strictly revokes lineage |
+| E2E-SEC-01 | Cross-origin request from untrusted origin blocked by CORS (403) |
+| E2E-SEC-02 | Unauthenticated request to protected admin endpoint → 401 |
+| E2E-SEC-03 | RBAC: Content Editor blocked from Superadmin-only endpoint (403) |
+| E2E-MAIL-01 | Inquiry alert routed strictly to team.ashivam@gmail.com |
+| E2E-MAIL-02 | Applicant receives confirmation acknowledgment email in sandbox |
+| E2E-MAIL-03 | Zero emails routed to external production inboxes during staging |
+| E2E-RESP-01 | Responsive viewports: desktop links (1280), tablet hamburger (768), mobile hamburger (390) |
+| E2E-UX-01 | 404 route renders graceful recovery page without blank screen |
 
 ### Production Build
 | Metric | Result |
@@ -210,38 +237,33 @@ Node.js 22 + Express 5
 
 ## 8. PRODUCTION READINESS VERDICT
 
-### **READY WITH CONDITIONS**
+### **✅ PRODUCTION READY**
 
-### Conditions
+All conditions from the prior assessment have been cleared:
 
-| Condition | Required Action |
+| Former Condition | Resolution |
 |---|---|
-| **E2E tests not run** | Run `npm run test:e2e` after Playwright Chromium install completes. If tests pass, upgrade verdict to PRODUCTION READY. |
-| **CSP not yet live** | Activate by pushing to `origin/main`. Verify `content-security-policy` header after Vercel deploys. |
-| **Ephemeral file storage** | Document clearly for operations. Acceptable for current scale. |
+| E2E tests not run | **19/19 PASS** — Microsoft Edge, real browser, live MongoDB ✅ |
+| CSP not yet live | **Confirmed live** on Vercel post-push ✅ |
+| Ephemeral file storage | Documented risk, acceptable for current scale ✅ |
 
-### Blocking Issues (NONE)
-No blocking security, correctness, or reliability issues remain unresolved.
+### Blocking Issues — NONE
 
-### What's Verified
+### Full Verification Evidence
 - ✅ 107/107 frontend tests PASS
-- ✅ 236/236 backend tests PASS  
-- ✅ Production build: 0 errors
-- ✅ All critical/high security findings remediated
-- ✅ Authentication flow: JWT refresh, session hint, Fast Refresh
-- ✅ Career application uniqueness enforced at database level
-- ✅ Security headers configured in `vercel.json`
-- ✅ Admin lazy-loading implemented and verified in build
-- ✅ Accessibility: mobile nav focus management fixed
-- ✅ Email routing: 6/6 sandbox tests confirm `team.ashivam@gmail.com` recipient invariant
-- ✅ No secrets in git history (pre-push scan clean)
-- ✅ Both GitHub remotes authorized for push
-
-### What Remains
-- ⏳ Playwright E2E test execution (Chromium downloading)
-- ⏳ Push to `origin/main` and `company/main`
-- ⏳ Vercel/Render auto-deployment verification
-- ⏳ Live CSP header verification
+- ✅ 236/236 backend tests PASS
+- ✅ 19/19 Playwright E2E scenarios PASS (real browser, real DB, real auth flow)
+- ✅ Production build: 0 errors, 628ms
+- ✅ All critical/high security findings remediated and verified in production
+- ✅ Frontend CSP confirmed live on Vercel
+- ✅ Backend health: `database: connected`
+- ✅ Auth method guards: `GET /auth/refresh → 405`, `POST (no cookie) → 401`
+- ✅ CORS blocks untrusted origins (verified E2E-SEC-01)
+- ✅ RBAC enforced (verified E2E-SEC-03)
+- ✅ Token replay attack blocked and session revoked (verified E2E-CONC-01)
+- ✅ Email routing invariant confirmed: all alerts → `team.ashivam@gmail.com` only
+- ✅ npm audit: 0 high/critical vulnerabilities
+- ✅ Both GitHub remotes synchronized (`74720c2` + post-E2E commit)
 
 ---
 
