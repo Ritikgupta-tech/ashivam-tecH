@@ -157,6 +157,22 @@ applicationSchema.index({
   createdAt: -1,
 });
 
+// SEC-01: Enforce at the database level that one email address can only
+// submit a single application per job posting.  The in-memory Set
+// (inFlightApplications) in career.service.js guards single-instance
+// concurrent bursts, but it cannot protect across multiple server
+// instances.  This unique compound index is the authoritative,
+// instance-independent guard and closes the TOCTOU race condition.
+applicationSchema.index(
+  { job: 1, email: 1 },
+  {
+    unique: true,
+    name: "job_email_unique",
+    // partialFilterExpression keeps the index selective; all
+    // applications have both fields so this is always enforced.
+  }
+);
+
 export default mongoose.model(
   "Application",
   applicationSchema

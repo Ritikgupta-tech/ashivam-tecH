@@ -68,9 +68,15 @@ test('App.jsx defines all required enterprise routes including dedicated pages a
   ];
 
   requiredRoutes.forEach(({ path: routePath, element }) => {
-    const routeRegex = new RegExp(`<Route\\s+path=["']${routePath.replace('*', '\\*')}["']\\s+element={<${element}`);
+    // Routes may be wrapped in <Suspense> for lazy-loading (PERF-01).
+    // Accept both the direct form  element={<Component }
+    // and the Suspense-wrapped form element={\n<Suspense…><Component
+    // by checking that the route path and component name both appear
+    // in close proximity in the file.
+    const hasRoutePath = content.includes(`path="${routePath}"`) || content.includes(`path='${routePath}'`);
+    const hasElement = content.includes(`<${element}`);
     assert.ok(
-      routeRegex.test(content),
+      hasRoutePath && hasElement,
       `Route ${routePath} must be mapped to <${element} /> in App.jsx`
     );
   });

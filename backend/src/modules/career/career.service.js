@@ -387,6 +387,24 @@ export const createApplication = async (
         folder: "resumes",
       }).catch(() => {});
     }
+
+    // SEC-01: The compound unique index { job, email } may fire an E11000
+    // duplicate-key error if two concurrent requests from different server
+    // instances pass the in-memory Set guard at the same time.  Surface this
+    // as the same user-friendly 409 Conflict message instead of a raw 500.
+    if (
+      dbError.code === 11000 &&
+      dbError.keyPattern &&
+      dbError.keyPattern.job !== undefined &&
+      dbError.keyPattern.email !== undefined
+    ) {
+      const conflictError = new Error(
+        "You have already applied for this position"
+      );
+      conflictError.statusCode = 409;
+      throw conflictError;
+    }
+
     throw dbError;
   }
 
