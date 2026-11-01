@@ -20,6 +20,24 @@
   overflow: hidden;
 }
 
+/* Large decorative 404 background number */
+.not-found-main::before {
+  content: '404';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: clamp(14rem, 30vw, 22rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: rgba(11, 31, 58, 0.035);
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+
 .not-found-container {
   max-width: 680px;
   text-align: center;
@@ -36,7 +54,7 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--clr-gold);
+  color: var(--clr-gold-dark);
   background: rgba(197, 155, 39, 0.08);
   border: 1px solid rgba(197, 155, 39, 0.25);
   padding: 0.35rem 0.95rem;
@@ -72,4 +90,19 @@
 .not-found-btn {
   padding: 0.75rem 1.65rem;
   font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+  .not-found-main {
+    padding: 7rem 1rem 4rem;
+  }
+  .not-found-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+  }
+  .not-found-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

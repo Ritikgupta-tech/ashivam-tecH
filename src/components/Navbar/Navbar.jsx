@@ -12,6 +12,22 @@ const PRIMARY_NAV = [
 // Unique ID for aria-controls association
 const MOBILE_MENU_ID = 'mobile-nav-drawer';
 
+// Hook: scroll progress (0–100) for the scroll indicator bar
+function useScrollProgress() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const update = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0);
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+  return progress;
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -120,12 +136,22 @@ export default function Navbar() {
     // to the hamburger button.
   }, []);
 
+  const scrollProgress = useScrollProgress();
+
   return (
     <>
       <header
         ref={navRef}
         className={`navbar${scrolled ? ' navbar--scrolled' : ''}${menuOpen ? ' navbar--open' : ''}`}
       >
+        {/* Scroll progress bar — only shown when scrolled */}
+        {scrolled && (
+          <div
+            className="navbar__progress"
+            style={{ width: `${scrollProgress}%` }}
+            aria-hidden="true"
+          />
+        )}
         <div className="navbar__container">
           {/* Logo on Left -> Navigates to Homepage */}
           <Link
