@@ -97,6 +97,28 @@ export default function Careers() {
     fetchJobs();
   }, [fetchJobs]);
 
+  // Modal focus trap — keep keyboard focus inside modal, close on Escape
+  useEffect(() => {
+    if (!isModalOpen || !modalRef.current) return;
+    const FOCUSABLE =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableEls = Array.from(modalRef.current.querySelectorAll(FOCUSABLE));
+    const first = focusableEls[0];
+    const last = focusableEls[focusableEls.length - 1];
+    first?.focus();
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') { handleCloseModal(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleOpenApply = (job) => {
     if (!job) return;
     setSelectedJob(job);
