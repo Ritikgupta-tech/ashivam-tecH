@@ -948,25 +948,25 @@ export default function InternshipsTab({ currentUser }) {
                             className={`admin-check-pill ${ob.idProofVerified ? 'admin-check-pill--done' : ''}`}
                             title="Government ID Proof"
                           >
-                            {ob.idProofVerified ? '✓ ID' : '✕ ID'}
+                            {ob.idProofVerified ? <CheckIcon size={12} aria-hidden="true" /> : <XMarkIcon size={12} aria-hidden="true" />} ID
                           </span>
                           <span
                             className={`admin-check-pill ${ob.collegeNocVerified ? 'admin-check-pill--done' : ''}`}
                             title="College NOC / Verification"
                           >
-                            {ob.collegeNocVerified ? '✓ NOC' : '✕ NOC'}
+                            {ob.collegeNocVerified ? <CheckIcon size={12} aria-hidden="true" /> : <XMarkIcon size={12} aria-hidden="true" />} NOC
                           </span>
                           <span
                             className={`admin-check-pill ${ob.agreementSigned ? 'admin-check-pill--done' : ''}`}
                             title="Internship Agreement"
                           >
-                            {ob.agreementSigned ? '✓ Agmt' : '✕ Agmt'}
+                            {ob.agreementSigned ? <CheckIcon size={12} aria-hidden="true" /> : <XMarkIcon size={12} aria-hidden="true" />} Agmt
                           </span>
                           <span
                             className={`admin-check-pill ${ob.ndaSigned ? 'admin-check-pill--done' : ''}`}
                             title="Non-Disclosure Agreement"
                           >
-                            {ob.ndaSigned ? '✓ NDA' : '✕ NDA'}
+                            {ob.ndaSigned ? <CheckIcon size={12} aria-hidden="true" /> : <XMarkIcon size={12} aria-hidden="true" />} NDA
                           </span>
                         </div>
                         <span style={{ fontSize: '0.72rem', color: ob.status === 'completed' ? '#047857' : '#D97706' }}>
@@ -1124,7 +1124,7 @@ export default function InternshipsTab({ currentUser }) {
                         />
                         {app.convertedToIntern && (
                           <span className="admin-check-pill admin-check-pill--done" title="Enrolled Intern">
-                            ✓ Intern ({app.internId})
+                            <CheckIcon size={12} aria-hidden="true" /> Intern ({app.internId})
                           </span>
                         )}
                       </div>

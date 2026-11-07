@@ -5,6 +5,8 @@ import {
   BriefcaseIcon,
   TargetIcon,
   PaperclipIcon,
+  ExclamationCircleIcon,
+  CheckIcon,
 } from '../icons';
 import { getPublicJobs, applyForJob } from '../../api';
 import { isLegitimatePublishedJob } from '../../utils/careerPublishing';
@@ -277,7 +279,9 @@ export default function Careers() {
             {/* Error State */}
             {!loadingJobs && fetchError && (
               <div className="career-state-card career-state-card--error" role="alert">
-                <div className="career-state-icon" aria-hidden="true">⚠️</div>
+                <div className="career-state-icon" aria-hidden="true">
+                  <ExclamationCircleIcon size={32} />
+                </div>
                 <p className="career-state-title">Unable to Load Vacancies</p>
                 <p className="career-state-desc">{fetchError}</p>
                 <button
@@ -414,7 +418,7 @@ export default function Careers() {
                 onClick={handleCloseModal}
                 aria-label="Close application form"
               >
-                ×
+                <XMarkIcon size={20} aria-hidden="true" />
               </button>
             </div>
 
@@ -422,7 +426,7 @@ export default function Careers() {
               {submitSuccess ? (
                 <div className="career-success-view">
                   <div className="career-success-icon" aria-hidden="true">
-                    ✓
+                    <CheckIcon size={32} aria-hidden="true" />
                   </div>
                   <h4 className="career-success-title">Application Submitted!</h4>
                   <p className="career-success-desc">

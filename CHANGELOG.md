@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-11-08 — Security Remediation & Production Hardening
+
+### Fixed & Hardened
+- **Secret Sanitization:** Scrubbed proposed hex key string from `SECURITY_FINDINGS.md` and `RED_FLAG_REGISTER.md`, replacing with local random generator instructions (`crypto.randomBytes(32)`).
+- **Dependency Vulnerability Resolution:** Added `"minimatch": "^11.0.5"` to `backend/package.json` overrides, resolving moderate ReDoS advisory `GHSA-g3hv-75wg-m249` in `nodemon` devDependency. Both frontend and backend `npm audit` report 0 vulnerabilities.
+- **OpenAPI Route Alignment:** Reconciled `docs/api/OPENAPI.yaml` paths with actual mounted Express routes (`/auth/refresh`, `/career/jobs`, `/career/jobs/{jobId}/apply`, `/employee-documents/{employeeId}`, etc.).
+- **RBAC Matrix Reconciliation:** Synchronized `docs/security/ACCESS_CONTROL_MATRIX.md` with live `requireRole("Superadmin", "Admin")` and `requirePermission(...)` middlewares while preserving the future 10-role specification.
+- **Governance Routing:** Mounted `/sla` route alias in `src/App.jsx` pointing to `LegalPage` (terms).
+- **Zero Raw Emojis:** Replaced final remaining raw Unicode glyphs in `Navbar.jsx`, `Careers.jsx`, and `InternshipsTab.jsx` with high-precision SVG vector icons (`XMarkIcon`, `CheckIcon`, `ExclamationCircleIcon`).
+
+---
+
 ## [1.2.0] - 2026-11-07 — Enterprise Architecture & Documentation Hardening
 
 ### Added
