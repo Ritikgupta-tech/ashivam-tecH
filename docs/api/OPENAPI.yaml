@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: >
     Enterprise REST API serving Ashivam Technologies' official website,
-    internship lifecycle, and HR management platform.
+    recruitment, internship operations, and employee administration.
   contact:
     name: Ashivam Engineering Operations
     email: team.ashivam@gmail.com
@@ -30,8 +30,8 @@ paths:
 
   /auth/login:
     post:
-      summary: Authenticate User
-      description: Validates email and password, issuing a short-lived JWT access token and setting a rotating HttpOnly refresh cookie.
+      summary: Authenticate Admin or Staff
+      description: Validates username/email and password, issuing a short-lived JWT access token and setting a rotating HttpOnly refresh cookie.
       requestBody:
         required: true
         content:
@@ -45,7 +45,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-                example: refreshToken=abc...; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
+                example: refreshToken=abc...; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth
           content:
             application/json:
               schema:
@@ -55,10 +55,10 @@ paths:
         '429':
           $ref: '#/components/responses/429RateLimited'
 
-  /auth/refresh-token:
+  /auth/refresh:
     post:
       summary: Rotate Refresh Token & Issue Access Token
-      description: Validates the HttpOnly refresh token cookie, rotates the token family, and returns a new access token.
+      description: Validates the HttpOnly refresh token cookie, rotates the token family, and returns a fresh JWT access token.
       security:
         - cookieAuth: []
       responses:
@@ -70,16 +70,45 @@ paths:
                 $ref: '#/components/schemas/AuthSuccessResponse'
         '401':
           $ref: '#/components/responses/401Unauthorized'
-        '403':
-          description: Replay attack detected; token family revoked.
 
   /auth/logout:
     post:
       summary: Terminate Session
-      description: Clears the refresh token cookie and marks the active token family as revoked.
+      description: Clears the refresh token cookie and marks the active token family as revoked in the database.
       responses:
         '200':
           description: Successfully logged out.
+
+  /auth/me:
+    get:
+      summary: Get Current Authenticated User Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile of authenticated user.
+
+  /auth/change-password:
+    post:
+      summary: Change Password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Password updated successfully.
 
   /inquiries:
     post:
@@ -94,17 +123,12 @@ paths:
       responses:
         '201':
           description: Inquiry recorded and confirmation queued.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InquiryResponse'
         '422':
           $ref: '#/components/responses/422ValidationError'
         '429':
           $ref: '#/components/responses/429RateLimited'
     get:
       summary: List Inbound Inquiries
-      description: Retrieves inquiries for administrative triage (Requires ADMIN or SUPERADMIN).
       security:
         - bearerAuth: []
       parameters:
@@ -114,14 +138,18 @@ paths:
           in: query
           schema:
             type: string
-            enum: [NEW, IN_REVIEW, CONTACTED, RESOLVED, ARCHIVED]
       responses:
         '200':
           description: Paginated inquiries list.
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
+
+  /inquiries/export:
+    get:
+      summary: Export Inquiries as CSV
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: CSV file download.
 
   /inquiries/{id}:
     get:
@@ -147,114 +175,11 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum: [NEW, IN_REVIEW, CONTACTED, RESOLVED, ARCHIVED]
-                adminNotes:
-                  type: string
       responses:
         '200':
           description: Inquiry updated.
-
-  /careers:
-    get:
-      summary: List Open Job Postings
-      description: Publicly lists active career and internship openings.
-      responses:
-        '200':
-          description: List of active job openings.
-
-  /careers/apply:
-    post:
-      summary: Submit Job Application with Resume
-      description: Submits candidate profile and resume (PDF/DOCX max 5MB).
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [fullName, email, phone, careerId, resume]
-              properties:
-                fullName:
-                  type: string
-                email:
-                  type: string
-                  format: email
-                phone:
-                  type: string
-                careerId:
-                  type: string
-                resume:
-                  type: string
-                  format: binary
-      responses:
-        '201':
-          description: Application successfully submitted.
-        '400':
-          description: Invalid file format (magic-byte check failed).
-        '422':
-          $ref: '#/components/responses/422ValidationError'
-
-  /employees:
-    get:
-      summary: List Employees
-      description: Returns active employee roster (Requires HR_MANAGER, DEPT_HEAD, or ADMIN).
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: List of employees.
-    post:
-      summary: Create New Employee
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EmployeeCreateRequest'
-      responses:
-        '201':
-          description: Employee created.
-
-  /employee-documents/upload:
-    post:
-      summary: Upload KYC Document to Vault
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [employeeId, documentType, file]
-              properties:
-                employeeId:
-                  type: string
-                documentType:
-                  type: string
-                  enum: [AADHAAR, PAN, DEGREE, RELIEVING_LETTER, BANK_CHEQUE]
-                file:
-                  type: string
-                  format: binary
-      responses:
-        '201':
-          description: Document uploaded and encrypted.
-
-  /employee-documents/{id}/preview:
-    get:
-      summary: Generate Ephemeral Pre-Signed View URL
-      description: Generates a 120-second pre-signed URL for authorized KYC inspection.
+    delete:
+      summary: Delete Inquiry (Superadmin Only)
       security:
         - bearerAuth: []
       parameters:
@@ -265,17 +190,387 @@ paths:
             type: string
       responses:
         '200':
-          description: Pre-signed preview URL generated.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  previewUrl:
-                    type: string
-                  expiresIn:
-                    type: integer
-                    example: 120
+          description: Inquiry deleted.
+
+  /career/jobs:
+    get:
+      summary: List Public Active Job Postings
+      responses:
+        '200':
+          description: Array of published job opportunities.
+
+  /career/jobs/{id}:
+    get:
+      summary: Get Public Job Posting by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job details.
+
+  /career/jobs/{jobId}/apply:
+    post:
+      summary: Submit Application with Resume
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [firstName, lastName, email, phone, resume]
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                currentLocation:
+                  type: string
+                experience:
+                  type: string
+                coverLetter:
+                  type: string
+                resume:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Application successfully submitted.
+        '400':
+          description: Invalid file format (only PDF, DOC, DOCX accepted).
+        '409':
+          description: Duplicate application for this job posting.
+
+  /career/admin/jobs:
+    get:
+      summary: List All Jobs for Admin Management
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of jobs including drafts and paused listings.
+    post:
+      summary: Create New Job Posting
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Job created.
+
+  /career/admin/applications:
+    get:
+      summary: List Job Applications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Paginated applications.
+
+  /career/admin/applications/export:
+    get:
+      summary: Export Applications as CSV
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: CSV download.
+
+  /career/admin/applications/{id}/resume:
+    get:
+      summary: Securely Download Candidate Resume
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resume binary file stream.
+
+  /internships:
+    get:
+      summary: List Internship Applications (Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Paginated applications.
+    post:
+      summary: Submit Public Internship Application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InternshipApplicationRequest'
+      responses:
+        '201':
+          description: Internship application submitted.
+
+  /internships/programs/public:
+    get:
+      summary: List Public Internship Programs
+      responses:
+        '200':
+          description: Active internship programs.
+
+  /internships/interns:
+    get:
+      summary: List Onboarded Interns Directory
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Interns list.
+    post:
+      summary: Manually Create Onboarded Intern
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Intern created.
+
+  /employees:
+    get:
+      summary: List Employees (Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Paginated employee roster.
+    post:
+      summary: Create Employee Record
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+      responses:
+        '201':
+          description: Employee record created.
+
+  /employees/public:
+    get:
+      summary: Public Team Roster
+      description: Returns sanitized public employee directory for about page.
+      responses:
+        '200':
+          description: Public team list.
+
+  /employees/departments:
+    get:
+      summary: List All Distinct Departments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Department list.
+
+  /employees/designations:
+    get:
+      summary: List All Distinct Designations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Designation list.
+
+  /employees/{employeeId}:
+    get:
+      summary: Get Employee Profile by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee profile.
+    patch:
+      summary: Update Employee Record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee updated.
+    delete:
+      summary: Soft Delete Employee Record (Superadmin Only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee soft-deleted.
+
+  /employees/{employeeId}/restore:
+    patch:
+      summary: Restore Soft-Deleted Employee Record (Superadmin Only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee restored.
+
+  /employee-documents/{employeeId}:
+    get:
+      summary: List KYC Documents for an Employee
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Documents list.
+    post:
+      summary: Upload KYC Document for an Employee
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [documentType, document]
+              properties:
+                documentType:
+                  type: string
+                document:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Document uploaded.
+
+  /employee-documents/file/{documentId}:
+    get:
+      summary: Securely Download/Stream KYC Document
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document binary stream.
+
+  /hr-documents:
+    get:
+      summary: List Company Policies & HR Documents
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: HR documents catalog.
+    post:
+      summary: Upload Company HR Policy Document
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Policy document uploaded.
+
+  /hr-documents/file/{documentId}:
+    get:
+      summary: Download Company HR Policy Document
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Policy document binary stream.
+
+  /audit:
+    get:
+      summary: Query Tamper-Resistant Audit Logs
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: action
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated audit log records.
+
+  /dashboard/overview:
+    get:
+      summary: Administrative Analytics Overview
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Aggregated counts and system metrics.
+
+  /dashboard/recent-activity:
+    get:
+      summary: Recent Administrative Actions Feed
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Recent activity feed.
 
 components:
   securitySchemes:
@@ -325,16 +620,15 @@ components:
 
     LoginRequest:
       type: object
-      required: [email, password]
+      required: [username, password]
       properties:
-        email:
+        username:
           type: string
-          format: email
-          example: admin@ashivam.com
+          example: superadmin
         password:
           type: string
           format: password
-          example: HardenedPass#2026
+          example: SecurePass123!
 
     AuthSuccessResponse:
       type: object
@@ -350,21 +644,25 @@ components:
           properties:
             accessToken:
               type: string
-            user:
+            admin:
               type: object
               properties:
                 id:
                   type: string
-                email:
+                username:
                   type: string
                 role:
                   type: string
+                permissions:
+                  type: array
+                  items:
+                    type: string
 
     InquiryCreateRequest:
       type: object
-      required: [fullName, email, phone, message]
+      required: [name, email, message]
       properties:
-        fullName:
+        name:
           type: string
           example: Alexander Wright
         email:
@@ -384,29 +682,41 @@ components:
           type: string
           description: Honeypot field. Must be left blank by legitimate users.
 
-    InquiryResponse:
+    InternshipApplicationRequest:
       type: object
+      required: [fullName, email, phone, domain, college]
       properties:
-        success:
-          type: boolean
-          example: true
-        data:
-          type: object
-          properties:
-            inquiryId:
-              type: string
-            status:
-              type: string
-              example: NEW
+        fullName:
+          type: string
+          example: Rahul Kumar
+        email:
+          type: string
+          format: email
+          example: rahul.k@engineering.edu
+        phone:
+          type: string
+          example: "+91 98765 12345"
+        domain:
+          type: string
+          example: Full-Stack Web Development
+        college:
+          type: string
+          example: IIT Delhi
+        degree:
+          type: string
+          example: B.Tech Computer Science
+        graduationYear:
+          type: integer
+          example: 2026
 
     EmployeeCreateRequest:
       type: object
-      required: [employeeId, fullName, email, department, designation]
+      required: [employeeId, name, email, department, designation]
       properties:
         employeeId:
           type: string
           example: ASH-EMP-0142
-        fullName:
+        name:
           type: string
           example: Priya Sharma
         email:
@@ -438,23 +748,6 @@ components:
                 type: string
                 example: Unauthorized. Access token missing or invalid.
 
-    403Forbidden:
-      description: Insufficient privileges for requested resource.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: false
-              statusCode:
-                type: integer
-                example: 403
-              message:
-                type: string
-                example: Forbidden. Insufficient role permissions.
-
     422ValidationError:
       description: Input validation failed on payload fields.
       content:
@@ -471,15 +764,6 @@ components:
               message:
                 type: string
                 example: Validation failed.
-              errors:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    field:
-                      type: string
-                    message:
-                      type: string
 
     429RateLimited:
       description: Rate limit exceeded.

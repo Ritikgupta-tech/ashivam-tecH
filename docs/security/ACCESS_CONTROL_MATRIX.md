@@ -1,107 +1,123 @@
 # Ashivam Technologies — Granular Role-Based Access Control (RBAC) Matrix
 
-> **Document Version:** 1.0.0  
+> **Document Version:** 1.1.0  
 > **Classification:** Security Governance Standard  
-> **Status:** Production Enforced  
-> **Target Audience:** Backend Engineers, QA Engineers, Security Auditors  
+> **Status:** Production Implemented (Current Monolith) & Target Architecture (Future Services)  
+> **Auditors:** Application Security Engineer, Senior Backend Lead  
 
 ---
 
 ## 1. Executive Summary
 
-This Access Control Matrix defines the exact permissions and authorization requirements across all public, protected, and administrative API endpoints in the Ashivam Technologies ecosystem. Access is governed by the Principle of Least Privilege (PoLP).
+This Access Control Matrix defines the exact authorization requirements across all public, protected, and administrative API endpoints in the Ashivam Technologies platform.
+
+In conformance with the Principal of Least Privilege (PoLP), this document distinguishes between:
+1. **Current Production Implementation:** The live Express backend utilizing `requireRole` and granular `requirePermission` middlewares.
+2. **Target Multi-Application Ecosystem:** The target 10-role RBAC specification for the extracted future standalone applications (Corporate Website, Internship Management, HRMS).
 
 ---
 
-## 2. Defined System Roles
+## 2. Current Production Implementation (Live Codebase)
 
-| Role Identifier | Description & Responsibility Scope |
-| :--- | :--- |
-| **`ANON`** | Anonymous public visitor to the corporate website. |
-| **`CANDIDATE`**| External applicant applying for careers or internship cohorts. |
-| **`INTERN`** | Enrolled student in an active internship track. |
-| **`MENTOR`** | Ashivam senior engineer mentoring an intern pod. |
-| **`EMPLOYEE`** | Confirmed full-time staff member. |
-| **`DEPT_HEAD`**| Lead managing a specific engineering or operational department. |
-| **`HR_MANAGER`**| People Operations manager administering staff records, KYC vault, and policies. |
-| **`FINANCE`** | Payroll and compensation administrator. |
-| **`ADMIN`** | System operations administrator managing site content and lead queues. |
-| **`SUPERADMIN`**| Highest authority; manages credentials, system configuration, and audit logs. |
+### 2.1 Implemented Roles & Permission Schema
+In the current production platform (`backend/src/models/admin.model.js` and `backend/src/middlewares/authorization.middleware.js`):
 
----
+- **`Superadmin`**: Complete root access across all platform modules, accounts, system configurations, and data exports. Automatically bypasses granular permission checks.
+- **`Admin`**: Administrative user restricted to explicitly assigned granular permissions from the allowlist:
+  - `"inquiries"`: Viewing, updating status, and exporting customer leads.
+  - `"careers"`: Managing job listings, viewing candidates, and downloading resumes.
+  - `"employees"`: Managing employee master records and KYC document vaults.
+  - `"content"`: Editing CMS content blocks.
+  - `"media"`: Uploading and managing public website assets.
+  - `"settings"`: Managing system-level configuration parameters.
 
-## 3. Granular API Endpoint Access Matrix
+### 2.2 Live Production Endpoint Access Matrix
 
-**Legend:**
-- `ALLOW`: Full operational access.
-- `OWN`: Access restricted exclusively to records owned by the authenticated user.
-- `DEPT`: Access restricted to records within the user's assigned department.
-- `DENY`: Explicitly forbidden (HTTP 401 or 403 returned).
+| API Route | HTTP Method | Public / Unauth | Admin (with Permission) | Superadmin | Enforcing Middleware |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Corporate Website & Inquiries** | | | | | |
+| `/api/v1/health` | `GET` | **ALLOW** | **ALLOW** | **ALLOW** | Public probe |
+| `/api/v1/inquiries` | `POST` | **ALLOW** | **ALLOW** | **ALLOW** | `publicFormLimiter` |
+| `/api/v1/inquiries` | `GET` | 401 | **ALLOW** (`inquiries`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('inquiries')` |
+| `/api/v1/inquiries/export` | `GET` | 401 | **ALLOW** (`inquiries`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('inquiries')` |
+| `/api/v1/inquiries/:id` | `GET` / `PATCH` | 401 | **ALLOW** (`inquiries`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('inquiries')` |
+| `/api/v1/inquiries/:id` | `DELETE` | 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| **Careers & Applicant Intake** | | | | | |
+| `/api/v1/career/jobs` | `GET` | **ALLOW** | **ALLOW** | **ALLOW** | Public catalog |
+| `/api/v1/career/jobs/:id` | `GET` | **ALLOW** | **ALLOW** | **ALLOW** | Public catalog |
+| `/api/v1/career/jobs/:jobId/apply`| `POST` | **ALLOW** | **ALLOW** | **ALLOW** | `publicFormLimiter`, magic-byte upload |
+| `/api/v1/career/admin/jobs` | `GET` / `POST` | 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| `/api/v1/career/admin/jobs/:id` | `PATCH` | 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| `/api/v1/career/admin/jobs/:id` | `DELETE` | 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| `/api/v1/career/admin/applications` | `GET` | 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| `/api/v1/career/admin/applications/export`| `GET` | 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| `/api/v1/career/admin/applications/:id/resume`| `GET` | 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| **Internship Lifecycle** | | | | | |
+| `/api/v1/internships` | `POST` | **ALLOW** | **ALLOW** | **ALLOW** | `publicFormLimiter` |
+| `/api/v1/internships/programs/public`| `GET` | **ALLOW** | **ALLOW** | **ALLOW** | Public programs |
+| `/api/v1/internships` | `GET` | 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| `/api/v1/internships/interns` | `GET` / `POST`| 401 | **ALLOW** (`careers`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('careers')` |
+| `/api/v1/internships/interns/:id` | `DELETE` | 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| **HRMS & Employee Records** | | | | | |
+| `/api/v1/employees/public` | `GET` | **ALLOW** | **ALLOW** | **ALLOW** | Sanitized public team directory |
+| `/api/v1/employees` | `GET` / `POST` | 401 | **ALLOW** (`employees`)| **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('employees')` |
+| `/api/v1/employees/:employeeId` | `PATCH` | 401 | **ALLOW** (`employees`)| **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('employees')` |
+| `/api/v1/employees/:employeeId` | `DELETE` | 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| `/api/v1/employees/:employeeId/restore`| `PATCH` | 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| **Confidential KYC Vault** | | | | | |
+| `/api/v1/employee-documents/:employeeId` | `GET` / `POST` | 401 | **ALLOW** (`employees`)| **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('employees')` |
+| `/api/v1/employee-documents/file/:documentId`| `GET` | 401 | **ALLOW** (`employees`)| **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')`, `requirePermission('employees')` |
+| `/api/v1/employee-documents/document/:id`| `DELETE` | 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| **System Security & Administration** | | | | | |
+| `/api/v1/admin/admins` | `GET` / `POST`| 401 | 403 | **ALLOW** | `authenticate`, `requireRole('Superadmin')` |
+| `/api/v1/audit` | `GET` | 401 | **ALLOW** (`settings`) | **ALLOW** | `authenticate`, `requireRole('Superadmin', 'Admin')` |
 
-| API Route | HTTP Method | ANON | CANDIDATE | INTERN | MENTOR | EMPLOYEE | DEPT_HEAD | HR_MANAGER | ADMIN | SUPERADMIN |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Corporate Website & Inquiries** | | | | | | | | | | |
-| `/api/v1/inquiries` | `POST` | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW |
-| `/api/v1/inquiries` | `GET` | DENY | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW |
-| `/api/v1/inquiries/:id` | `GET` / `PATCH` | DENY | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW |
-| `/api/v1/inquiries/:id` | `DELETE` | DENY | DENY | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW |
-| **Careers & Applicant Intake** | | | | | | | | | | |
-| `/api/v1/careers` | `GET` | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW |
-| `/api/v1/careers/apply` | `POST` | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW |
-| `/api/v1/careers/manage` | `GET` / `POST` | DENY | DENY | DENY | DENY | DENY | DEPT | ALLOW | ALLOW | ALLOW |
-| `/api/v1/careers/:id` | `DELETE` | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW | ALLOW |
-| **Internship Lifecycle** | | | | | | | | | | |
-| `/api/v1/internships/catalog`| `GET` | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW |
-| `/api/v1/internships/apply` | `POST` | ALLOW | ALLOW | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW |
-| `/api/v1/interns/me` | `GET` | DENY | DENY | OWN | DENY | DENY | DENY | DENY | ALLOW | ALLOW |
-| `/api/v1/interns/submit` | `POST` | DENY | DENY | OWN | DENY | DENY | DENY | DENY | ALLOW | ALLOW |
-| `/api/v1/interns/evaluate` | `POST` | DENY | DENY | DENY | OWN POD | DENY | DEPT | ALLOW | ALLOW | ALLOW |
-| `/api/v1/certificates/verify/:id`| `GET` | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW |
-| **HRMS & Employee Records** | | | | | | | | | | |
-| `/api/v1/employees/me` | `GET` / `PATCH` | DENY | DENY | DENY | DENY | OWN | OWN | OWN | OWN | OWN |
-| `/api/v1/employees` | `GET` | DENY | DENY | DENY | DENY | ROSTER | DEPT | ALLOW | ALLOW | ALLOW |
-| `/api/v1/employees` | `POST` | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW | ALLOW |
-| `/api/v1/employees/:id` | `PATCH` / `DELETE` | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW | ALLOW |
-| **Confidential KYC Vault** | | | | | | | | | | |
-| `/api/v1/employee-documents/upload`| `POST`| DENY | DENY | DENY | DENY | OWN | OWN | ALLOW | ALLOW | ALLOW |
-| `/api/v1/employee-documents/:id` | `GET` | DENY | DENY | DENY | DENY | OWN | DENY | ALLOW | ALLOW | ALLOW |
-| `/api/v1/employee-documents/:id/verify`| `PATCH`| DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | DENY | ALLOW |
-| **HR Statutory Policies** | | | | | | | | | | |
-| `/api/v1/hr-documents` | `GET` | DENY | DENY | DENY | DENY | ALLOW | ALLOW | ALLOW | ALLOW | ALLOW |
-| `/api/v1/hr-documents/:id/ack` | `POST` | DENY | DENY | DENY | DENY | OWN | OWN | OWN | OWN | OWN |
-| `/api/v1/hr-documents` | `POST` / `DELETE`| DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW | ALLOW |
-| **System Security & Audit Logs**| | | | | | | | | | |
-| `/api/v1/audit-logs` | `GET` | DENY | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW | ALLOW |
-| `/api/v1/audit-logs/export` | `POST` | DENY | DENY | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW |
-| `/api/v1/auth/revoke-sessions/:id`| `POST` | DENY | DENY | DENY | DENY | DENY | DENY | DENY | DENY | ALLOW |
-
----
-
-## 4. Enforcement Implementation Pattern
-
-All endpoints enforce authorization using the standard `authorizeRole` middleware:
-
+### 2.3 Actual Enforcement Implementation in Code
 ```javascript
-// Express RBAC Middleware Pattern
-const authorizeRole = (...allowedRoles) => {
+// backend/src/middlewares/authorization.middleware.js
+export const requireRole = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!req.user || !req.user.role) {
-      return res.status(401).json({
-        success: false,
-        statusCode: 401,
-        message: 'Authentication required. No credentials supplied.'
-      });
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
     }
-
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        statusCode: 403,
-        message: `Forbidden. Role '${req.user.role}' is unauthorized for this resource.`
-      });
+      return res.status(403).json({ success: false, message: "Insufficient permissions" });
     }
+    next();
+  };
+};
 
+export const requirePermission = (permission) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+    if (req.user.role === "Superadmin") {
+      return next(); // Superadmin has unrestricted platform privileges
+    }
+    if (!req.user.permissions?.includes(permission)) {
+      return res.status(403).json({ success: false, message: "Insufficient permissions" });
+    }
     next();
   };
 };
 ```
+
+---
+
+## 3. Target Multi-Application RBAC Specification (Future Extraction)
+
+When the Internship Management and HR Management applications are fully extracted into independent repositories ([ADR-001](../architecture/decisions/ADR-001-APPLICATION-SEPARATION.md)), the user identity model will transition to a 10-role enterprise hierarchy:
+
+| Target Role | Application Scope | Responsibilities |
+| :--- | :--- | :--- |
+| `ROLE_ANON` | Corporate Website | Public visitor browsing services and open roles |
+| `ROLE_CANDIDATE` | Corporate / Internship | Applying for jobs or technical cohorts |
+| `ROLE_INTERN` | Internship System | Enrolled student submitting weekly milestones |
+| `ROLE_MENTOR` | Internship System | Reviewing code submissions and scoring rubrics |
+| `ROLE_TRACK_LEAD` | Internship System | Managing cohort curriculum and certificate approval |
+| `ROLE_EMPLOYEE` | HRMS | Full-time staff accessing self-service & documents |
+| `ROLE_DEPT_HEAD` | HRMS | Approving team leaves and project allocations |
+| `ROLE_HR_MANAGER` | HRMS | Managing KYC document vault and compliance policies |
+| `ROLE_FINANCE` | HRMS | Payroll, tax declarations, and expense approvals |
+| `ROLE_SUPERADMIN` | Platform Wide | System configuration and security audit oversight |

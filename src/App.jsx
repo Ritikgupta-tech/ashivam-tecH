@@ -60,6 +60,7 @@ function App() {
           <Route path="/terms-of-service" element={<LegalPage initialTab="terms" />} />
           <Route path="/terms" element={<LegalPage initialTab="terms" />} />
           <Route path="/security" element={<LegalPage initialTab="security" />} />
+          <Route path="/sla" element={<LegalPage initialTab="terms" />} />
           <Route path="/legal" element={<LegalPage initialTab="privacy" />} />
 
           {/* Dedicated Employee & Admin Authentication Gateways */}

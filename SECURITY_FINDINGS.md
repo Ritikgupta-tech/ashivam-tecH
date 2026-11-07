@@ -73,7 +73,7 @@ This register details all discovered, mitigated, accepted, and resolved security
   If `JWT_SECRET` were ever compromised, the refresh token derivation key could mathematically be recalculated by an attacker holding the source code.
 - **Proposed Remediation:**
   1. Production startup guard in `backend/src/config/env.js` strictly validates that `JWT_SECRET` is mandatory.
-  2. Owner action (Condition C-1) provides an independent 64-character secret (`ea374c0ba029bfb3662a989657f9bd6e7673492d8a466a69e1b90a7d6a2c8040`) for Render environment.
+  2. Owner action (Condition C-1): Generate an independent, cryptographically random 64-character secret using `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` and configure `JWT_REFRESH_SECRET` in the Render environment dashboard. Never commit actual secret values to source control.
 - **Verification Method:**
   `tests/phase-1-security-hardening.test.js` Subtest 90 verifies that production startup requires strong secrets and rejects unapproved keys.
 - **Current Status:** ✅ **MITIGATED & OPERATIONAL** (Startup guard active; owner entry documented).
