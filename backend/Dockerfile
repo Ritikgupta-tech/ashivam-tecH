@@ -15,7 +15,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Stage 2: Minimal Production Runtime
 FROM node:22-alpine
 
-LABEL maintainer="Ashivam Technologies <devops@ashivamtechnologies.com>"
+LABEL maintainer="Ashivam Technologies <ritik95061@gmail.com>"
 LABEL service="ashivam-website-backend"
 
 ENV NODE_ENV=production
