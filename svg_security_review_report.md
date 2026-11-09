@@ -137,7 +137,7 @@ flowchart TD
         E2["Render: SMTP / Brevo API credentials configured"]
         E3["MongoDB Atlas: IP Access List restricted from 0.0.0.0/0"]
         E4["Storage: S3 bucket provisioned if persistent dyno storage needed"]
-        E5["Live Email: Real email arrival verified at team.ashivam@gmail.com"]
+        E5["Live Email: Real email arrival verified at ritik95061@gmail.com"]
     end
 ```
 
@@ -153,4 +153,4 @@ All local security fixes, regression tests, and build checks have passed with ze
 **Remaining Conditions for Traffic Cutover:**
 1. Authorize staging and committing of the 11 modified files.
 2. Confirm in MongoDB Atlas Cloud Console that Network Access is restricted to Render's IP ranges.
-3. Submit a test form on staging or production to confirm live alert arrival at `team.ashivam@gmail.com`.
+3. Submit a test form on staging or production to confirm live alert arrival at `ritik95061@gmail.com`.

@@ -154,4 +154,4 @@ Content-Type: text/html; charset=utf-8
 ## 8. Remaining Limitations & Recommendations
 
 1. **DNS Cutover (Pending Domain Registrar Delegation):** Production endpoints currently operate on cloud subdomains (`ashivam-tec-h.vercel.app` and `ashivam-tech.onrender.com`). Once DNS nameservers for `ashivam.com` / `ashivamtechnologies.com` are delegated, CNAME and A-records should be pointed to Vercel/Render respectively.
-2. **SMTP Live Routing:** Automated suites run strictly against the sandbox transport to avoid spamming corporate inboxes. Real notifications are verified to route exclusively to `team.ashivam@gmail.com`.
+2. **SMTP Live Routing:** Automated suites run strictly against the sandbox transport to avoid spamming corporate inboxes. Real notifications are verified to route exclusively to `ritik95061@gmail.com`.

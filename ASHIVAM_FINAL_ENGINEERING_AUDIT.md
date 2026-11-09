@@ -135,7 +135,7 @@ The Ashivam Technologies platform has undergone a comprehensive multi-phase engi
 | E2E-SEC-01 | Cross-origin request from untrusted origin blocked by CORS (403) |
 | E2E-SEC-02 | Unauthenticated request to protected admin endpoint → 401 |
 | E2E-SEC-03 | RBAC: Content Editor blocked from Superadmin-only endpoint (403) |
-| E2E-MAIL-01 | Inquiry alert routed strictly to team.ashivam@gmail.com |
+| E2E-MAIL-01 | Inquiry alert routed strictly to ritik95061@gmail.com |
 | E2E-MAIL-02 | Applicant receives confirmation acknowledgment email in sandbox |
 | E2E-MAIL-03 | Zero emails routed to external production inboxes during staging |
 | E2E-RESP-01 | Responsive viewports: desktop links (1280), tablet hamburger (768), mobile hamburger (390) |
@@ -261,7 +261,7 @@ All conditions from the prior assessment have been cleared:
 - ✅ CORS blocks untrusted origins (verified E2E-SEC-01)
 - ✅ RBAC enforced (verified E2E-SEC-03)
 - ✅ Token replay attack blocked and session revoked (verified E2E-CONC-01)
-- ✅ Email routing invariant confirmed: all alerts → `team.ashivam@gmail.com` only
+- ✅ Email routing invariant confirmed: all alerts → `ritik95061@gmail.com` only
 - ✅ npm audit: 0 high/critical vulnerabilities
 - ✅ Both GitHub remotes synchronized (`74720c2` + post-E2E commit)
 

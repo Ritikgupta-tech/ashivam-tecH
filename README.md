@@ -2,13 +2,13 @@
 
 > **Official Tagline:** *Endless Innovation. Limitless Possibilities.*  
 > **Headquarters:** Agra, Uttar Pradesh, India  
-> **Operational Email:** `team.ashivam@gmail.com`  
+> **Operational Email:** `ritik95061@gmail.com`  
 > **Production Website:** [https://ashivam-tec-h.vercel.app/](https://ashivam-tec-h.vercel.app/)  
 > **Production API:** [https://ashivam-tech.onrender.com/api/v1](https://ashivam-tech.onrender.com/api/v1)  
 
 [![CI Status](https://github.com/Ritikgupta-tech/ashivam-tecH/actions/workflows/ci.yml/badge.svg)](https://github.com/Ritikgupta-tech/ashivam-tecH/actions/workflows/ci.yml)
 [![Production Status](https://img.shields.io/badge/Production-Live-success)](https://ashivam-tec-h.vercel.app)
-[![Tests Passing](https://img.shields.io/badge/Tests-362%20Passing-brightgreen)](https://github.com/Ritikgupta-tech/ashivam-tecH)
+[![Tests Passing](https://img.shields.io/badge/Tests-366%20Passing-brightgreen)](https://github.com/Ritikgupta-tech/ashivam-tecH)
 [![Security Standard](https://img.shields.io/badge/Security-OWASP%20ASVS%205.0%20L2-blue)](./docs/security/SECURITY_REQUIREMENTS.md)
 [![Accessibility](https://img.shields.io/badge/Accessibility-WCAG%202.1%20AA-success)](./docs/quality/ACCESSIBILITY_REPORT.md)
 
@@ -76,23 +76,24 @@ flowchart TD
 - **Authentication:** Short-lived JWT (15m in memory) + Rotating Refresh Tokens (7d in cookie) with Token Family Replay Detection
 - **File Uploads:** In-memory Multer with magic-byte signature validation (rejecting disguised executables)
 - **Asynchronous Messaging:** Transactional Outbox pattern with background worker
-- **Testing:** Node.js native test runner (`node:test`), Supertest, assert/strict (236/236 passing tests)
+- **Testing:** Node.js native test runner (`node:test`), Supertest, assert/strict (240/240 passing tests)
 
 ---
 
-## 4. Comprehensive Test Suite (362 Tests)
+## 4. Comprehensive Test Suite (366 Tests)
 
 The repository enforces a rigorous, multi-tier testing pyramid:
 
 | Test Suite | Framework | Count | Scope | Status |
 | :--- | :--- | :---: | :--- | :---: |
 | **Frontend Unit & Axe** | Vitest + RTL | **107** | Component logic, forms, focus trapping, WCAG 2.1 AA | **PASS** |
-| **Backend Unit** | Node Native | **31** | Token rotation, error handlers, schema validators | **PASS** |
+| **Backend Unit & Modules** | Node Native | **31** | Token rotation, error handlers, schema validators | **PASS** |
 | **Backend Security** | Supertest | **8** | ASVS 5.0, CSRF, ReDoS, replay attack revocation | **PASS** |
 | **Backend Email & Outbox**| Supertest | **25** | Transactional email delivery and outbox worker | **PASS** |
-| **Backend Integration** | Supertest | **172** | Admin RBAC, concurrency, soft deletes, file uploads | **PASS** |
+| **Backend Admin & System** | Supertest | **172** | Admin RBAC, concurrency, soft deletes, file uploads | **PASS** |
+| **Backend Phase 6 Integration** | Supertest | **4** | HMAC-SHA-256 handoff to Internship Management | **PASS** |
 | **Staging Browser E2E** | Playwright | **19** | Real-browser testing across 18 viewports (320px to 4K) | **PASS** |
-| **Total Automated Tests**| — | **362** | Full platform coverage | **100% PASS** |
+| **Total Automated Tests**| — | **366** | Full platform coverage | **100% PASS** |
 
 ### Running Tests Locally
 ```bash
@@ -104,11 +105,19 @@ npm run build
 
 # Backend Test Suites (from backend/ directory)
 cd backend
-npm run test:unit
-npm run test:security
-npm run test:email
-node --test tests/integration/admin-rbac.test.js
+npm test
 ```
+
+---
+
+## 4.1 Phase 6 Inter-Service Integration & HMAC Security
+
+The Corporate Website serves as the public intake portal for career and internship applications. In conformance with Phase 6 controlled integration:
+
+- **Target Service:** `ashivam-internship-management` (Port 5001)
+- **Endpoint:** `POST /api/v1/integration/applications/handoff`
+- **Security:** Authenticated via HMAC-SHA-256 signatures (`x-service-signature`) using a shared secret (`INTERNSHIP_SERVICE_SECRET`). Includes replay protection via timestamp drift window (`x-service-timestamp` <= 300s) and unique request nonce (`x-service-nonce`).
+- **Resilience:** Circuit-breaker protected outbound requests with idempotent fallback logging.
 
 ---
 
