@@ -128,7 +128,7 @@ test('Backend response envelope matches frontend expectations', () => {
         id: '6704fa4b1234567890abcdef',
         username: 'superadmin',
         name: 'Super Administrator',
-        email: 'superadmin@ashivamtechnologies.com',
+        email: 'ritik95061@gmail.com',
         role: 'Superadmin',
         permissions: ['dashboard', 'inquiries'],
       },
@@ -139,7 +139,7 @@ test('Backend response envelope matches frontend expectations', () => {
   assert.equal(mockBackendSuccess.success, true);
   assert.ok(mockBackendSuccess.data.accessToken);
   assert.equal(mockBackendSuccess.data.user.role, 'Superadmin');
-  assert.equal(mockBackendSuccess.data.user.email, 'superadmin@ashivamtechnologies.com');
+  assert.equal(mockBackendSuccess.data.user.email, 'ritik95061@gmail.com');
   assert.ok(mockBackendSuccess.requestId);
 });
 
@@ -178,7 +178,7 @@ test('Normal Admin creation form validates username, email format, and password 
   const r4 = validateAdminCreation({
     name: 'Jane Admin',
     username: 'jane.admin',
-    email: 'jane@ashivamtechnologies.com',
+    email: 'ritik95061@gmail.com',
     password: 'SecureAdminPassword2026!',
   });
   assert.equal(r4.isValid, true);

@@ -58,12 +58,12 @@ services:
       - key: SMTP_PASSWORD
         sync: false
       - key: SMTP_FROM
-        value: Ashivam Technologies <teamashivam@gmail.com>
+        value: Ashivam Technologies <ritik95061@gmail.com>
       - key: COMPANY_NOTIFICATION_EMAIL
-        value: team.ashivam@gmail.com
+        value: ritik95061@gmail.com
       - key: ALERT_EMAIL
-        value: team.ashivam@gmail.com
+        value: ritik95061@gmail.com
       - key: EMAIL_FROM
-        value: Ashivam Technologies <teamashivam@gmail.com>
+        value: Ashivam Technologies <ritik95061@gmail.com>
       - key: NOTIFICATION_RECIPIENT
-        value: team.ashivam@gmail.com
+        value: ritik95061@gmail.com

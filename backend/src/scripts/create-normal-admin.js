@@ -61,7 +61,7 @@ const run = async () => {
       username = (await askQuestion(rl, "Username (3-50 chars, e.g., jane.admin): ")).toLowerCase();
     }
     if (!email) {
-      email = (await askQuestion(rl, "Company Email (e.g., jane@ashivamtechnologies.com): ")).toLowerCase();
+      email = (await askQuestion(rl, "Company Email (e.g., ritik95061@gmail.com): ")).toLowerCase();
     }
     if (!password) {
       password = await askQuestion(rl, "Password (min 8 chars, 12+ recommended): ");

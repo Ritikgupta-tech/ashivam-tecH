@@ -23,6 +23,7 @@ import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
 import employeeRoutes from "./modules/employee/employee.routes.js";
 import employeeDocumentRoutes from "./modules/employee-document/employee-document.routes.js";
 import hrDocumentRoutes from "./modules/hr-document/hrDocument.routes.js";
+import integrationRoutes from "./modules/integration/integration.routes.js";
 
 import {
   notFoundHandler,
@@ -126,6 +127,11 @@ const corsOptions = {
     "X-Request-Id",
     "X-Requested-With",
     "X-CSRF-Token",
+    "X-Source-System",
+    "X-Correlation-Id",
+    "X-Timestamp",
+    "X-Idempotency-Key",
+    "X-Signature"
   ],
   exposedHeaders: ["X-Request-Id"],
 };
@@ -265,6 +271,7 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/employees", employeeRoutes);
 app.use("/api/v1/employee-documents", employeeDocumentRoutes);
 app.use("/api/v1/hr-documents", hrDocumentRoutes);
+app.use("/api/v1/integrations", integrationRoutes);
 
 /*
  * 404 handler

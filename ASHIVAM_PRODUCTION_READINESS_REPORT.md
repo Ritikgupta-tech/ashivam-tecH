@@ -128,7 +128,7 @@ ADMIN_URL=https://ashivam-tec-h.vercel.app/admin
 EMAIL_HOST=smtp.gmail.com
 EMAIL_USER=<gmail address>
 EMAIL_PASS=<app password>
-NOTIFICATION_EMAIL=team.ashivam@gmail.com
+NOTIFICATION_EMAIL=ritik95061@gmail.com
 ```
 
 ### Frontend (Vercel)

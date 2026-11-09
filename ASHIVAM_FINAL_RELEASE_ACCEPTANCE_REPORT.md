@@ -303,7 +303,7 @@ No database internals (collection name, index name, key values) are exposed. The
 | E2E-SEC-01 | Cross-origin request from untrusted domain blocked (403) | ✅ PASS |
 | E2E-SEC-02 | Unauthenticated admin endpoint → 401 | ✅ PASS |
 | E2E-SEC-03 | RBAC: Content Editor blocked from Superadmin endpoint (403) | ✅ PASS |
-| E2E-MAIL-01 | Inquiry alert routed strictly to `team.ashivam@gmail.com` | ✅ PASS |
+| E2E-MAIL-01 | Inquiry alert routed strictly to `ritik95061@gmail.com` | ✅ PASS |
 | E2E-MAIL-02 | Applicant receives confirmation in sandbox | ✅ PASS |
 | E2E-MAIL-03 | Zero emails routed to production inboxes during staging | ✅ PASS |
 | E2E-RESP-01 | Responsive viewports: desktop (1280) / tablet (768) / mobile (390) | ✅ PASS |

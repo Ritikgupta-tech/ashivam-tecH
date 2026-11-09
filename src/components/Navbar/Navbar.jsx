@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShieldIcon, ArrowRightIcon } from '../icons';
+import { ShieldIcon, ArrowRightIcon, XMarkIcon } from '../icons';
 import './Navbar.css';
 
 const PRIMARY_NAV = [
@@ -274,7 +274,7 @@ export default function Navbar() {
               }}
               aria-label="Close navigation menu"
             >
-              ✕
+              <XMarkIcon size={20} aria-hidden="true" />
             </button>
           </div>
 

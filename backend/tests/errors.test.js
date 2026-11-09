@@ -82,7 +82,7 @@ test("Error Normalization - Unauthenticated protected admin route returns 401 st
 });
 
 test("Production Response Safety - Sensitive patterns are scrubbed from error messages", () => {
-  const dbUriMsg = "Connection failed to mongodb://admin:pass123@cluster0.net:27017/ashivam_technologies";
+  const dbUriMsg = "Connection failed to mongodb://admin:pass123@127.0.0.1:27017/ashivam_technologies";
   const scrubbedDb = scrubSensitivePatterns(dbUriMsg);
   assert.ok(!scrubbedDb.includes("admin:pass123"));
   assert.ok(scrubbedDb.includes("[REDACTED_URI]"));

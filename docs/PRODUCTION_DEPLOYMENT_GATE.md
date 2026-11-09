@@ -7,8 +7,8 @@
 - **Production Backend:** `https://ashivam-tech.onrender.com/api/v1`
 - **Staging Frontend Target:** `https://ashivam-tec-h-staging.vercel.app`
 - **Staging Backend Target:** `https://ashivam-tech-staging.onrender.com/api/v1`
-**Mandated Sole Corporate Recipient:** `team.ashivam@gmail.com`  
-**Authenticated SMTP Sender:** `teamashivam@gmail.com`  
+**Mandated Sole Corporate Recipient:** `ritik95061@gmail.com`  
+**Authenticated SMTP Sender:** `ritik95061@gmail.com`  
 **Final Production Gate Decision:** **`READY FOR STAGING`**
 
 ---
@@ -37,7 +37,7 @@ The review evaluated the system against the 7 mandatory Production Gate Criteria
 | **Real Browser E2E Automation** | 100% Passing across all 6 core journeys | **19 Passed / 0 Failed (100%)** | Microsoft Edge Chromium Playwright; `tests/e2e-browser-staging.js` | **PASSED** |
 | **Production Client Build** | Clean Vite production bundle, 0 errors | **101 modules transformed in 684ms** | `dist/index.html` (5.42 kB), `dist/assets/index.js` (525 kB) | **PASSED** |
 | **Security & Authentication Hardening** | No weak fallbacks, distinct secrets $\ge 32$ chars, CSRF/CORS enforced | Verified across 4 unit tests & E2E security suite | `backend/src/config/env.js`, `csrf.middleware.js` | **PASSED** |
-| **Corporate Email Centralization** | Exclusively `team.ashivam@gmail.com` for company notifications | Verified across all workflow services & sandbox tests | `email.service.js`, `inquiry.service.js`, `internship.service.js` | **PASSED** |
+| **Corporate Email Centralization** | Exclusively `ritik95061@gmail.com` for company notifications | Verified across all workflow services & sandbox tests | `email.service.js`, `inquiry.service.js`, `internship.service.js` | **PASSED** |
 | **Distributed Lock & Concurrency** | Zero lost counter increments, no duplicate IDs under 50 concurrent ops | 50 concurrent allocations generate 50 unique IDs; 1 conversion / 49 conflicts | `backend/tests/concurrency-and-distributed-locks.test.js` | **PASSED** |
 | **Container Hardening** | Multi-stage build, non-root user (UID != 0), healthcheck probe | Dockerfile verified; unprivileged `appuser` (UID=10001); wget health probe | `backend/Dockerfile`, `.dockerignore` | **PASSED** |
 | **CI/CD Automation Pipeline** | Pinned action SHAs, read-only permissions, full test gating | Pinned immutable SHAs; `permissions: contents: read`; 4 validation jobs | `.github/workflows/ci.yml` | **PASSED** |

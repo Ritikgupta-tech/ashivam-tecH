@@ -89,5 +89,5 @@ The application uses an unprivileged non-root multi-stage Docker container for t
 | CORS Preflight | Allowed origin preflight returns 204 with headers | `OPTIONS /api/v1/auth/login` from staging Vercel origin | Pending Staging URL |
 | CSRF Originless Guard | Cookie-based requests without custom header return 403 | Automated integration test passes locally | Code Verified |
 | Distributed Locks | Leases renew and overtake cleanly | `distributed-lock-safety.test.js` passes | Code Verified |
-| Email Routing | Corporate notifications route to `team.ashivam@gmail.com` | Verified in unit and integration tests | Code Verified |
+| Email Routing | Corporate notifications route to `ritik95061@gmail.com` | Verified in unit and integration tests | Code Verified |
 | Non-Root Container | Docker UID != 0 | Verified via CI build step | Code Verified |

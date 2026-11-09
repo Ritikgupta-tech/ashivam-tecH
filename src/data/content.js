@@ -8,7 +8,7 @@ export const COMPANY = {
   tagline: 'Endless Innovation. Limitless Possibilities.',
   description:
     'We are a modern technology company building scalable software, digital products, and innovative experiences that move ideas forward.',
-  email: 'team.ashivam@gmail.com',
+  email: 'ritik95061@gmail.com',
   phone: '+91 XXXXX XXXXX',
   location: 'Agra, Uttar Pradesh, India',
   headquarters: 'Agra, Uttar Pradesh, India',

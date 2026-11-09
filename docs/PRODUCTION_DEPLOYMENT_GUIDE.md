@@ -5,7 +5,7 @@
 **Company:** Ashivam Technologies  
 **Target Live Frontend:** `https://ashivam-tec-h.vercel.app/`  
 **Target Live Backend:** `https://ashivam-tech.onrender.com/api/v1`  
-**Mandated Company Notification Recipient:** `team.ashivam@gmail.com`  
+**Mandated Company Notification Recipient:** `ritik95061@gmail.com`  
 **Date:** October 30, 2026  
 
 ---
@@ -56,17 +56,17 @@ The Ashivam Technologies platform deploys across a high-availability decoupled c
    TRUST_PROXY=1
 
    # Centralized Company Email Notification
-   COMPANY_NOTIFICATION_EMAIL=team.ashivam@gmail.com
-   NOTIFICATION_RECIPIENT=team.ashivam@gmail.com
-   ALERT_EMAIL=team.ashivam@gmail.com
+   COMPANY_NOTIFICATION_EMAIL=ritik95061@gmail.com
+   NOTIFICATION_RECIPIENT=ritik95061@gmail.com
+   ALERT_EMAIL=ritik95061@gmail.com
 
    # SMTP Sender Authentication Identity
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=465
    SMTP_SECURE=true
-   SMTP_USER=teamashivam@gmail.com
+   SMTP_USER=ritik95061@gmail.com
    SMTP_PASSWORD=[GOOGLE APP PASSWORD]
-   EMAIL_FROM=Ashivam Technologies <teamashivam@gmail.com>
+   EMAIL_FROM=Ashivam Technologies <ritik95061@gmail.com>
 
    # Private Object Storage
    STORAGE_PROVIDER=s3
@@ -76,7 +76,7 @@ The Ashivam Technologies platform deploys across a high-availability decoupled c
    S3_SECRET_ACCESS_KEY=[IAM SECRET KEY]
    ```
 4. Deploy service and verify startup log:
-   `[Email Service] Company Notification Recipient: team.ashivam@gmail.com`
+   `[Email Service] Company Notification Recipient: ritik95061@gmail.com`
    `[Email Service] SMTP connection & authentication verified successfully.`
 
 ### Step 4: Seed Superadmin Account
@@ -121,7 +121,7 @@ Execute these verification checks immediately following deployment:
 4. **Live Inbound Lead Submission:**
    * Submit an inquiry on the homepage contact form.
    * Verify lead appears in `/admin` under Inquiries.
-   * Confirm email alert arrives in `team.ashivam@gmail.com`.
+   * Confirm email alert arrives in `ritik95061@gmail.com`.
 
 ---
 

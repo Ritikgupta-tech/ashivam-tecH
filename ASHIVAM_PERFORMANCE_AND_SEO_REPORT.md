@@ -81,7 +81,7 @@ The project is compiled via **Vite 8.3.4** utilizing Rollup with aggressive dead
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "customer service",
-    "email": "team.ashivam@gmail.com"
+    "email": "ritik95061@gmail.com"
   }
 }
 ```

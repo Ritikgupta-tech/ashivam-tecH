@@ -26,7 +26,7 @@
 | **E2E-SEC-01** | Security | `/inquiries` (CORS) | Node `fetch()` with evil Origin | `POST /api/v1/inquiries` (403) | No | None | **Backend Integration** | PASS | Yes (403 Origin Rejected) |
 | **E2E-SEC-02** | Security | `/admin/employees` | Node `fetch()` without token | `GET /api/v1/admin/employees` (401) | No | None | **Backend Integration** | PASS | Yes (401 Token Missing) |
 | **E2E-SEC-03** | Security | `/admin/admins` | Node `fetch()` with Editor token | `GET /api/v1/admin/admins` (403) | Yes | None | **Backend Integration** | PASS | Yes (403 Role Forbidden) |
-| **E2E-MAIL-01**| Email | Workflow Alerts | Inspects `capturedEmails` | Outbound notification event | Yes | Mock transport | **Mocked Service** | PASS | Yes (Fails if not team.ashivam) |
+| **E2E-MAIL-01**| Email | Workflow Alerts | Inspects `capturedEmails` | Outbound notification event | Yes | Mock transport | **Mocked Service** | PASS | Yes (Fails if not ritik95061@gmail.com) |
 | **E2E-MAIL-02**| Email | Candidate Ack | Inspects `capturedEmails` | Candidate confirmation event | Yes | Mock transport | **Mocked Service** | PASS | Yes (Fails if template missing) |
 | **E2E-MAIL-03**| Email | Sandbox Safety | Inspects `capturedEmails` | Isolation verification | Yes | Mock transport | **Mocked Service** | PASS | Yes (Fails if leaked) |
 | **E2E-RESP-01**| UI / UX | Viewport Resize | Resizes 1280, 768, 390px | None (CSS media queries) | No | None | **Browser UI Only** | PASS | Yes (Fails if links/ham hidden) |
@@ -66,8 +66,8 @@
 
 ### 2.4 Notifications & Email Infrastructure
 - **Workflows Covered:**
-  - Inquiry admin notification strictly to `team.ashivam@gmail.com` — **Covered** (`E2E-MAIL-01`).
-  - Internship application alert strictly to `team.ashivam@gmail.com` — **Covered** (`E2E-MAIL-01`).
+  - Inquiry admin notification strictly to `ritik95061@gmail.com` — **Covered** (`E2E-MAIL-01`).
+  - Internship application alert strictly to `ritik95061@gmail.com` — **Covered** (`E2E-MAIL-01`).
   - Candidate confirmation email acknowledgment — **Covered** (`E2E-MAIL-02`).
   - 100% outbound email containment in sandbox (0 leaked to production) — **Covered** (`E2E-MAIL-03`).
 

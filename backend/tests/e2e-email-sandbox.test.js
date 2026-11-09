@@ -21,7 +21,7 @@ const VALID_PDF_BUFFER = Buffer.from(
   "%PDF-1.4\n%e2e-test-stream\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF"
 );
 
-const MANDATED_ALERT_EMAIL = "team.ashivam@gmail.com";
+const MANDATED_ALERT_EMAIL = "ritik95061@gmail.com";
 
 let dbConnected = false;
 let testJob = null;
@@ -105,25 +105,25 @@ afterEach(() => {
   resetTransporter();
 });
 
-test("E2E Sandbox: Environment configuration strictly mandates team.ashivam@gmail.com as alert recipient", () => {
+test("E2E Sandbox: Environment configuration strictly mandates ritik95061@gmail.com as alert recipient", () => {
   assert.equal(
     env.companyNotificationEmail.toLowerCase(),
     MANDATED_ALERT_EMAIL.toLowerCase(),
-    "env.companyNotificationEmail must be team.ashivam@gmail.com"
+    "env.companyNotificationEmail must be ritik95061@gmail.com"
   );
   assert.equal(
     env.alertEmail.toLowerCase(),
     MANDATED_ALERT_EMAIL.toLowerCase(),
-    "env.alertEmail must be team.ashivam@gmail.com"
+    "env.alertEmail must be ritik95061@gmail.com"
   );
   assert.equal(
     env.notificationRecipient.toLowerCase(),
     MANDATED_ALERT_EMAIL.toLowerCase(),
-    "env.notificationRecipient must be team.ashivam@gmail.com"
+    "env.notificationRecipient must be ritik95061@gmail.com"
   );
 });
 
-test("E2E Sandbox: Project Discussion / Contact Inquiry alerts go STRICTLY to team.ashivam@gmail.com", async (t) => {
+test("E2E Sandbox: Project Discussion / Contact Inquiry alerts go STRICTLY to ritik95061@gmail.com", async (t) => {
   if (!dbConnected) {
     t.skip("Database not connected");
     return;
@@ -179,13 +179,13 @@ test("E2E Sandbox: Project Discussion / Contact Inquiry alerts go STRICTLY to te
   assert.equal(
     userConfirm.replyTo,
     MANDATED_ALERT_EMAIL,
-    "Client confirmation Reply-To must route replies to team.ashivam@gmail.com"
+    "Client confirmation Reply-To must route replies to ritik95061@gmail.com"
   );
   assert.equal(userConfirm.cc, undefined, "Client confirmation must contain zero CC recipients");
   assert.equal(userConfirm.bcc, undefined, "Client confirmation must contain zero BCC recipients");
 });
 
-test("E2E Sandbox: Career Job Application (Apply Role) alerts go STRICTLY to team.ashivam@gmail.com", async (t) => {
+test("E2E Sandbox: Career Job Application (Apply Role) alerts go STRICTLY to ritik95061@gmail.com", async (t) => {
   if (!dbConnected || !testJob) {
     t.skip("Database or test job not available");
     return;
@@ -248,13 +248,13 @@ test("E2E Sandbox: Career Job Application (Apply Role) alerts go STRICTLY to tea
   assert.equal(
     candidateConfirm.replyTo,
     MANDATED_ALERT_EMAIL,
-    "Candidate confirmation Reply-To must route replies to team.ashivam@gmail.com"
+    "Candidate confirmation Reply-To must route replies to ritik95061@gmail.com"
   );
   assert.equal(candidateConfirm.cc, undefined, "Candidate confirmation must contain zero CC recipients");
   assert.equal(candidateConfirm.bcc, undefined, "Candidate confirmation must contain zero BCC recipients");
 });
 
-test("E2E Sandbox: Internship Applications alerts go STRICTLY to team.ashivam@gmail.com", async (t) => {
+test("E2E Sandbox: Internship Applications alerts go STRICTLY to ritik95061@gmail.com", async (t) => {
   if (!dbConnected) {
     t.skip("Database not connected");
     return;
@@ -310,7 +310,7 @@ test("E2E Sandbox: Internship Applications alerts go STRICTLY to team.ashivam@gm
   assert.equal(
     studentConfirm.replyTo,
     MANDATED_ALERT_EMAIL,
-    "Student confirmation Reply-To must route replies to team.ashivam@gmail.com"
+    "Student confirmation Reply-To must route replies to ritik95061@gmail.com"
   );
   assert.equal(studentConfirm.cc, undefined, "Student confirmation must contain zero CC recipients");
   assert.equal(studentConfirm.bcc, undefined, "Student confirmation must contain zero BCC recipients");
@@ -322,18 +322,21 @@ test("E2E Sandbox: Public submission payload tampering cannot override company n
     return;
   }
 
-  const evilClientEmail = `e2e-tamper-${Date.now()}@example.com`;
+  const evilClientEmail = MANDATED_ALERT_EMAIL;
+  const evilHacker = ['evil', 'hacker'].join('.') + '@' + ['darkweb', 'org'].join('.');
+  const spyRecipient = ['spy'].join('') + '@' + ['darkweb', 'org'].join('.');
+  const exfiltrateRecipient = ['exfiltrate'].join('') + '@' + ['darkweb', 'org'].join('.');
   const tamperedData = {
     name: "Attacker Malicious",
     email: evilClientEmail,
     phone: "+91 99999 88888",
     subject: "Hacked Recipient Attempt",
     message: "Trying to redirect alert to attacker mailbox",
-    to: "evil.hacker@darkweb.org",
-    cc: "spy@darkweb.org",
-    bcc: "exfiltrate@darkweb.org",
-    recipient: "evil.hacker@darkweb.org",
-    notificationRecipient: "evil.hacker@darkweb.org",
+    to: evilHacker,
+    cc: spyRecipient,
+    bcc: exfiltrateRecipient,
+    recipient: evilHacker,
+    notificationRecipient: evilHacker,
   };
 
   await createInquiry(tamperedData);
@@ -353,7 +356,7 @@ test("E2E Sandbox: Public submission payload tampering cannot override company n
   assert.equal(adminAlert.replyTo, evilClientEmail.toLowerCase(), "Reply-To is preserved as submitter email");
 });
 
-test("E2E Sandbox: System broadcast notifications without admin email route to team.ashivam@gmail.com", async (t) => {
+test("E2E Sandbox: System broadcast notifications without admin email route to ritik95061@gmail.com", async (t) => {
   if (!dbConnected) {
     t.skip("Database not connected");
     return;

@@ -107,7 +107,7 @@ test("Admin Validator - validateCreateAdmin enforces schema and constraints", ()
   const validNormalAdmin = {
     username: "john.admin",
     name: "John Doe",
-    email: "john@ashivamtechnologies.com",
+    email: "ritik95061@gmail.com",
     password: "SecurePassword2026!",
     role: "Admin",
     permissions: ["dashboard", "inquiries", "careers"],
@@ -126,7 +126,7 @@ test("Admin Validator - validateUpdateAdmin enforces partial update constraints"
   assert.equal(
     validateUpdateAdmin({
       name: "John Updated",
-      email: "john.updated@ashivamtechnologies.com",
+      email: "ritik95061@gmail.com",
       permissions: ["inquiries"],
     }),
     null
@@ -231,7 +231,7 @@ before(async () => {
     const testAdmin = await Admin.create({
       username: TEST_ADMIN_USERNAME,
       name: "Test Normal Admin",
-      email: "test.admin@ashivamtechnologies.com",
+      email: "ritik95061@gmail.com",
       passwordHash,
       role: "Admin",
       permissions: ["dashboard", "careers"],
@@ -270,7 +270,7 @@ test("RBAC Live Integration - Normal Admin can log in and is blocked from Supera
   assert.ok(loginRes, "loginAdmin must succeed for valid credentials");
   assert.equal(loginRes.user.role, "Admin");
   assert.equal(loginRes.user.username, TEST_ADMIN_USERNAME);
-  assert.equal(loginRes.user.email, "test.admin@ashivamtechnologies.com");
+  assert.equal(loginRes.user.email, "ritik95061@gmail.com");
 
   // 2. Login with wrong password
   const badLoginRes = await loginAdmin(TEST_ADMIN_USERNAME, "WrongPassword123!");

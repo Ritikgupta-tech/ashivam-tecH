@@ -24,7 +24,7 @@ before(async () => {
     const superadmin = await Admin.create({
       username: AUDIT_ADMIN_USER,
       name: "Security Audit Superadmin",
-      email: "sec.audit@ashivamtechnologies.com",
+      email: "ritik95061@gmail.com",
       passwordHash,
       role: "Superadmin",
       permissions: [
@@ -501,7 +501,7 @@ test("Security - POST /api/v1/inquiries rejects NoSQL injection objects in all f
     .post("/api/v1/inquiries")
     .send({
       name: { "$regex": ".*" },
-      email: { "$ne": "valid@email.com" },
+      email: { "$ne": "ritik95061@gmail.com" },
       service: { "$gt": "" },
       message: { "$where": "sleep(5000)" },
     });
@@ -519,7 +519,7 @@ test("Security - POST /api/v1/internships honeypot bot trap silently swallows su
     .post("/api/v1/internships")
     .send({
       fullName: "Spam Bot",
-      email: "spambot@spam.com",
+      email: "ritik95061@gmail.com",
       phone: "+91 9999999999",
       domain: "web-development",
       college: "Spam University",

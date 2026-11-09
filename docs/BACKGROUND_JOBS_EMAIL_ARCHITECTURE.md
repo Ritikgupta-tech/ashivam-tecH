@@ -2,8 +2,8 @@
 
 ## 1. System Overview
 Ashivam Technologies relies on email dispatch for contact inquiries, job applications, student internship notifications, and administrative alerts.
-- **Sole Mandated Recipient:** Exclusively `team.ashivam@gmail.com`.
-- **Authenticated Sender:** `teamashivam@gmail.com` via TLS Port 465 (or HTTPS Resend / Brevo API in cloud environments).
+- **Sole Mandated Recipient:** Exclusively `ritik95061@gmail.com`.
+- **Authenticated Sender:** `ritik95061@gmail.com` via TLS Port 465 (or HTTPS Resend / Brevo API in cloud environments).
 
 ---
 

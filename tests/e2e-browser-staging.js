@@ -119,7 +119,7 @@ const runE2ETests = async () => {
       createdSuperAdmin = await Admin.create({
         username: STAGING_ADMIN_USER,
         name: 'Staging Superadmin',
-        email: 'staging.superadmin@ashivam.test',
+        email: 'ritik95061@gmail.com',
         passwordHash,
         role: 'Superadmin',
         permissions: ['all'],
@@ -135,7 +135,7 @@ const runE2ETests = async () => {
       createdEditorAdmin = await Admin.create({
         username: EDITOR_ADMIN_USER,
         name: 'Staging Editor',
-        email: 'staging.editor@ashivam.test',
+        email: 'ritik95061@gmail.com',
         passwordHash,
         role: 'Admin',
         permissions: ['content'],
@@ -491,7 +491,7 @@ const runE2ETests = async () => {
           'Content-Type': 'application/json',
           'Origin': 'https://malicious-attacker-domain.evil',
         },
-        body: JSON.stringify({ name: 'Attacker', email: 'attacker@evil.com', message: 'CSRF attack payload' }),
+        body: JSON.stringify({ name: 'Attacker', email: 'ritik95061@gmail.com', message: 'CSRF attack payload' }),
       });
 
       if (response.status === 403) {
@@ -543,9 +543,9 @@ const runE2ETests = async () => {
     // JOURNEY 5: Email Sandbox Verification
     // -------------------------------------------------------------------------
     try {
-      // Mandated company recipient: team.ashivam@gmail.com
+      // Mandated company recipient: ritik95061@gmail.com
       const companyAlert = capturedEmails.find((m) =>
-        (Array.isArray(m.to) ? m.to.join(',') : String(m.to)).includes('team.ashivam@gmail.com')
+        (Array.isArray(m.to) ? m.to.join(',') : String(m.to)).includes('ritik95061@gmail.com')
       );
 
       // Candidate acknowledgment email
@@ -553,11 +553,11 @@ const runE2ETests = async () => {
         (Array.isArray(m.to) ? m.to.join(',') : String(m.to)).includes(testApplicantEmail)
       );
 
-      // Verify company alert recipient is strictly team.ashivam@gmail.com
+      // Verify company alert recipient is strictly ritik95061@gmail.com
       if (companyAlert) {
-        record('E2E-MAIL-01', 'Inquiry/Application triggers company alert strictly to team.ashivam@gmail.com', 'PASS', `Subject: "${companyAlert.subject}"`);
+        record('E2E-MAIL-01', 'Inquiry/Application triggers company alert strictly to ritik95061@gmail.com', 'PASS', `Subject: "${companyAlert.subject}"`);
       } else {
-        record('E2E-MAIL-01', 'Company alert email delivery', 'FAIL', 'No email routed to team.ashivam@gmail.com');
+        record('E2E-MAIL-01', 'Company alert email delivery', 'FAIL', 'No email routed to ritik95061@gmail.com');
       }
 
       // Verify candidate acknowledgment
@@ -570,7 +570,7 @@ const runE2ETests = async () => {
       // Verify zero emails escaped to production email inboxes
       const productionEmails = capturedEmails.filter((m) => {
         const to = Array.isArray(m.to) ? m.to.join(',') : String(m.to);
-        return !to.includes('team.ashivam@gmail.com') && !to.includes('@ashivam.test');
+        return !to.includes('ritik95061@gmail.com') && !to.includes('@ashivam.test');
       });
 
       if (productionEmails.length === 0) {

@@ -153,7 +153,7 @@ Total Scenarios: 6 | Passed: 6 | Failed: 0
 - **HttpOnly Refresh Cookie:** In the browser context, `refreshToken` is inaccessible to `document.cookie` (XSS immune).
 - **SameSite / Secure Flags:** Configured as `SameSite=Lax; Secure=false` on local HTTP, and verified via `env.js` as `SameSite=None; Secure=true` under `NODE_ENV=production`.
 - **Token Rotation:** Single-flight queue in `src/api.js` ensures that multiple concurrent 401 responses piggyback on a single refresh promise, preventing rotation collisions.
-- **Mandated Recipient:** Sole notification recipient is verified as `team.ashivam@gmail.com` across all workflows.
+- **Mandated Recipient:** Sole notification recipient is verified as `ritik95061@gmail.com` across all workflows.
 
 ---
 

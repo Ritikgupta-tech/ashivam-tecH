@@ -319,7 +319,7 @@ export const createApplication = async (
 
       const outboxJobs = [];
 
-      // Workflow 2: Career Application Notification (Company Alert - strictly team.ashivam@gmail.com)
+      // Workflow 2: Career Application Notification (Company Alert - strictly ritik95061@gmail.com)
       const safeJobTitle = sanitizeEmailHeader(job.title);
       const safeCandidateName = `${sanitizeEmailHeader(data.firstName)} ${sanitizeEmailHeader(data.lastName)}`.trim();
 
@@ -376,6 +376,14 @@ export const createApplication = async (
     // Post-commit dispatch of the transaction's specific outbox jobs
     for (const j of jobs) {
       processOutboxJob(j).catch(() => {});
+    }
+
+    // Phase 6 Integration: Hand off internship applications to Internship Management System
+    const isInternshipJob = /intern/i.test(job.title || '') || /intern/i.test(job.department || '') || Boolean(data.isInternshipApplication);
+    if (isInternshipJob) {
+      import('../integration/handoffService.js')
+        .then(({ dispatchApplicationToInternship }) => dispatchApplicationToInternship(application, job))
+        .catch(() => {});
     }
   } catch (dbError) {
     if (resumeData) {

@@ -111,7 +111,7 @@ Authorization: Bearer <jwt-token>
 ```json
 {
   "name": "Jane Doe",
-  "email": "jane@enterprise.com",
+  "email": "ritik95061@gmail.com",
   "phone": "+91 98765 43210",
   "company": "Acme Corp",
   "projectType": "Web Development",

@@ -55,8 +55,8 @@ All test suites across the frontend and backend tiers have been executed indepen
   * Concurrency-safe sequential intern ID generation (`ASH-INT-YYYY-XXX`).
   * Onboarding compliance checklist transitions and safe CSV exports.
 * **`tests/e2e-email-sandbox.test.js`, `tests/email.test.js`, `tests/email-workflows.test.js` (31 Tests):**
-  * Enforced company recipient routing to `team.ashivam@gmail.com`.
-  * Candidate and client confirmation receipts preserving `replyTo: team.ashivam@gmail.com`.
+  * Enforced company recipient routing to `ritik95061@gmail.com`.
+  * Candidate and client confirmation receipts preserving `replyTo: ritik95061@gmail.com`.
   * Inbound lead notifications setting `replyTo: data.email`.
   * Public submission anti-tampering stripping `to`, `cc`, and `bcc` overrides.
   * Template XSS escaping and CRLF header injection defenses.

@@ -15,7 +15,7 @@ This checklist specifies the exact prerequisite resources, environment configura
 
 Under strict engineering policy:
 - **No production credentials, production databases, production secrets, or production storage** may be referenced or utilized in the staging environment.
-- Corporate notification alerts must route strictly to the company-mandated notification address: `team.ashivam@gmail.com`.
+- Corporate notification alerts must route strictly to the company-mandated notification address: `ritik95061@gmail.com`.
 - Public inquiry and candidate acknowledgment emails in staging must be captured by an isolated sandbox (Mailtrap or Ethereal) to eliminate any leakage to production recipient inboxes.
 
 ---
@@ -54,21 +54,21 @@ Under strict engineering policy:
 | :--- | :--- | :--- | :--- |
 | `NODE_ENV` | `production` | Enables Express production optimizations, HSTS, secure cookies | Non-development |
 | `PORT` | `10000` | Port assigned by Render container runtime | Render standard |
-| `MONGODB_URI` | `mongodb+srv://staging_user:StagingPass@cluster0.ashivam.mongodb.net/ashivam_staging?retryWrites=true&w=majority` | Dedicated staging logical database | Strictly isolated from `ashivam_production` |
+| `MONGODB_URI` | `mongodb+srv://<STAGING_DB_USER>:<STAGING_DB_PASSWORD>@<STAGING_CLUSTER_HOST>/ashivam_staging?retryWrites=true&w=majority` | Dedicated staging logical database | Strictly isolated from `ashivam_production` |
 | `CLIENT_URL` | `https://ashivam-tec-h-staging.vercel.app` | Canonical frontend origin for notifications & links | Must match Vercel staging |
 | `CORS_ORIGIN` | `https://ashivam-tec-h-staging.vercel.app,http://localhost:5173,http://localhost:5199` | Allowed CORS origins for browser fetch | Explicit allowlist; no `*` wildcards |
 | `JWT_SECRET` | 64-character random hex string (`openssl rand -hex 32`) | Signs access tokens (15-min lifespan) | Must differ from `JWT_REFRESH_SECRET` |
 | `JWT_REFRESH_SECRET` | 64-character random hex string (`openssl rand -hex 32`) | Signs refresh tokens (7-day lifespan) | Must differ from `JWT_SECRET` |
 | `COOKIE_SAMESITE` | `none` | Cross-domain cookie sharing between Vercel & Render | Mandatory for separate staging domains |
 | `COOKIE_SECURE` | `true` | Enforces HTTPS-only cookie transmission | Mandatory for `SameSite=None` |
-| `COMPANY_NOTIFICATION_EMAIL` | `team.ashivam@gmail.com` | Sole authorized company notification recipient | **MANDATORY**: Non-overridable |
+| `COMPANY_NOTIFICATION_EMAIL` | `ritik95061@gmail.com` | Sole authorized company notification recipient | **MANDATORY**: Non-overridable |
 | `EMAIL_PROVIDER` | `smtp` | Mailer transport driver | Set to `smtp` for Mailtrap sandbox |
 | `SMTP_HOST` | `sandbox.smtp.mailtrap.io` | Sandboxed SMTP server host | Mailtrap or Ethereal |
 | `SMTP_PORT` | `2525` | Sandboxed SMTP port | 587 or 2525 |
 | `SMTP_SECURE` | `false` | TLS opportunistic upgrade (STARTTLS) | Standard for port 2525/587 |
 | `SMTP_USER` | `staging_mailtrap_user_id` | Mailtrap testing account username | Isolated sandbox credentials |
 | `SMTP_PASSWORD` | `staging_mailtrap_secret_pwd` | Mailtrap testing account password | Isolated sandbox credentials |
-| `SMTP_FROM` | `Ashivam Technologies <teamashivam@gmail.com>` | Authenticated SMTP sender identity | Must use authenticated sender |
+| `SMTP_FROM` | `Ashivam Technologies <ritik95061@gmail.com>` | Authenticated SMTP sender identity | Must use authenticated sender |
 | `AWS_REGION` | `ap-south-1` | AWS S3 region (Mumbai) | AWS Region |
 | `AWS_S3_BUCKET` | `ashivam-staging-documents` | Dedicated staging S3 document store | Isolated from production bucket |
 | `AWS_ACCESS_KEY_ID` | `AKIA_STAGING_KEY_ID` | Staging IAM user access key | Least-privilege IAM policy |
@@ -169,7 +169,7 @@ Prior to accepting staging verification:
 - [ ] Staging frontend `https://ashivam-tec-h-staging.vercel.app` loads without console errors.
 - [ ] Admin login successfully issues `refreshToken` with `SameSite=None; Secure=true; HttpOnly`.
 - [ ] Public contact form submits and creates record in `ashivam_staging.inquiries`.
-- [ ] Contact alert email appears in Mailtrap inbox with `To: team.ashivam@gmail.com`.
+- [ ] Contact alert email appears in Mailtrap inbox with `To: ritik95061@gmail.com`.
 - [ ] Internship registration triggers candidate acknowledgment in Mailtrap inbox.
 - [ ] Zero emails sent to production email inboxes or production databases.
 - [ ] All 19 Playwright real-browser E2E scenarios pass against staging URLs.

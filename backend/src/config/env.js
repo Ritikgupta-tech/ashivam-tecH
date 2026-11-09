@@ -108,7 +108,7 @@ const resolveAdminUrl = (clientBaseUrl) => {
 const resolvedClientUrl = resolveClientUrl();
 const resolvedAdminUrl = resolveAdminUrl(resolvedClientUrl);
 
-export const MANDATED_COMPANY_NOTIFICATION_EMAIL = "team.ashivam@gmail.com";
+export const MANDATED_COMPANY_NOTIFICATION_EMAIL = "ritik95061@gmail.com";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const resolveCompanyNotificationEmail = () => {
@@ -137,12 +137,16 @@ const resolveCompanyNotificationEmail = () => {
 
 const companyNotificationRecipient = resolveCompanyNotificationEmail();
 
+const isTestRunner = Boolean(
+  process.env.NODE_ENV === "test" ||
+  process.env.NODE_TEST_CONTEXT ||
+  process.argv.some((arg) => typeof arg === "string" && (/--test/i.test(arg) || /tests?[\\/]/i.test(arg)))
+);
+
 const env = {
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv: process.env.NODE_ENV || (isTestRunner ? "test" : "development"),
   isProduction: process.env.NODE_ENV === "production",
-  isTest:
-    process.env.NODE_ENV === "test" ||
-    Boolean(process.env.NODE_TEST_CONTEXT),
+  isTest: isTestRunner,
 
   port: Number(process.env.PORT) || 5000,
 
@@ -151,8 +155,9 @@ const env = {
   allowedOrigins: allowedOriginsList,
 
   mongodbUri:
-    process.env.MONGODB_URI ||
-    "mongodb://127.0.0.1:27017/ashivam_technologies",
+    (isTestRunner || process.env.NODE_ENV === "test")
+      ? (process.env.TEST_MONGODB_URI || "mongodb://127.0.0.1:27017/ashivam_technologies_test")
+      : (process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/ashivam_technologies"),
 
   jwtSecret:
     (process.env.JWT_SECRET || "").trim() ||
@@ -221,13 +226,13 @@ const env = {
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
-      : "Ashivam Technologies <teamashivam@gmail.com>"),
+      : "Ashivam Technologies <ritik95061@gmail.com>"),
   emailFrom:
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
-      : "Ashivam Technologies <teamashivam@gmail.com>"),
-  // Centralized Authorized Company Notification Recipient (Mandated: team.ashivam@gmail.com)
+      : "Ashivam Technologies <ritik95061@gmail.com>"),
+  // Centralized Authorized Company Notification Recipient (Mandated: ritik95061@gmail.com)
   companyNotificationEmail: companyNotificationRecipient,
   alertEmail: companyNotificationRecipient,
   notificationRecipient: companyNotificationRecipient,
@@ -268,6 +273,10 @@ const env = {
     String(process.env.S3_FORCE_PATH_STYLE).toLowerCase() === "true",
   s3AccessKeyId: (process.env.S3_ACCESS_KEY_ID || "").trim(),
   s3SecretAccessKey: (process.env.S3_SECRET_ACCESS_KEY || "").trim(),
+
+  // Service-to-Service Integration Configuration (Phase 6)
+  internshipServiceUrl: (process.env.INTERNSHIP_SERVICE_URL || "http://localhost:5001").replace(/\/$/, ""),
+  internshipServiceSecret: (process.env.INTERNSHIP_SERVICE_SECRET || "ashivam_sec_svc_internship_handover_2026_xyz987").trim(),
 };
 
 if (env.isProduction) {

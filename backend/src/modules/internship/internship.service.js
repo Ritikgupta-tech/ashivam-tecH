@@ -70,7 +70,7 @@ export const createInternship = async (data) => {
     const adminReviewUrl = env.adminUrl || (env.clientUrl ? `${env.clientUrl.replace(/\/$/, "")}/admin` : undefined);
     const internRef = createdDoc._id.toString();
 
-    // Workflow 5: Internship Application Notification (Company Alert - strictly team.ashivam@gmail.com)
+    // Workflow 5: Internship Application Notification (Company Alert - strictly ritik95061@gmail.com)
     const job1 = await enqueueOutboxEmail({
       eventType: "INTERNSHIP_COMPANY_ALERT",
       dedupKey: `outbox:internship:company:${internRef}`,

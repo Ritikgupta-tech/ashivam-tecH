@@ -99,9 +99,9 @@ All critical attack vectors—including cross-origin credential leakage, cross-s
 ### 3.7 Centralized Corporate Notification Routing
 - **Implementation:** `backend/src/modules/notification/email.service.js` and `backend/src/config/env.js`
 - **Audit Findings:**
-  - Mandated Sole Recipient: `team.ashivam@gmail.com`.
-  - Authenticated SMTP Sender: `teamashivam@gmail.com`.
-  - `to`, `cc`, `bcc`, and `replyTo` configurations across all workflow services (`inquiry.service.js`, `career.service.js`, `internship.service.js`, `admin.service.js`) strictly route corporate notifications to `team.ashivam@gmail.com`.
+  - Mandated Sole Recipient: `ritik95061@gmail.com`.
+  - Authenticated SMTP Sender: `ritik95061@gmail.com`.
+  - `to`, `cc`, `bcc`, and `replyTo` configurations across all workflow services (`inquiry.service.js`, `career.service.js`, `internship.service.js`, `admin.service.js`) strictly route corporate notifications to `ritik95061@gmail.com`.
   - No public request body or Admin Settings panel input can override the mandated recipient address.
 
 ---

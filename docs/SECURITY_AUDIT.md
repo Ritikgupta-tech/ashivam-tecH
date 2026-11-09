@@ -18,7 +18,7 @@ The system incorporates deep defense-in-depth mechanisms designed to neutralize 
 * **Zero Public Leakage:** Private document vaults (resumes, employee records, HR policies) are physically blocked from public static HTTP endpoints.
 * **Zero Spreadsheet Weaponization:** Every CSV export stream prefixes active formula triggers with `'`.
 * **Zero Malicious File Masquerading:** File uploads undergo binary magic-byte inspection and strict SVG sanitization.
-* **Zero Mail Relay Abuse:** Internal company notifications are hardwired to `team.ashivam@gmail.com`, and public payloads cannot override recipient headers.
+* **Zero Mail Relay Abuse:** Internal company notifications are hardwired to `ritik95061@gmail.com`, and public payloads cannot override recipient headers.
 
 ---
 
@@ -69,10 +69,10 @@ The system incorporates deep defense-in-depth mechanisms designed to neutralize 
 * **Reverse Proxy Trust:** `TRUST_PROXY: 1` correctly parses `X-Forwarded-For` from reverse proxies without crashing or allowing spoofed client IPs.
 
 ### 2.8 Corporate Notification Security & Anti-Tampering
-* Mandated recipient `team.ashivam@gmail.com` is hardcoded as an immutable fallback in `backend/src/config/env.js` and `email.service.js`.
-* `sendCompanyNotification()` strictly routes alerts to `team.ashivam@gmail.com`, stripping any `to`, `cc`, or `bcc` parameters supplied by callers.
+* Mandated recipient `ritik95061@gmail.com` is hardcoded as an immutable fallback in `backend/src/config/env.js` and `email.service.js`.
+* `sendCompanyNotification()` strictly routes alerts to `ritik95061@gmail.com`, stripping any `to`, `cc`, or `bcc` parameters supplied by callers.
 * Public submission bodies attempting payload injection of `to`, `cc`, or `bcc` are completely ignored.
-* Submitter confirmation emails route directly to the user's submitted email address, preserving `replyTo: team.ashivam@gmail.com`.
+* Submitter confirmation emails route directly to the user's submitted email address, preserving `replyTo: ritik95061@gmail.com`.
 
 ---
 

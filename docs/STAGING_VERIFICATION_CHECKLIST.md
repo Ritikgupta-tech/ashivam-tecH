@@ -21,7 +21,7 @@ Before staging deployment, all items below must be verified against actual code 
 - [ ] `JWT_ACCESS_SECRET` & `JWT_REFRESH_SECRET`: Distinct cryptographically strong 64-character hex strings generated specifically for staging.
 - [ ] `CLIENT_URL` & `FRONTEND_URL`: Canonical staging frontend URL (`https://ashivam-tec-h-staging.vercel.app`).
 - [ ] `VITE_API_URL` & `VITE_API_BASE_URL`: Canonical staging backend URL (`https://ashivam-tech-staging.onrender.com/api/v1`).
-- [ ] `EMAIL_RECIPIENT`: Exclusively `team.ashivam@gmail.com`.
+- [ ] `EMAIL_RECIPIENT`: Exclusively `ritik95061@gmail.com`.
 - [ ] `EMAIL_PROVIDER`: Set to `smtp` or cloud API with staging credentials. Zero test traffic sent to public customers.
 
 ---

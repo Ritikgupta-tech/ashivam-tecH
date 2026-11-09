@@ -2,9 +2,9 @@ name: CI - Ashivam Official Platform
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, "release/**" ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, "release/**" ]
 
 permissions:
   contents: read
@@ -43,10 +43,11 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       NODE_ENV: test
-      MONGODB_URI: mongodb://127.0.0.1:27017/ashivam_technologies_ci?replicaSet=rs0&directConnection=true
+      TEST_MONGODB_URI: mongodb://127.0.0.1:27017/ashivam_technologies_test?replicaSet=rs0&directConnection=true
+      MONGODB_URI: mongodb://127.0.0.1:27017/ashivam_technologies_test?replicaSet=rs0&directConnection=true
       JWT_SECRET: ashivam-ci-test-jwt-secret-key-32-chars-minimum!
       JWT_REFRESH_SECRET: ashivam-ci-test-jwt-refresh-secret-key-32-chars-minimum!
-      COMPANY_NOTIFICATION_EMAIL: team.ashivam@gmail.com
+      COMPANY_NOTIFICATION_EMAIL: ritik95061@gmail.com
     steps:
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
