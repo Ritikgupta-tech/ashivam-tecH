@@ -1,9 +1,11 @@
 import crypto from 'crypto';
 
-export function signServicePayload(payload, secret, sourceSystem = 'ashivam-website') {
+export function signServicePayload(payload, secret, sourceSystem = 'ashivam-website', customTimestamp = null) {
   const requestId = crypto.randomUUID();
   const correlationId = payload.correlationId || crypto.randomUUID();
-  const timestamp = new Date().toISOString();
+  const timestamp = customTimestamp !== null && customTimestamp !== undefined
+    ? String(customTimestamp)
+    : Date.now().toString();
   const idempotencyKey = payload.idempotencyKey || crypto.randomUUID();
 
   const bodyString = typeof payload === 'string' ? payload : JSON.stringify(payload);

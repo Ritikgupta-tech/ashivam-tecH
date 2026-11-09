@@ -50,6 +50,25 @@ describe('Website Integration & Service Authentication Suite', () => {
     assert.ok(metadata.requestId);
   });
 
+  test('signServicePayload generates epoch millisecond timestamp by default', () => {
+    const payload = { test: 'data' };
+    const secret = 'test-secret-key-for-hmac-32chars!';
+    const { headers } = signServicePayload(payload, secret, 'ashivam-website');
+
+    assert.ok(/^\d{13}$/.test(headers['x-timestamp']), 'Timestamp should be 13-digit epoch milliseconds');
+    const tsNumber = Number(headers['x-timestamp']);
+    assert.ok(Math.abs(Date.now() - tsNumber) < 5000, 'Timestamp should be close to now');
+  });
+
+  test('signServicePayload supports explicit custom ISO 8601 timestamp string', () => {
+    const payload = { test: 'data' };
+    const secret = 'test-secret-key-for-hmac-32chars!';
+    const customIso = new Date().toISOString();
+    const { headers } = signServicePayload(payload, secret, 'ashivam-website', customIso);
+
+    assert.equal(headers['x-timestamp'], customIso);
+  });
+
   test('GET /api/v1/integrations/status returns delivery metrics and health', async () => {
     const res = await request(app)
       .get('/api/v1/integrations/status')
