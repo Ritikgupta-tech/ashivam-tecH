@@ -28,7 +28,7 @@
 | **13. Media Vault** | File uploads, MIME validation, deep SVG sanitization (null bytes, XXE, script tags), CSP sandboxing. | **VERIFIED PASS** | `media.test.js` (100% PASS). |
 | **14. Audit Logs** | Immutable logging of administrative actions, actor metadata, IP/UserAgent, credential redaction, safe CSV export. | **VERIFIED PASS** | `audit.test.js`, `admin-csv-and-dashboard.test.js` (100% PASS). |
 | **15. Settings Module** | Protected company profile, contact information, social links, and feature flags. | **VERIFIED PASS** | `settings.test.js`, `adminDashboardModules.test.js` (100% PASS). |
-| **16. Email System** | Corporate recipient hardwired to `team.ashivam@gmail.com`, valid SMTP sender `teamashivam@gmail.com`, client receipt preservation. | **VERIFIED PASS** | Live SMTP handshake (250 OK), `e2e-email-sandbox.test.js` (100% PASS). |
+| **16. Email System** | Corporate recipient hardwired to `ritik95061@gmail.com`, valid SMTP sender `ritik95061@gmail.com`, client receipt preservation. | **VERIFIED PASS** | Live SMTP handshake (250 OK), `e2e-email-sandbox.test.js` (100% PASS). |
 
 ---
 
@@ -40,7 +40,7 @@
 | **Render Backend** | **100% Configured** (`render.yaml`, `server.js`) | Hosted on development instance | Link official company Render account to GitHub repo and enter production environment variables. |
 | **MongoDB Atlas** | **100% Configured** (Mongoose 9.10) | Local / Staging Cluster verified | Provision dedicated M10+ company cluster on Atlas and set `MONGODB_URI`. |
 | **AWS S3 / Cloudflare R2** | **100% Configured** (`@aws-sdk/client-s3`) | Dual-adapter verified (local/S3) | Create private company bucket `ashivam-vault-prod` and enter IAM keys. |
-| **Transactional Email** | **100% Configured** (`team.ashivam@gmail.com` enforced) | Live TLS Handshake Verified (250 OK)| Ensure `COMPANY_NOTIFICATION_EMAIL` and `SMTP_PASSWORD` are entered in Render. |
+| **Transactional Email** | **100% Configured** (`ritik95061@gmail.com` enforced) | Live TLS Handshake Verified (250 OK)| Ensure `COMPANY_NOTIFICATION_EMAIL` and `SMTP_PASSWORD` are entered in Render. |
 
 ---
 

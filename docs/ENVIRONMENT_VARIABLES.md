@@ -44,9 +44,9 @@ This specification documents all environment variables, schema validations, defa
 ### 3.3 Centralized Company Notification Recipient
 | Variable Name | Required | Default in Code | Purpose & Validation Rules |
 | :--- | :--- | :--- | :--- |
-| `COMPANY_NOTIFICATION_EMAIL` | **Mandatory** | `team.ashivam@gmail.com` | Sole authorized company notification recipient where lead inquiries, applications, and system alerts are sent. |
-| `NOTIFICATION_RECIPIENT` | Optional | `team.ashivam@gmail.com` | Backward-compatible alias for `COMPANY_NOTIFICATION_EMAIL`. |
-| `ALERT_EMAIL` | Optional | `team.ashivam@gmail.com` | Backward-compatible alias for `COMPANY_NOTIFICATION_EMAIL`. |
+| `COMPANY_NOTIFICATION_EMAIL` | **Mandatory** | `ritik95061@gmail.com` | Sole authorized company notification recipient where lead inquiries, applications, and system alerts are sent. |
+| `NOTIFICATION_RECIPIENT` | Optional | `ritik95061@gmail.com` | Backward-compatible alias for `COMPANY_NOTIFICATION_EMAIL`. |
+| `ALERT_EMAIL` | Optional | `ritik95061@gmail.com` | Backward-compatible alias for `COMPANY_NOTIFICATION_EMAIL`. |
 
 ### 3.4 Transactional Email Delivery Gateway
 | Variable Name | Required | Default in Code | Purpose & Validation Rules |
@@ -55,9 +55,9 @@ This specification documents all environment variables, schema validations, defa
 | `SMTP_HOST` | Conditional | `smtp.gmail.com` | Outbound SMTP server hostname. Mandatory if using SMTP. |
 | `SMTP_PORT` | Conditional | `465` (SSL) / `587` (TLS) | Outbound SMTP TCP port. |
 | `SMTP_SECURE` | Conditional | `true` (Port 465) | Enables direct TLS socket for port 465. |
-| `SMTP_USER` | Conditional | `teamashivam@gmail.com` | Authentication account username for Google SMTP relay. |
+| `SMTP_USER` | Conditional | `ritik95061@gmail.com` | Authentication account username for Google SMTP relay. |
 | `SMTP_PASSWORD` | Conditional | `""` | Google Workspace Application-Specific Password. |
-| `EMAIL_FROM` | **Mandatory** | `Ashivam Technologies <teamashivam@gmail.com>` | Verified sender identity displayed in recipient headers. |
+| `EMAIL_FROM` | **Mandatory** | `Ashivam Technologies <ritik95061@gmail.com>` | Verified sender identity displayed in recipient headers. |
 | `RESEND_API_KEY` | Conditional | `""` | API key for Resend HTTPS delivery alternative. |
 | `BREVO_API_KEY` | Conditional | `""` | API key for Brevo HTTPS delivery alternative. |
 

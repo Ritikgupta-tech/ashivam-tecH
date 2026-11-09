@@ -43,7 +43,7 @@ All **19 automated scenarios passed with 100% success rate**.
 | **E2E-SEC-01** | Security | Cross-origin request from untrusted origin blocked by CORS defense | Unauthorized origin rejected with HTTP 403 | HTTP 403 Forbidden ("Origin ... not allowed by CORS") | **PASS** | 35ms |
 | **E2E-SEC-02** | Security | Unauthenticated request to protected admin endpoint rejected | Missing token rejected with HTTP 401 | HTTP 401 Unauthorized envelope returned | **PASS** | 18ms |
 | **E2E-SEC-03** | Security | RBAC restricts Content Editor from accessing Superadmin endpoint | Token lacking Superadmin role rejected with HTTP 403 | HTTP 403 Forbidden ("Requires Superadmin role") | **PASS** | 22ms |
-| **E2E-MAIL-01** | Email Sandbox | Inquiry triggers company notification strictly to mandated email | Email `to` contains `team.ashivam@gmail.com` | Alert captured with `to: team.ashivam@gmail.com` | **PASS** | 12ms |
+| **E2E-MAIL-01** | Email Sandbox | Inquiry triggers company notification strictly to mandated email | Email `to` contains `ritik95061@gmail.com` | Alert captured with `to: ritik95061@gmail.com` | **PASS** | 12ms |
 | **E2E-MAIL-02** | Email Sandbox | Applicant receives confirmation acknowledgment email | Candidate email receives acknowledgment template | Candidate confirmation captured in sandbox | **PASS** | 14ms |
 | **E2E-MAIL-03** | Email Sandbox | Zero emails routed to external production inboxes during tests | Outbound emails strictly isolated to test sandbox | 100% of outbound messages sandboxed (0 leaked) | **PASS** | 8ms |
 | **E2E-RESP-01** | Responsive UX | Responsive viewports adapt cleanly (Desktop 1280, Tablet 768, Mobile 390) | Appropriate navigation controls rendered per breakpoint | Desktop links visible at 1280; Hamburger toggle visible at 768 & 390 | **PASS** | 410ms |
@@ -83,8 +83,8 @@ All **19 automated scenarios passed with 100% success rate**.
 
 ### 3.5 Journey 5: Email Sandbox & Delivery Integrity
 - **Mandated Recipient Verification:** During the inquiry and internship submissions, the sandboxed mailer captured outbound messages. The destination address was strictly inspected:
-  - Inquiry Notification Recipient: `team.ashivam@gmail.com` (100% matched).
-  - Internship Alert Recipient: `team.ashivam@gmail.com` (100% matched).
+  - Inquiry Notification Recipient: `ritik95061@gmail.com` (100% matched).
+  - Internship Alert Recipient: `ritik95061@gmail.com` (100% matched).
 - **Candidate Acknowledgment:** The automated confirmation template was delivered to the candidate's sandbox address (`candidate.***@ashivam.test`).
 - **Zero Production Leakage:** 100% of outbound emails were captured by the local mock transport. Zero emails were transmitted over public networks or delivered to external inboxes.
 
@@ -119,8 +119,8 @@ ASHIVAM TECHNOLOGIES — REAL BROWSER STAGING E2E VALIDATION
 [✓] [PASS] E2E-SEC-01: Cross-origin request from untrusted origin blocked by CORS defense with 403 (Status: 403 Forbidden)
 [✓] [PASS] E2E-SEC-02: Unauthenticated request to protected admin endpoint rejected with 401 (Status: 401 Unauthorized)
 [✓] [PASS] E2E-SEC-03: RBAC restricts Content Editor from accessing Superadmin-only endpoint with 403 (Status: 403 Forbidden)
-[✓] [PASS] E2E-MAIL-01: Inquiry/Application triggers company alert strictly to team.ashivam@gmail.com (Subject: "[Ashivam Inquiries] New message from Staging Automated Visitor: Website inquiry [6ae4f06abe04962aaf10ee81]")
-[✓] [PASS] E2E-MAIL-02: Applicant receives confirmation acknowledgment email in sandbox (To: candidate.1793388651757@ashivam.test)
+[✓] [PASS] E2E-MAIL-01: Inquiry/Application triggers company alert strictly to ritik95061@gmail.com (Subject: "[Ashivam Inquiries] New message from Staging Automated Visitor: Website inquiry [6ae4f06abe04962aaf10ee81]")
+[✓] [PASS] E2E-MAIL-02: Applicant receives confirmation acknowledgment email in sandbox (To: ritik95061@gmail.com)
 [✓] [PASS] E2E-MAIL-03: Zero emails routed to external production inboxes during staging E2E tests (Captured in sandbox: 4)
 [✓] [PASS] E2E-RESP-01: Responsive viewports adapt cleanly (Desktop links 1280, Tablet hamburger 768, Mobile hamburger 390) 
 [✓] [PASS] E2E-UX-01: 404 route renders graceful recovery page without blank screen 

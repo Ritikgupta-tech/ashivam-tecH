@@ -60,7 +60,7 @@ sequenceDiagram
 
     Note over Outbox,Mailer: Asynchronous Background Outbox Processor
     Outbox->>Mailer: Send Confirmation to Client
-    Outbox->>Mailer: Send Alert to team.ashivam@gmail.com
+    Outbox->>Mailer: Send Alert to ritik95061@gmail.com
     Mailer-->>Client: Email: "Thank you for contacting Ashivam Technologies"
     Mailer-->>Admin: Email: "New Inbound Enterprise Inquiry: [Company Name]"
 ```

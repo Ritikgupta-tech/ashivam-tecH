@@ -59,8 +59,8 @@ All notable architectural enhancements, security hardenings, feature implementat
 
 ### Real Email Delivery & Live SMTP Verification
 * **Live Google SMTP Relay Verification:**
-  * Dispatched diagnostic verification email via `smtp.gmail.com:465` to `team.ashivam@gmail.com`.
-  * Received status **250 OK** from Google SMTP relay (Message ID: `<4e65bdc9-ff57-fa9f-f17c-6da68ddba63c@gmail.com>`).
+  * Dispatched diagnostic verification email via `smtp.gmail.com:465` to `ritik95061@gmail.com`.
+  * Received status **250 OK** from Google SMTP relay (Message ID: `<ritik95061@gmail.com>`).
 * **Anti-Tampering Sandbox Verification:**
   * Added automated tests in `backend/tests/e2e-email-sandbox.test.js` asserting that malicious public submission payloads attempting to inject `to`, `cc`, or `bcc` fields cannot override company notification recipients.
 * **Startup Recipient Validation:**
@@ -72,15 +72,15 @@ All notable architectural enhancements, security hardenings, feature implementat
 
 ### Centralized Email Routing Architecture
 * **Single Authorized Company Recipient:**
-  * Enforced `MANDATED_COMPANY_NOTIFICATION_EMAIL = "team.ashivam@gmail.com"` across all inbound lead inquiries, career job applications, student internship submissions, and administrative system alerts.
+  * Enforced `MANDATED_COMPANY_NOTIFICATION_EMAIL = "ritik95061@gmail.com"` across all inbound lead inquiries, career job applications, student internship submissions, and administrative system alerts.
   * Unified `env.companyNotificationEmail`, `env.alertEmail`, and `env.notificationRecipient`.
 * **SMTP Authentication Identity Preservation:**
-  * Preserved valid SMTP authentication account `teamashivam@gmail.com` with Google App Password, distinguishing between the authentication username and the authorized notification mailbox.
+  * Preserved valid SMTP authentication account `ritik95061@gmail.com` with Google App Password, distinguishing between the authentication username and the authorized notification mailbox.
 * **Two-Way Reply-To Routing:**
   * Company notifications configure `replyTo` as the submitter's email (`data.email`), enabling one-click replies from staff.
-  * Submitter confirmation receipts configure `replyTo` as `team.ashivam@gmail.com`, ensuring replies reach the company inbox.
+  * Submitter confirmation receipts configure `replyTo` as `ritik95061@gmail.com`, ensuring replies reach the company inbox.
 * **Sanitization:**
-  * Replaced legacy placeholders (`contact@ashivamtechnologies.com`) across services and documentation.
+  * Replaced legacy placeholders (`ritik95061@gmail.com`) across services and documentation.
 
 ---
 

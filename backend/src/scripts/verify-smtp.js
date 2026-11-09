@@ -14,7 +14,7 @@ const run = async () => {
   console.log("==================================================");
 
   const safeFrom = env.smtpFrom || env.emailFrom;
-  const safeCompanyNotification = env.companyNotificationEmail || env.alertEmail || "team.ashivam@gmail.com";
+  const safeCompanyNotification = env.companyNotificationEmail || env.alertEmail || "ritik95061@gmail.com";
   const emailStatus = getSafeSmtpStatus();
 
   console.log(`Environment:           ${env.nodeEnv}`);
@@ -56,15 +56,15 @@ const run = async () => {
     console.log("[Status] No email provider is fully configured in the current environment.");
     console.log("\nOption 1: Recommended for Render Cloud Containers (Bypasses SMTP port blocks):");
     console.log("  - RESEND_API_KEY              (e.g., re_xxxxxxxxxxxxxxxxxxxxxxxxx)");
-    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <onboarding@resend.dev> or your verified domain)");
-    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., team.ashivam@gmail.com)");
+    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <ritik95061@gmail.com> or your verified domain)");
+    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., ritik95061@gmail.com)");
     console.log("\nOption 2: Direct SMTP (May time out on Render free tier if outbound ports 465/587 blocked):");
     console.log("  - SMTP_HOST                   (e.g., smtp.gmail.com or smtp.sendgrid.net)");
     console.log("  - SMTP_PORT                   (e.g., 587 or 465)");
     console.log("  - SMTP_USER                   (e.g., your email or apikey)");
     console.log("  - SMTP_PASSWORD               (SMTP password or app password)");
-    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <teamashivam@gmail.com>)");
-    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., team.ashivam@gmail.com)");
+    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <ritik95061@gmail.com>)");
+    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., ritik95061@gmail.com)");
     console.log("\n[Notice] The application operates safely in SIMULATED mode until configured.");
     return;
   }
@@ -86,7 +86,7 @@ const run = async () => {
 
   // Parse test recipient from:
   // 1. --send-test <recipient>
-  // 2. positional argument (e.g. node verify-smtp.js user@example.com)
+  // 2. positional argument (e.g. node verify-smtp.js ritik95061@gmail.com)
   // 3. environment variable TEST_EMAIL_RECIPIENT
   let testRecipient = null;
   const sendTestArgIndex = process.argv.indexOf("--send-test");
@@ -150,7 +150,7 @@ const run = async () => {
     console.log("--------------------------------------------------");
     console.log("[Test Email Dispatch] Skipped (No test recipient specified).");
     console.log("To send a live test message to an inbox, run:");
-    console.log("  npm run verify:smtp -- --send-test recipient@example.com");
+    console.log("  npm run verify:smtp -- --send-test ritik95061@gmail.com");
   }
 };
 

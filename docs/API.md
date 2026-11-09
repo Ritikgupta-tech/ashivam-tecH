@@ -58,7 +58,7 @@
     ```json
     {
       "name": "Jane Doe",
-      "email": "jane@example.com",
+      "email": "ritik95061@gmail.com",
       "phone": "+1234567890",
       "subject": "Cloud Architecture Inquiry",
       "message": "We would like to consult on migrating our infrastructure."
@@ -73,7 +73,7 @@
         "inquiry": {
           "_id": "6704fa4b...",
           "name": "Jane Doe",
-          "email": "jane@example.com",
+          "email": "ritik95061@gmail.com",
           "status": "new",
           "createdAt": "2026-10-08T09:00:00.000Z"
         }
@@ -125,7 +125,7 @@
     ```json
     {
       "name": "Alex Smith",
-      "email": "alex@university.edu",
+      "email": "ritik95061@gmail.com",
       "phone": "+1987654321",
       "college": "Tech Institute",
       "course": "Computer Science",

@@ -463,7 +463,7 @@ export default function AdminsTab({ currentUser }) {
                       onChange={(e) =>
                         setNewAdminForm({ ...newAdminForm, email: e.target.value })
                       }
-                      placeholder="e.g. john@ashivamtechnologies.com"
+                      placeholder="e.g. ritik95061@gmail.com"
                     />
                   </div>
                 </div>

@@ -9,8 +9,8 @@
 **Staging Backend Checked:** `https://ashivam-tech-staging.onrender.com/api/v1` (Status: 404 Not Found)  
 **Company Entity:** Ashivam Technologies, Agra, Uttar Pradesh, India  
 **Brand Tagline:** *"Endless Innovation. Limitless Possibilities."*  
-**Authorized Notification Recipient:** `team.ashivam@gmail.com`  
-**Authenticated SMTP Sender:** `teamashivam@gmail.com`  
+**Authorized Notification Recipient:** `ritik95061@gmail.com`  
+**Authenticated SMTP Sender:** `ritik95061@gmail.com`  
 **Report Date:** October 31, 2026  
 
 ---

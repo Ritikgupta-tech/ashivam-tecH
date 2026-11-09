@@ -503,7 +503,7 @@ export default function EmployeesTab() {
                       className={`admin-form-input ${formErrors.email ? 'admin-form-input--error' : ''}`}
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="e.g. rahul.sharma@ashivamtechnologies.com"
+                      placeholder="e.g. ritik95061@gmail.com"
                     />
                     {formErrors.email && (
                       <span className="admin-form-error">{formErrors.email}</span>

@@ -46,7 +46,7 @@ graph TD
     BackendAPI -->|Mongoose Queries & Transactions| Database
     BackendAPI -->|Streams & Writes Files| LocalVault
     BackendAPI -->|Asynchronous Outbox Dispatch| EmailGateway
-    BackendAPI -->|Sends Admin Alert to team.ashivam@gmail.com| EmailGateway
+    BackendAPI -->|Sends Admin Alert to ritik95061@gmail.com| EmailGateway
     AdminUser -->|Pushes Code, Triggers CI/CD| GitRemotes
     GitRemotes -->|Automated Deployment Hooks| BackendAPI
     GitRemotes -->|Automated Edge Build| EdgeCDN
@@ -71,7 +71,7 @@ graph TD
 
 1. **Transactional Email Gateways (Resend / Brevo / SMTP):**
    - Transports admin inquiry alerts, candidate submission acknowledgments, and broadcast notifications.
-   - Mandated recipient for all company operational alerts: `team.ashivam@gmail.com`.
+   - Mandated recipient for all company operational alerts: `ritik95061@gmail.com`.
 2. **MongoDB Atlas Managed Services:**
    - Multi-node replica set with encrypted-at-rest volumes and TLS 1.3 encrypted transit.
 3. **Vercel Edge Network:**

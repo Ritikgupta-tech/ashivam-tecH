@@ -242,7 +242,7 @@ export default function Careers() {
         setSubmitError(err.details.resume);
       } else {
         setSubmitError(
-          `${err.message || 'Unable to submit application.'} If the issue persists, please send your resume directly to team.ashivam@gmail.com.`
+          `${err.message || 'Unable to submit application.'} If the issue persists, please send your resume directly to ritik95061@gmail.com.`
         );
       }
     } finally {
@@ -501,7 +501,7 @@ export default function Careers() {
                         type="email"
                         required
                         className="career-field-input"
-                        placeholder="john.doe@example.com"
+                        placeholder="ritik95061@gmail.com"
                         value={formData.email}
                         onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                       />

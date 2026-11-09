@@ -24,7 +24,7 @@ before(async () => {
     const superadmin = await Admin.create({
       username: TEST_ADMIN_USER,
       name: "CSV and Dashboard Superadmin",
-      email: "csv.dash@ashivamtechnologies.com",
+      email: "ritik95061@gmail.com",
       passwordHash,
       role: "Superadmin",
       permissions: [

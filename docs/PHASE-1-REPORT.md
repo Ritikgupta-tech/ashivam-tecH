@@ -122,7 +122,7 @@ Establish the core brand identity, modern design system tokens, typography infra
 ## Backend Issues — NOT MODIFIED
 
 - `backend/src/config/env.js`: Throws an uncaught error if `JWT_SECRET` is omitted from `backend/.env`.
-- `backend/src/config/env.js`: Hardcodes fallback sender email `Ashivam Technologies <no-reply@ashivamtechnologies.com>`, which references `ashivamtechnologies.com` while marketing copy references `ashivam.com`. (Requires business confirmation in Phase 8).
+- `backend/src/config/env.js`: Hardcodes fallback sender email `Ashivam Technologies <ritik95061@gmail.com>`, which references `ashivamtechnologies.com` while marketing copy references `ashivam.com`. (Requires business confirmation in Phase 8).
 
 ## Verification
 

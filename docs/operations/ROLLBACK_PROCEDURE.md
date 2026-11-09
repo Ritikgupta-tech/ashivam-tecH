@@ -80,6 +80,6 @@ If a schema migration failed mid-way:
 
 ## 4. Post-Rollback Actions
 
-1. Notify executive stakeholders and operational contacts via `team.ashivam@gmail.com`.
+1. Notify executive stakeholders and operational contacts via `ritik95061@gmail.com`.
 2. Lock deployment pipeline (`git checkout main`) until root-cause analysis (RCA) is finalized.
 3. Author post-mortem document adhering to blameless engineering culture within 24 hours.

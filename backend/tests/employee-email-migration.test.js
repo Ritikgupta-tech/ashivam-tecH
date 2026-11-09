@@ -66,11 +66,8 @@ const setupPartialIndex = async () => {
 test("Migration - Forward migration succeeds when legacy index is present and zero duplicates exist", async () => {
   await setupLegacyIndex();
 
-  // Insert two employees with distinct emails
-  await testCollection.insertMany([
-    { email: "alice@ashivamtechnologies.com", deletedAt: null },
-    { email: "bob@ashivamtechnologies.com", deletedAt: null },
-  ]);
+  // Insert employee with email
+  await testCollection.insertOne({ email: "ritik95061@gmail.com", deletedAt: null });
 
   const result = await applyMigration(testCollection);
   assert.equal(result.success, true);
@@ -155,8 +152,8 @@ test("Migration - Verification failure preserves legacy index without dropping i
 test("Migration - Duplicate active emails aborts migration safely without changes", async () => {
   // Insert active duplicates before any index is created
   await testCollection.insertMany([
-    { email: "active.dupe@ashivamtechnologies.com", deletedAt: null },
-    { email: "active.dupe@ashivamtechnologies.com", deletedAt: null },
+    { email: "ritik95061@gmail.com", deletedAt: null },
+    { email: "ritik95061@gmail.com", deletedAt: null },
   ]);
 
   await assert.rejects(
@@ -198,8 +195,8 @@ test("Migration - Rollback with duplicate emails across deleted records aborts b
 
   // Active employee + soft-deleted employee sharing email (permitted under Option A)
   await testCollection.insertMany([
-    { email: "shared@ashivamtechnologies.com", deletedAt: null },
-    { email: "shared@ashivamtechnologies.com", deletedAt: new Date("2023-01-01") },
+    { email: "ritik95061@gmail.com", deletedAt: null },
+    { email: "ritik95061@gmail.com", deletedAt: new Date("2023-01-01") },
   ]);
 
   await assert.rejects(
@@ -222,11 +219,8 @@ test("Migration - Rollback with duplicate emails across deleted records aborts b
 test("Migration - Rollback succeeds when zero duplicates exist across all records", async () => {
   await setupPartialIndex();
 
-  // Clean records with distinct emails
-  await testCollection.insertMany([
-    { email: "clean1@ashivamtechnologies.com", deletedAt: null },
-    { email: "clean2@ashivamtechnologies.com", deletedAt: new Date("2023-01-01") },
-  ]);
+  // Clean record with email
+  await testCollection.insertOne({ email: "ritik95061@gmail.com", deletedAt: null });
 
   const result = await rollbackMigration(testCollection);
   assert.equal(result.success, true);
@@ -275,13 +269,13 @@ test("Migration - Rollback failure during global index creation preserves partia
 
 test("Migration - Missing deletedAt is correctly identified as active in duplicate checks", async () => {
   await testCollection.insertMany([
-    { email: "missing1@ashivamtechnologies.com" }, // deletedAt is completely undefined
-    { email: "missing1@ashivamtechnologies.com", deletedAt: null }, // deletedAt is null
+    { email: "ritik95061@gmail.com" }, // deletedAt is completely undefined
+    { email: "ritik95061@gmail.com", deletedAt: null }, // deletedAt is null
   ]);
 
   const activeDuplicates = await checkActiveDuplicates(testCollection);
   assert.equal(activeDuplicates.length, 1, "Must detect collision between missing deletedAt and deletedAt: null");
-  assert.equal(activeDuplicates[0]._id, "missing1@ashivamtechnologies.com");
+  assert.equal(activeDuplicates[0]._id, "ritik95061@gmail.com");
   assert.equal(activeDuplicates[0].count, 2);
 });
 
@@ -289,12 +283,12 @@ test("Migration - Missing deletedAt is correctly indexed and constrained by part
   await setupPartialIndex();
 
   // Insert record with missing deletedAt
-  await testCollection.insertOne({ email: "missing.field@ashivamtechnologies.com" });
+  await testCollection.insertOne({ email: "ritik95061@gmail.com" });
 
   // Attempt inserting duplicate with deletedAt: null
   await assert.rejects(
     async () => {
-      await testCollection.insertOne({ email: "missing.field@ashivamtechnologies.com", deletedAt: null });
+      await testCollection.insertOne({ email: "ritik95061@gmail.com", deletedAt: null });
     },
     (err) => err.code === 11000,
     "Partial unique index must reject duplicate when first record had missing deletedAt"
@@ -302,11 +296,11 @@ test("Migration - Missing deletedAt is correctly indexed and constrained by part
 
   // Inserting duplicate where deletedAt is a Date must succeed
   await testCollection.insertOne({
-    email: "missing.field@ashivamtechnologies.com",
+    email: "ritik95061@gmail.com",
     deletedAt: new Date(),
   });
 
-  const count = await testCollection.countDocuments({ email: "missing.field@ashivamtechnologies.com" });
+  const count = await testCollection.countDocuments({ email: "ritik95061@gmail.com" });
   assert.equal(count, 2, "Historical record with date can coexist with active missing-deletedAt record");
 });
 
@@ -331,7 +325,7 @@ test("Migration - Dry run completes read-only validation without altering indexe
   await setupLegacyIndex();
 
   await testCollection.insertOne({
-    email: "dryrun.test@ashivamtechnologies.com",
+    email: "ritik95061@gmail.com",
     deletedAt: null,
   });
 

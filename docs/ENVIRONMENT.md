@@ -35,7 +35,7 @@ The backend uses Node.js ES modules with environment loading orchestrated by `do
 | `SMTP_USER` | String | `""` | Optional | SMTP authentication username. |
 | `SMTP_PASSWORD` | String | `""` | Optional | SMTP authentication password / app token. |
 | `EMAIL_FROM` | String | `Ashivam Technologies...` | No | Display name and sender email address. |
-| `NOTIFICATION_RECIPIENT` | String | `admin@ashivamtechnologies.com` | No | Admin inbox where public form notices are forwarded. |
+| `NOTIFICATION_RECIPIENT` | String | `ritik95061@gmail.com` | No | Admin inbox where public form notices are forwarded. |
 | `INITIAL_ADMIN_USERNAME`| String | `superadmin` | No | Username used when initializing seed admin script. |
 | `INITIAL_ADMIN_PASSWORD`| String | `""` | Recommended | Password used when initializing seed admin script. |
 

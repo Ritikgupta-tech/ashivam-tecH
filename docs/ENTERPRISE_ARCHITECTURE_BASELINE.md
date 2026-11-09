@@ -4,8 +4,8 @@
 - **Entity Name:** Ashivam Technologies
 - **Headquarters:** Agra, Uttar Pradesh, India
 - **Brand Tagline:** *"Endless Innovation. Limitless Possibilities."*
-- **Authorized Corporate Recipient:** Exclusively `team.ashivam@gmail.com`
-- **Authenticated SMTP Sender:** `teamashivam@gmail.com`
+- **Authorized Corporate Recipient:** Exclusively `ritik95061@gmail.com`
+- **Authenticated SMTP Sender:** `ritik95061@gmail.com`
 
 ---
 

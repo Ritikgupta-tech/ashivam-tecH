@@ -1339,7 +1339,7 @@ export default function InternshipsTab({ currentUser }) {
                       onChange={(e) =>
                         setCreateInternForm({ ...createInternForm, email: e.target.value })
                       }
-                      placeholder="e.g. priya.verma@example.com"
+                      placeholder="e.g. ritik95061@gmail.com"
                     />
                   </div>
                 </div>

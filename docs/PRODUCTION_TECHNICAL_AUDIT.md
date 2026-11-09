@@ -4,7 +4,7 @@
 **Classification:** Confidential — Internal Company & DevOps Use Only  
 **Company:** Ashivam Technologies  
 **Headquarters:** Agra, Uttar Pradesh, India  
-**Target Recipient:** `team.ashivam@gmail.com`  
+**Target Recipient:** `ritik95061@gmail.com`  
 **Verified Git Baseline:** Commit `1e759953bee1792fd6c1adcc4f61a083d685059b`  
 **Date:** October 30, 2026  
 **Auditor:** Principal Software Architect & Application Security Lead  
@@ -20,7 +20,7 @@ The platform is designed as a decoupled, multi-tiered architecture:
 2. **API & Business Logic Tier:** A modular Express 5.2 server running on Node.js 22 LTS, hardened with Helmet, strict CORS filters, multi-tier rate limiting, request correlation tracking (`X-Request-Id`), and defensive input sanitization.
 3. **Data Tier:** MongoDB Atlas accessed via Mongoose 9.10 ODM, with 13 data collections, compound indexes, soft-deletion handling, and strict schema validation.
 4. **Storage Tier:** Dual-mode storage adapter (AWS S3 / Cloudflare R2 / local vault fallback) with binary magic-byte inspection (`%PDF`, legacy Word OLE, ZIP DOCX) and randomized UUID storage keys.
-5. **Communication Tier:** Centralized transactional email dispatcher strictly enforcing `team.ashivam@gmail.com` as the company notification recipient, with Google Workspace SMTP (port 465 SSL/TLS) and Resend/Brevo HTTPS API fallbacks.
+5. **Communication Tier:** Centralized transactional email dispatcher strictly enforcing `ritik95061@gmail.com` as the company notification recipient, with Google Workspace SMTP (port 465 SSL/TLS) and Resend/Brevo HTTPS API fallbacks.
 
 All automated regression gates have been verified:
 * **Backend Automated Suite:** 190 / 190 PASS (100%)
@@ -80,8 +80,8 @@ All automated regression gates have been verified:
        │
        ▼
 [Transactional Dispatch]
-  ├── Alert to Company: team.ashivam@gmail.com (Reply-To: Client Email)
-  └── Confirmation to Client: Client Email (Reply-To: team.ashivam@gmail.com)
+  ├── Alert to Company: ritik95061@gmail.com (Reply-To: Client Email)
+  └── Confirmation to Client: Client Email (Reply-To: ritik95061@gmail.com)
 ```
 
 ### 3.2 Candidate Recruitment & Resume Pipeline
@@ -104,7 +104,7 @@ All automated regression gates have been verified:
 [Application Save] ────────────► MongoDB records candidate details and resume storage key
        │
        ▼
-[Alert & Confirmation] ────────► Alerts team.ashivam@gmail.com; candidate receives receipt
+[Alert & Confirmation] ────────► Alerts ritik95061@gmail.com; candidate receives receipt
 ```
 
 ### 3.3 Internship Onboarding & Allocation Lifecycle
@@ -231,10 +231,10 @@ All automated regression gates have been verified:
 * File downloads sanitize filenames against path traversal and control characters, streaming binaries via authenticated Bearer endpoints.
 
 ### 6.5 Centralized Email Delivery & Header Injection Defense
-* Mandated corporate notification recipient: `team.ashivam@gmail.com`.
+* Mandated corporate notification recipient: `ritik95061@gmail.com`.
 * Callers cannot supply or override `to`, `cc`, or `bcc` in `sendCompanyNotification`.
 * `sanitizeEmailHeader` strips CRLF (`\r`, `\n`, `\t`) characters.
-* Client-side confirmation emails preserve `replyTo: team.ashivam@gmail.com`.
+* Client-side confirmation emails preserve `replyTo: ritik95061@gmail.com`.
 * Inbound company alerts set `replyTo: data.email`, allowing staff to directly reply to clients and applicants.
 
 ---
@@ -262,5 +262,5 @@ All identified functional and architectural gaps have been implemented, hardened
 1. **Administrative Self-Service Password Management:** Fully implemented with session invalidation.
 2. **Safe CSV Exporting Across All Data Collections:** Fully implemented with formula injection mitigation.
 3. **Internship Management & Onboarding:** Concurrency-safe atomic ID sequence allocator (`ASH-INT-YYYY-XXX`) and compliance checklists implemented.
-4. **Email Centralization:** Strict routing to `team.ashivam@gmail.com` with anti-tampering verified.
+4. **Email Centralization:** Strict routing to `ritik95061@gmail.com` with anti-tampering verified.
 5. **Quality Gates:** 190 backend tests and 74 frontend tests passing (100%).

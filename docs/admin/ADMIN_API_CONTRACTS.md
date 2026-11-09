@@ -76,7 +76,7 @@
         "id": "6720f...",
         "username": "admin",
         "name": "Platform Administrator",
-        "email": "admin@ashivam.com",
+        "email": "ritik95061@gmail.com",
         "role": "Superadmin",
         "permissions": ["all"],
         "lastLoginAt": "2026-10-29T10:00:00.000Z"
@@ -97,7 +97,7 @@
         "id": "6720f...",
         "username": "admin",
         "name": "Platform Administrator",
-        "email": "admin@ashivam.com",
+        "email": "ritik95061@gmail.com",
         "role": "Superadmin",
         "permissions": ["all"],
         "isActive": true,
@@ -279,7 +279,7 @@
   {
     "employeeId": "ASH-2026-042",
     "name": "Priya Sharma",
-    "email": "priya.s@ashivam.com",
+    "email": "ritik95061@gmail.com",
     "phone": "+919876543210",
     "department": "Engineering",
     "designation": "Full Stack Developer",
@@ -335,7 +335,7 @@
   {
     "username": "lead_recruiter",
     "name": "Neha Gupta",
-    "email": "neha.g@ashivam.com",
+    "email": "ritik95061@gmail.com",
     "password": "TemporaryPassword123!",
     "role": "Admin",
     "permissions": ["careers"]

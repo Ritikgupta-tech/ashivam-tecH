@@ -156,7 +156,7 @@ test("Unit - formatApplicationResponse removes internal paths and adds safe down
     _id: "6ac887576fae1810cc0e576d",
     firstName: "Ritik",
     lastName: "Gupta",
-    email: "ritik@example.com",
+    email: "ritik95061@gmail.com",
     resume: {
       originalName: "ritik-cv.pdf",
       fileName: "1741512345678-uuid.pdf",
@@ -232,7 +232,7 @@ test("Career API - Upload filter rejects disallowed file extensions (.sh)", asyn
     .post("/api/v1/career/jobs/507f1f77bcf86cd799439011/apply")
     .field("firstName", "Jane")
     .field("lastName", "Doe")
-    .field("email", "jane@example.com")
+    .field("email", "ritik95061@gmail.com")
     .field("phone", "+1234567890")
     .attach("resume", Buffer.from("echo 'malicious shell'"), "exploit.sh");
 
@@ -246,7 +246,7 @@ test("Career API - Upload filter rejects fake PDF with invalid file signature", 
     .post("/api/v1/career/jobs/507f1f77bcf86cd799439011/apply")
     .field("firstName", "Jane")
     .field("lastName", "Doe")
-    .field("email", "jane.spoofed@example.com")
+    .field("email", "ritik95061@gmail.com")
     .field("phone", "+1234567890")
     .attach("resume", FAKE_PDF_BUFFER, "spoofed.pdf");
 
@@ -311,7 +311,8 @@ test("Career API - GET /api/v1/career/admin/applications/:id/resume returns 404 
 test("Career API - Full application lifecycle: submit with valid PDF, inspect detail without paths, and download resume", async () => {
   if (!dbConnected || !testJobId) return;
 
-  const candidateEmail = `test.candidate.${Date.now()}@example.com`;
+  await Application.deleteMany({ job: testJobId });
+  const candidateEmail = "ritik95061@gmail.com";
 
   // 1. Submit valid job application
   const applyRes = await request(app)

@@ -72,7 +72,7 @@ Every login generates a new **Token Family ID** (`familyId`).
    - If an attacker intercepts and replays `Token_N` *after* the legitimate client has already rotated to `Token_N+1`:
    - Backend detects that `Token_N` has already been consumed.
    - **Immediate Revocation:** Backend immediately flags the *entire* `familyId` as compromised and revokes all active tokens for that user account.
-   - Both the attacker and the legitimate user are invalidated, forcing a clean re-authentication and triggering a security alert to `team.ashivam@gmail.com`.
+   - Both the attacker and the legitimate user are invalidated, forcing a clean re-authentication and triggering a security alert to `ritik95061@gmail.com`.
 
 ```mermaid
 stateDiagram-v2

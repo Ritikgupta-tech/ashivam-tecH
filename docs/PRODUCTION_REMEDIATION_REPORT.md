@@ -144,7 +144,7 @@ Git Whitespace & Format:   PASSED (0 errors)
    - Separate staging environment variables (`JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_URL`) must be entered into the Render staging dashboard.
    - Separate Vercel staging deployment (`ashivam-tec-h-staging.vercel.app`) must be configured with `VITE_API_URL`.
 2. **Third-Party Email SMTP Handshake:**
-   - Real email delivery requires valid credentials for `teamashivam@gmail.com` (Gmail App Password over TLS port 465) or Resend/Brevo HTTPS API key.
+   - Real email delivery requires valid credentials for `ritik95061@gmail.com` (Gmail App Password over TLS port 465) or Resend/Brevo HTTPS API key.
    - In staging, Mailtrap or Ethereal sandbox should be used to prevent sending test emails to real users.
 3. **Object Storage (S3):**
    - For multi-instance file persistence, staging and production S3 buckets (`ashivam-staging-resumes`, `ashivam-production-resumes`) must be provisioned. Local filesystem storage functions cleanly for single-instance or testing.

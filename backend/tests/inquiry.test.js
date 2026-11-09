@@ -27,7 +27,7 @@ test("Inquiry Validator - Unit tests for input validation", () => {
   // Message too short
   const shortMsgValidation = validateCreateInquiry({
     name: "John Doe",
-    email: "john@example.com",
+    email: "ritik95061@gmail.com",
     message: "Too short",
   });
   assert.equal(shortMsgValidation.isValid, false);
@@ -36,7 +36,7 @@ test("Inquiry Validator - Unit tests for input validation", () => {
   // Valid inquiry with phone
   const validWithPhone = validateCreateInquiry({
     name: "John Doe",
-    email: "john@example.com",
+    email: "ritik95061@gmail.com",
     phone: "+91 98765 43210",
     subject: "Project Consultation",
     message: "We need custom software development for our enterprise.",
@@ -47,7 +47,7 @@ test("Inquiry Validator - Unit tests for input validation", () => {
   // Invalid phone
   const badPhone = validateCreateInquiry({
     name: "John Doe",
-    email: "john@example.com",
+    email: "ritik95061@gmail.com",
     phone: "invalid-letters-in-phone",
     message: "We need custom software development for our enterprise.",
   });

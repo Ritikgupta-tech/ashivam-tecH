@@ -180,7 +180,7 @@ function verifyWebhookSignature(rawBody, signatureHeader, secret) {
 ### 5.1 Transactional Email (Mailjet API v3.1 / Resend)
 - **Authentication:** API Key & Secret Bearer Token.
 - **Failover Strategy:** Primary provider is Mailjet (`api.mailjet.com`). If 3 consecutive connection timeouts occur, the outbound queue routes through the backup Resend SMTP endpoint.
-- **Domain Deliverability:** Enforced SPF (`v=spf1 include:mailjet.com ~all`), DKIM (2048-bit key on `ashivam.com`), and DMARC (`v=DMARC1; p=reject; rua=mailto:dmarc@ashivam.com`).
+- **Domain Deliverability:** Enforced SPF (`v=spf1 include:mailjet.com ~all`), DKIM (2048-bit key on `ashivam.com`), and DMARC (`v=DMARC1; p=reject; rua=mailto:ritik95061@gmail.com`).
 
 ### 5.2 Encrypted Media & Document Store (AWS S3 / Cloudinary)
 - **Upload Protocol:** Browser never receives long-lived AWS IAM credentials. All uploads use server-generated **Pre-signed S3 POST URLs** with strict MIME-type and size constraints (`Content-Length-Range: [1024, 10485760]`).

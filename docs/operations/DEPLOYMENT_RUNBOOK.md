@@ -47,7 +47,7 @@ Before merging a release pull request to `main`:
    - `JWT_SECRET` (256-bit entropy minimum)
    - `JWT_REFRESH_SECRET` (64-char hex key)
    - `FRONTEND_URL=https://ashivam-tec-h.vercel.app`
-   - `ALERT_EMAIL=team.ashivam@gmail.com`
+   - `ALERT_EMAIL=ritik95061@gmail.com`
 
 ### 3.2 Frontend Deployment (Vercel)
 1. **Trigger:** Automated webhook on push to `main` (Root Directory: `.`).

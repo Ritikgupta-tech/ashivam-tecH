@@ -14,7 +14,7 @@
 Scenario: Successful enterprise inquiry submission
   Given an anonymous visitor navigates to "/contact"
   When they fill in "fullName" with "Alexander Wright"
-    And "email" with "alexander.wright@enterprise.com"
+    And "email" with "ritik95061@gmail.com"
     And "phone" with "+91 98765 43210"
     And "message" with "Requesting software architecture consultation for FinTech application."
     And leave the hidden "_gotcha" honeypot field empty

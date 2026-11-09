@@ -177,7 +177,7 @@ export default function EmployeeLoginPage() {
               autoFocus
               disabled={loading}
               className={`admin-form-input ${fieldErrors.identifier ? 'has-error' : ''}`}
-              placeholder="e.g. name@ashivamtechnologies.com"
+              placeholder="e.g. ritik95061@gmail.com"
               value={identifier}
               onChange={(e) => {
                 setIdentifier(e.target.value);
@@ -287,7 +287,7 @@ export default function EmployeeLoginPage() {
         <div className="employee-login-card__support">
           <p>
             <strong>Need access assistance?</strong> Credentials are managed by Ashivam IT Administration. Contact your coordinator or email{' '}
-            <a href="mailto:team.ashivam@gmail.com">team.ashivam@gmail.com</a>.
+            <a href="mailto:ritik95061@gmail.com">ritik95061@gmail.com</a>.
           </p>
         </div>
 

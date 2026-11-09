@@ -45,7 +45,7 @@ flowchart TD
 | :--- | :--- | :--- | :--- | :--- |
 | **Transit Encryption** | TLS 1.3 (Public HTTPS) | TLS 1.3 | TLS 1.3 + Strict HSTS | TLS 1.3 + Strict HSTS |
 | **Rest Encryption** | Cloudflare Edge / Vercel | AWS EBS AES-256 | MongoDB Atlas AES-256 | Field-level KMS AES-256-GCM |
-| **Masking Standard** | None | None | Email: `j***e@example.com` | Aadhaar: `XXXX-XXXX-1234`<br/>PAN: `ABCDE****F` |
+| **Masking Standard** | None | None | Email: `j***ritik95061@gmail.com` | Aadhaar: `XXXX-XXXX-1234`<br/>PAN: `ABCDE****F` |
 | **Log Scrubbing** | Allowed | Allowed | Scrubbed via regex filter | **STRICTLY PROHIBITED IN LOGS** |
 | **Backup Redundancy**| Git Version Control | Daily Snapshots | PITR (35 Days) | Multi-Region Encrypted Backup |
 | **Disposal Method** | Normal file deletion | Cryptographic wipe | Cryptographic shredding | Key revocation + DoD 5220.22-M |

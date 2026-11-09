@@ -4,7 +4,7 @@
 > **Classification:** Confidential — Security Operations  
 > **Framework Standard:** NIST SP 800-61 Rev 2 (Computer Security Incident Handling Guide)  
 > **Statutory Compliance:** Indian CERT-In Directives (6-Hour Notification Mandate)  
-> **Emergency Incident Hot:** `team.ashivam@gmail.com`  
+> **Emergency Incident Hot:** `ritik95061@gmail.com`  
 > **Lead Security Architect:** Application Security Engineer, DevSecOps Lead  
 
 ---
@@ -93,15 +93,15 @@ flowchart LR
 2. **Rotate S3 KMS Keys:** Revoke pre-signed URL signing key and rotate AWS IAM credentials.
 3. **Identify Scope:** Query egress logs and MongoDB read metrics to determine exact record IDs accessed.
 4. **Regulatory Notification (CERT-In):**
-   - Under the Indian Information Technology (The Indian Computer Emergency Response Team and Manner of Performing Functions and Duties) Rules, notice must be filed at `incident@cert-in.org.in` **within 6 hours** of notice of a cyber security incident.
+   - Under the Indian Information Technology (The Indian Computer Emergency Response Team and Manner of Performing Functions and Duties) Rules, notice must be filed at `ritik95061@gmail.com` **within 6 hours** of notice of a cyber security incident.
    - Disclose nature of leak, estimated count of affected data principals, and containment actions underway.
 
 ---
 
 ## 5. Communications Matrix & Emergency Contacts
 
-- **Central Security Reporting:** `team.ashivam@gmail.com`
+- **Central Security Reporting:** `ritik95061@gmail.com`
 - **Indian Computer Emergency Response Team (CERT-In):**
   - Website: [https://www.cert-in.org.in](https://www.cert-in.org.in)
-  - Emergency Incident Reporting: `incident@cert-in.org.in`
+  - Emergency Incident Reporting: `ritik95061@gmail.com`
   - Toll-Free Phone: `1800-11-4949`

@@ -93,7 +93,7 @@ FRONTEND_URL=http://localhost:5173
 # Email Delivery Configuration (Mailjet / SMTP)
 MAILJET_API_KEY=your_mailjet_api_key
 MAILJET_SECRET_KEY=your_mailjet_secret_key
-ALERT_EMAIL=team.ashivam@gmail.com
+ALERT_EMAIL=ritik95061@gmail.com
 ```
 
 ### Starting Backend Dev Server

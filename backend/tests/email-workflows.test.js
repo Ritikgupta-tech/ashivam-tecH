@@ -127,7 +127,7 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
     m.subject.includes("[Ashivam Inquiries]")
   );
   assert.ok(adminAlert, "Admin alert email was dispatched");
-  assert.equal(adminAlert.to, "team.ashivam@gmail.com", "Admin alert must go strictly to team.ashivam@gmail.com");
+  assert.equal(adminAlert.to, "ritik95061@gmail.com", "Admin alert must go strictly to ritik95061@gmail.com");
   assert.equal(adminAlert.replyTo, email.toLowerCase());
   assert.equal(adminAlert.cc, undefined, "Zero CC allowed");
   assert.equal(adminAlert.bcc, undefined, "Zero BCC allowed");
@@ -140,7 +140,7 @@ test("Workflow 1 - Contact Inquiry Notification: saves inquiry, alerts admin wit
   );
   assert.ok(userConfirm, "User confirmation email was dispatched");
   assert.equal(userConfirm.to, email.toLowerCase());
-  assert.equal(userConfirm.replyTo, "team.ashivam@gmail.com", "User confirmation Reply-To routes to team.ashivam@gmail.com");
+  assert.equal(userConfirm.replyTo, "ritik95061@gmail.com", "User confirmation Reply-To routes to ritik95061@gmail.com");
   assert.equal(userConfirm.cc, undefined, "Zero CC allowed");
   assert.equal(userConfirm.bcc, undefined, "Zero BCC allowed");
   assert.ok(userConfirm.html.includes(inquiry._id.toString()));
@@ -264,7 +264,7 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
     m.subject.includes("[Ashivam Careers] New application for Senior Cloud Engineer")
   );
   assert.ok(adminAlert, "Career admin alert was dispatched");
-  assert.equal(adminAlert.to, "team.ashivam@gmail.com", "Career alert must go strictly to team.ashivam@gmail.com");
+  assert.equal(adminAlert.to, "ritik95061@gmail.com", "Career alert must go strictly to ritik95061@gmail.com");
   assert.equal(adminAlert.replyTo, candidateEmail.toLowerCase());
   assert.equal(adminAlert.cc, undefined, "Zero CC allowed");
   assert.equal(adminAlert.bcc, undefined, "Zero BCC allowed");
@@ -281,7 +281,7 @@ test("Workflow 2 & 3 - Career Application: alerts admin (without attaching resum
   );
   assert.ok(candidateConfirm, "Candidate confirmation email was dispatched");
   assert.equal(candidateConfirm.to, candidateEmail.toLowerCase());
-  assert.equal(candidateConfirm.replyTo, "team.ashivam@gmail.com", "Candidate confirmation Reply-To routes to team.ashivam@gmail.com");
+  assert.equal(candidateConfirm.replyTo, "ritik95061@gmail.com", "Candidate confirmation Reply-To routes to ritik95061@gmail.com");
   assert.equal(candidateConfirm.cc, undefined, "Zero CC allowed");
   assert.equal(candidateConfirm.bcc, undefined, "Zero BCC allowed");
   assert.ok(candidateConfirm.html.includes(application._id.toString()));

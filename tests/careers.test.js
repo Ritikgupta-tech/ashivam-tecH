@@ -76,7 +76,7 @@ test('Careers form rejects invalid phone numbers', () => {
     {
       firstName: 'Jane',
       lastName: 'Doe',
-      email: 'jane@example.com',
+      email: 'ritik95061@gmail.com',
       phone: 'abc-xyz',
     },
     { name: 'jane_resume.pdf', size: 1024 * 50 }
@@ -91,7 +91,7 @@ test('Careers resume upload accepts valid PDF within 5MB', () => {
     {
       firstName: 'Jane',
       lastName: 'Doe',
-      email: 'jane@example.com',
+      email: 'ritik95061@gmail.com',
       phone: '+91 9876543210',
     },
     { name: 'jane_resume.pdf', size: 2 * 1024 * 1024 }
@@ -105,7 +105,7 @@ test('Careers resume upload accepts valid DOC and DOCX formats', () => {
     {
       firstName: 'Jane',
       lastName: 'Doe',
-      email: 'jane@example.com',
+      email: 'ritik95061@gmail.com',
       phone: '+91 9876543210',
     },
     { name: 'cv.doc', size: 500 * 1024 }
@@ -116,7 +116,7 @@ test('Careers resume upload accepts valid DOC and DOCX formats', () => {
     {
       firstName: 'Jane',
       lastName: 'Doe',
-      email: 'jane@example.com',
+      email: 'ritik95061@gmail.com',
       phone: '+91 9876543210',
     },
     { name: 'cv.docx', size: 1 * 1024 * 1024 }
@@ -131,7 +131,7 @@ test('Careers resume upload rejects forbidden file types (e.g. .exe, .png, .txt)
       {
         firstName: 'Jane',
         lastName: 'Doe',
-        email: 'jane@example.com',
+        email: 'ritik95061@gmail.com',
         phone: '+91 9876543210',
       },
       { name, size: 50 * 1024 }
@@ -150,7 +150,7 @@ test('Careers resume upload rejects files larger than 5MB', () => {
     {
       firstName: 'Jane',
       lastName: 'Doe',
-      email: 'jane@example.com',
+      email: 'ritik95061@gmail.com',
       phone: '+91 9876543210',
     },
     oversizedFile

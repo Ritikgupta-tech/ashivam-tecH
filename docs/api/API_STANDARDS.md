@@ -41,7 +41,7 @@ All API endpoints must return responses conforming to the standardized Ashivam J
   "data": {
     "id": "6724fa10b...",
     "fullName": "Jane Doe",
-    "email": "jane@example.com"
+    "email": "ritik95061@gmail.com"
   },
   "meta": {
     "page": 1,

@@ -4,8 +4,8 @@
 * Frontend Client: `https://ashivam-tec-h.vercel.app` (Vite 8.3 / React 18 SPA)
 * Backend API: `https://ashivam-tech.onrender.com/api/v1` (Express 5.2 / Node.js 22 LTS / MongoDB Atlas)
 * Corporate Identity: Ashivam Technologies (Agra, Uttar Pradesh, India)
-* Mandated Company Notification Recipient: `team.ashivam@gmail.com`
-* Authenticated SMTP Account: `teamashivam@gmail.com`
+* Mandated Company Notification Recipient: `ritik95061@gmail.com`
+* Authenticated SMTP Account: `ritik95061@gmail.com`
 * Final Review Date: October 31, 2026
 * Assessment Lead: Principal Software Architect, Senior Node.js Security Engineer, MongoDB Distributed Systems Engineer
 
@@ -162,8 +162,8 @@ Executed in `backend/tests/concurrency-and-distributed-locks.test.js` (5/5 Passi
 | `MONGODB_URI` | MongoDB Atlas cluster connection string | Validated; localhost rejected in prod | Ignored in `.env.local` / `.env` |
 | `JWT_SECRET` | 15-minute access token HMAC signing key | Min 32 chars required in production | Never logged or returned in responses |
 | `JWT_REFRESH_SECRET` | 7-day refresh token HMAC signing key | Min 32 chars required; distinct from `JWT_SECRET` | Never logged or returned in responses |
-| `COMPANY_NOTIFICATION_EMAIL`| Mandated company alert recipient | Strictly `team.ashivam@gmail.com` | Hardwired with regex validation |
-| `SMTP_USER` / `SMTP_PASSWORD`| Authenticated sender credentials | `teamashivam@gmail.com` / App Password | Zero credentials in logs or tests |
+| `COMPANY_NOTIFICATION_EMAIL`| Mandated company alert recipient | Strictly `ritik95061@gmail.com` | Hardwired with regex validation |
+| `SMTP_USER` / `SMTP_PASSWORD`| Authenticated sender credentials | `ritik95061@gmail.com` / App Password | Zero credentials in logs or tests |
 
 ---
 
@@ -207,8 +207,8 @@ Executed in `backend/tests/concurrency-and-distributed-locks.test.js` (5/5 Passi
   * S3/R2 storage adapter implemented in `backend/src/utils/s3.js` using `@aws-sdk/client-s3`.
   * Pre-signed URLs for authenticated resume and document downloads (`getSignedUrl`).
 * **Email Delivery Architecture:**
-  * Sole company recipient hardwired to `team.ashivam@gmail.com`.
-  * Authenticated sender: `teamashivam@gmail.com` via TLS (port 465).
+  * Sole company recipient hardwired to `ritik95061@gmail.com`.
+  * Authenticated sender: `ritik95061@gmail.com` via TLS (port 465).
   * Bidirectional `replyTo` logic preserved (inbound leads route reply to candidate/inquirer).
   * Anti-tampering logic strips public `to`, `cc`, and `bcc` overrides.
 
@@ -268,7 +268,7 @@ FINAL VERIFICATION TEST SUMMARY
 * [ ] Generate and set distinct `JWT_SECRET` and `JWT_REFRESH_SECRET` keys (`openssl rand -base64 48`).
 * [ ] Set `CLIENT_URL=https://ashivam-tec-h.vercel.app`.
 * [ ] Set `VITE_API_URL=https://ashivam-tech.onrender.com/api/v1` in Vercel project environment variables.
-* [ ] Ensure `COMPANY_NOTIFICATION_EMAIL=team.ashivam@gmail.com`.
+* [ ] Ensure `COMPANY_NOTIFICATION_EMAIL=ritik95061@gmail.com`.
 
 ---
 

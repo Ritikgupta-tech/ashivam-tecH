@@ -60,7 +60,7 @@ The Official Corporate Website is the premier digital flagship for Ashivam Techn
 ### 4.2 Lead Intake & Inquiry Management
 - **FR-WEB-04 (Contact & Inquiry Form):** Secure form collecting `fullName`, `email`, `phone`, `subject`, and `message`.
 - **FR-WEB-05 (Anti-Spam Defenses):** Enforces hidden honeypot field (`_gotcha`), client-side sanitization, and IP/email rate limiting (maximum 5 submissions per hour per IP).
-- **FR-WEB-06 (Automated Notification Outbox):** Asynchronously dispatches a branded confirmation email to the applicant and an urgent alert email to `team.ashivam@gmail.com`.
+- **FR-WEB-06 (Automated Notification Outbox):** Asynchronously dispatches a branded confirmation email to the applicant and an urgent alert email to `ritik95061@gmail.com`.
 
 ### 4.3 Careers & Job Portal
 - **FR-WEB-07 (Job Listings & Filtering):** Real-time active job openings filtered by department, experience level, and work arrangement (Remote / Hybrid / On-site).

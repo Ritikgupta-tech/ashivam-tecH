@@ -74,7 +74,7 @@ test('Employee form validation strictly requires core identity fields', () => {
   const validResult = validateEmployee({
     firstName: 'Amit',
     lastName: 'Verma',
-    email: 'amit.verma@ashivamtechnologies.com',
+    email: 'ritik95061@gmail.com',
     designation: 'Staff DevOps Engineer',
     department: 'Cloud Infrastructure',
     employmentType: 'Full-time',
@@ -213,7 +213,7 @@ test('Settings updates conform to company, social, and feature structure', () =>
   const settingsData = {
     company: {
       name: 'Ashivam Technologies Private Limited',
-      email: 'contact@ashivamtechnologies.com',
+      email: 'ritik95061@gmail.com',
       phone: '+91 70885 67790',
       address: 'Sanjay Place, Civil Lines, Agra, UP, India',
     },

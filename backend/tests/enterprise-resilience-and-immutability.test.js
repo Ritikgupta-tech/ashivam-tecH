@@ -184,7 +184,7 @@ test("Outbox: Enqueues and drains pending email jobs with atomic status transiti
       eventType: "TEST_OUTBOX_DISPATCH",
       autoProcess: false,
       payload: {
-        to: "recipient@example.com",
+        to: "ritik95061@gmail.com",
         subject: "Outbox Test Subject",
         text: "Outbox email content test",
       },
@@ -202,7 +202,7 @@ test("Outbox: Enqueues and drains pending email jobs with atomic status transiti
     assert.ok(updatedJob.processedAt);
     assert.equal(updatedJob.attempts, 1);
     assert.equal(dispatched.length, 1);
-    assert.equal(dispatched[0].to, "recipient@example.com");
+    assert.equal(dispatched[0].to, "ritik95061@gmail.com");
   } finally {
     resetTransporter();
   }
@@ -227,7 +227,7 @@ test("Outbox: Exponential backoff on failure and transitions to dead_letter upon
       autoProcess: false,
       maxAttempts: 2,
       payload: {
-        to: "failure@example.com",
+        to: "ritik95061@gmail.com",
         subject: "Expected Failure",
         text: "Will fail",
       },
@@ -265,13 +265,13 @@ test("Outbox Deduplication: Prevents inserting duplicate outbox jobs with identi
   const job1 = await enqueueOutboxEmail({
     eventType: "TEST_OUTBOX_DEDUP",
     dedupKey: key,
-    payload: { to: "dedup@example.com", subject: "Dedup Test", text: "Text" },
+    payload: { to: "ritik95061@gmail.com", subject: "Dedup Test", text: "Text" },
   });
 
   const job2 = await enqueueOutboxEmail({
     eventType: "TEST_OUTBOX_DEDUP",
     dedupKey: key,
-    payload: { to: "dedup@example.com", subject: "Dedup Test", text: "Text" },
+    payload: { to: "ritik95061@gmail.com", subject: "Dedup Test", text: "Text" },
   });
 
   assert.equal(job1._id.toString(), job2._id.toString());
@@ -289,7 +289,7 @@ test("Outbox Crash Recovery: Expired worker leases are safely reclaimed and zomb
 
   const stuckJob = await OutboxJob.create({
     eventType: "TEST_OUTBOX_CRASH_RECOVERY",
-    payload: { to: "reclaimed@example.com", subject: "Reclaim Test", text: "Recovered" },
+    payload: { to: "ritik95061@gmail.com", subject: "Reclaim Test", text: "Recovered" },
     status: "processing",
     lockedAt: pastLease,
     lockedBy: "crashed_worker_pid_9999",
@@ -329,7 +329,7 @@ test("Transactional Outbox: Business writes and outbox records participate in at
     return;
   }
 
-  const testInquiryEmail = `tx-test-${Date.now()}@example.com`;
+  const testInquiryEmail = "ritik95061@gmail.com";
 
   // 1. Transaction Commit Case: Both Inquiry and Outbox records are created atomically
   const { inquiry, job } = await withOptionalTransaction(async (session) => {
@@ -364,7 +364,7 @@ test("Transactional Outbox: Business writes and outbox records participate in at
   assert.ok(foundOutbox, "Outbox job must exist after transaction commit");
 
   // 2. Transaction Abort Case: Simulated failure during transaction rolls back both writes
-  const abortInquiryEmail = `tx-abort-${Date.now()}@example.com`;
+  const abortInquiryEmail = "ritik95061@gmail.com";
   let caughtError = null;
 
   try {
@@ -398,8 +398,8 @@ test("Transactional Outbox: Business writes and outbox records participate in at
   assert.equal(caughtError.message, "Simulated business validation failure triggering abort");
 
   // Verify that neither the Inquiry nor the Outbox record was persisted
-  const abortedInquiry = await Inquiry.findOne({ email: abortInquiryEmail });
-  const abortedOutbox = await OutboxJob.findOne({ "payload.to": abortInquiryEmail });
+  const abortedInquiry = await Inquiry.findOne({ name: "Tx Abort Test" });
+  const abortedOutbox = await OutboxJob.findOne({ eventType: "TEST_TX_ABORT" });
   assert.equal(abortedInquiry, null, "Inquiry must NOT exist after transaction rollback");
   assert.equal(abortedOutbox, null, "Outbox job must NOT exist after transaction rollback");
 
@@ -419,14 +419,14 @@ test("At-Least-Once Delivery Semantics: Outbox guarantees at-least-once delivery
     eventType: "TEST_AT_LEAST_ONCE",
     dedupKey,
     autoProcess: false,
-    payload: { to: "at-least-once@example.com", subject: "At-Least-Once", text: "Body" },
+    payload: { to: "ritik95061@gmail.com", subject: "At-Least-Once", text: "Body" },
   });
 
   const jobB = await enqueueOutboxEmail({
     eventType: "TEST_AT_LEAST_ONCE",
     dedupKey,
     autoProcess: false,
-    payload: { to: "at-least-once@example.com", subject: "At-Least-Once", text: "Body" },
+    payload: { to: "ritik95061@gmail.com", subject: "At-Least-Once", text: "Body" },
   });
 
   assert.equal(jobA._id.toString(), jobB._id.toString(), "DedupKey ensures idempotent deduplication");
@@ -465,33 +465,42 @@ test("Outbox Lease Recovery: Automatically reclaims and processes expired leases
     return;
   }
 
-  // Simulate a crashed worker: job was marked 'processing' 10 minutes ago, lease expired
-  const expiredJob = await OutboxJob.create({
-    eventType: "TEST_CRASHED_WORKER_RECOVERY",
-    payload: {
-      to: "recovered@example.com",
-      subject: "Recovered from Crash",
-      text: "This job survived a simulated process kill",
-    },
-    status: "processing",
-    lockedAt: new Date(Date.now() - 10 * 60 * 1000),
-    lockedBy: "crashed_worker_pid_99999",
-    leaseExpiresAt: new Date(Date.now() - 5 * 60 * 1000), // Expired 5 mins ago
-    attempts: 1,
-    fencingToken: 1,
+  setTransporter({
+    sendMail: async () => ({ messageId: "lease-recovery-msg-id" }),
+    verify: async () => true,
   });
 
-  assert.equal(expiredJob.status, "processing");
+  try {
+    // Simulate a crashed worker: job was marked 'processing' 10 minutes ago, lease expired
+    const expiredJob = await OutboxJob.create({
+      eventType: "TEST_CRASHED_WORKER_RECOVERY",
+      payload: {
+        to: "ritik95061@gmail.com",
+        subject: "Recovered from Crash",
+        text: "This job survived a simulated process kill",
+      },
+      status: "processing",
+      lockedAt: new Date(Date.now() - 10 * 60 * 1000),
+      lockedBy: "crashed_worker_pid_99999",
+      leaseExpiresAt: new Date(Date.now() - 5 * 60 * 1000), // Expired 5 mins ago
+      attempts: 1,
+      fencingToken: 1,
+    });
 
-  // Run the batch outbox sweeper
-  await processPendingOutbox({ batchSize: 5 });
+    assert.equal(expiredJob.status, "processing");
 
-  // Verify the job was claimed and transitioned to 'sent'
-  const recoveredJob = await OutboxJob.findById(expiredJob._id);
-  assert.equal(recoveredJob.status, "sent");
-  assert.equal(recoveredJob.lockedBy, null);
-  assert.equal(recoveredJob.leaseExpiresAt, null);
-  assert.ok(recoveredJob.fencingToken >= 2, "Monotonic fencing token must be incremented upon reclamation");
+    // Run the batch outbox sweeper
+    await processPendingOutbox({ batchSize: 5 });
+
+    // Verify the job was claimed and transitioned to 'sent'
+    const recoveredJob = await OutboxJob.findById(expiredJob._id);
+    assert.equal(recoveredJob.status, "sent");
+    assert.equal(recoveredJob.lockedBy, null);
+    assert.equal(recoveredJob.leaseExpiresAt, null);
+    assert.ok(recoveredJob.fencingToken >= 2, "Monotonic fencing token must be incremented upon reclamation");
+  } finally {
+    resetTransporter();
+  }
 });
 
 test("DOCX Structure Validation: Rejects malformed zip, zip bombs, and non-docx archives while accepting valid docx", () => {

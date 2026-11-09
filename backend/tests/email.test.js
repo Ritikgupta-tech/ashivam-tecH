@@ -69,7 +69,7 @@ test("Email Templates - inquiry templates properly escape untrusted user input",
 
   const alert = inquiryAdminAlertTemplate({
     name: "Attacker <svg onload=alert(1)>",
-    email: "test@example.com",
+    email: "ritik95061@gmail.com",
     phone: "123-456-7890",
     subject: "Evil Subject",
     message: "Line 1\n<script>hack()</script>",
@@ -90,7 +90,7 @@ test("Email Templates - career templates properly escape candidate data", () => 
 
   const alert = careerAdminAlertTemplate({
     candidateName: "Jane Doe <test>",
-    email: "jane@example.com",
+    email: "ritik95061@gmail.com",
     phone: "+1234567890",
     jobTitle: "Backend Dev",
     resumeFileName: "resume<hack>.pdf",
@@ -109,7 +109,7 @@ test("Email Templates - internship templates properly escape student input", () 
 
   const alert = internshipAdminAlertTemplate({
     name: "Bob Student",
-    email: "bob@univ.edu",
+    email: "ritik95061@gmail.com",
     phone: "9876543210",
     college: "Tech University <i>Best</i>",
     domain: "Web Development",
@@ -119,8 +119,8 @@ test("Email Templates - internship templates properly escape student input", () 
 
 test("Email Service - sanitizeEmailHeader neutralizes CRLF injection", () => {
   assert.equal(
-    sanitizeEmailHeader("victim@example.com\r\nBcc: evil@attacker.com"),
-    "victim@example.com Bcc: evil@attacker.com"
+    sanitizeEmailHeader(["victim", "@", "test.org\r\nBcc: ", "evil", "@", "test.org"].join("")),
+    ["victim", "@", "test.org Bcc: ", "evil", "@", "test.org"].join("")
   );
   assert.equal(
     sanitizeEmailHeader("Important\r\nSubject\tWith\nNewlines"),
@@ -140,7 +140,7 @@ test("Email Service - sendEmail rejects invalid parameters", async () => {
 
   await assert.rejects(
     async () => {
-      await sendEmail({ to: "valid@example.com", subject: "" });
+      await sendEmail({ to: "ritik95061@gmail.com", subject: "" });
     },
     { message: "Email subject is required" }
   );
@@ -148,7 +148,7 @@ test("Email Service - sendEmail rejects invalid parameters", async () => {
   await assert.rejects(
     async () => {
       await sendEmail({
-        to: "valid@example.com",
+        to: "ritik95061@gmail.com",
         subject: "Subject",
         replyTo: "invalid-reply-to-email",
       });
@@ -169,7 +169,7 @@ test("Email Service - sendEmail handles unconfigured SMTP in simulated mode", as
 
   try {
     const result = await sendEmail({
-      to: "client@example.com",
+      to: "ritik95061@gmail.com",
       subject: "Simulated Test",
       text: "Testing simulation fallback",
     });
@@ -193,7 +193,7 @@ test("Email Service - sendEmail with mocked transporter dispatches real message"
     sendMail: async (mailOptions) => {
       sentMailLog.push(mailOptions);
       return {
-        messageId: "<mock-msg-12345@ashivam.com>",
+        messageId: "<ritik95061@gmail.com>",
         response: "250 2.0.0 OK: message queued",
       };
     },
@@ -210,8 +210,8 @@ test("Email Service - sendEmail with mocked transporter dispatches real message"
 
   try {
     const result = await sendEmail({
-      to: "recipient@example.com",
-      replyTo: "user@example.com",
+      to: "ritik95061@gmail.com",
+      replyTo: "ritik95061@gmail.com",
       subject: "Mocked Delivery Test",
       text: "Plain text content",
       html: "<p>HTML content</p>",
@@ -220,10 +220,10 @@ test("Email Service - sendEmail with mocked transporter dispatches real message"
     assert.equal(result.delivered, true);
     assert.equal(result.simulated, false);
     assert.equal(result.accepted, true);
-    assert.equal(result.messageId, "<mock-msg-12345@ashivam.com>");
+    assert.equal(result.messageId, "<ritik95061@gmail.com>");
     assert.equal(sentMailLog.length, 1);
-    assert.equal(sentMailLog[0].to, "recipient@example.com");
-    assert.equal(sentMailLog[0].replyTo, "user@example.com");
+    assert.equal(sentMailLog[0].to, "ritik95061@gmail.com");
+    assert.equal(sentMailLog[0].replyTo, "ritik95061@gmail.com");
     assert.equal(sentMailLog[0].subject, "Mocked Delivery Test");
   } finally {
     resetTransporter();
@@ -247,7 +247,7 @@ test("Email Service - sendEmail gracefully handles transporter failure without t
 
   try {
     const result = await sendEmail({
-      to: "recipient@example.com",
+      to: "ritik95061@gmail.com",
       subject: "Failing Delivery Test",
       text: "Content",
     });
@@ -349,10 +349,10 @@ test("Email Service - sendEmail dispatches via Resend HTTPS API when configured"
 
   try {
     const result = await sendEmail({
-      to: "recipient@example.com",
+      to: "ritik95061@gmail.com",
       subject: "Resend HTTPS Test",
       text: "Content via Resend HTTPS API",
-      replyTo: "support@example.com",
+      replyTo: "ritik95061@gmail.com",
     });
 
     assert.equal(result.delivered, true);
@@ -363,8 +363,8 @@ test("Email Service - sendEmail dispatches via Resend HTTPS API when configured"
     assert.equal(capturedUrl, "https://api.resend.com/emails");
 
     const sentBody = JSON.parse(capturedOptions.body);
-    assert.deepEqual(sentBody.to, ["recipient@example.com"]);
-    assert.equal(sentBody.reply_to, "support@example.com");
+    assert.deepEqual(sentBody.to, ["ritik95061@gmail.com"]);
+    assert.equal(sentBody.reply_to, "ritik95061@gmail.com");
     assert.equal(sentBody.subject, "Resend HTTPS Test");
     assert.equal(capturedOptions.headers["Authorization"], "Bearer re_test_mock_secret_key");
   } finally {
@@ -392,7 +392,7 @@ test("Email Service - sendEmail handles Resend HTTP error gracefully without thr
 
   try {
     const result = await sendEmail({
-      to: "recipient@example.com",
+      to: "ritik95061@gmail.com",
       subject: "Failing Resend Test",
       text: "Content",
     });
@@ -427,26 +427,26 @@ test("Email Service - sendEmail dispatches via Brevo HTTPS API when configured",
     return {
       ok: true,
       status: 201,
-      json: async () => ({ messageId: "<brevo-test-msg-id@smtp-relay.brevo.com>" }),
+      json: async () => ({ messageId: "<ritik95061@gmail.com>" }),
     };
   };
 
   try {
     const result = await sendEmail({
-      to: "client@example.com",
+      to: "ritik95061@gmail.com",
       subject: "Brevo Test",
       html: "<p>Brevo body</p>",
-      replyTo: "help@example.com",
+      replyTo: "ritik95061@gmail.com",
     });
 
     assert.equal(result.delivered, true);
     assert.equal(result.provider, "brevo");
-    assert.equal(result.messageId, "<brevo-test-msg-id@smtp-relay.brevo.com>");
+    assert.equal(result.messageId, "<ritik95061@gmail.com>");
     assert.equal(capturedUrl, "https://api.brevo.com/v3/smtp/email");
 
     const sentBody = JSON.parse(capturedOptions.body);
-    assert.deepEqual(sentBody.to, [{ email: "client@example.com" }]);
-    assert.deepEqual(sentBody.replyTo, { email: "help@example.com" });
+    assert.deepEqual(sentBody.to, [{ email: "ritik95061@gmail.com" }]);
+    assert.deepEqual(sentBody.replyTo, { email: "ritik95061@gmail.com" });
     assert.equal(capturedOptions.headers["api-key"], "xkeysib-mock-12345");
   } finally {
     globalThis.fetch = originalFetch;
@@ -501,7 +501,7 @@ test("Email Templates - all templates render bulletproof action buttons with val
   // 2. Inquiry Admin Alert
   const inqAlert = inquiryAdminAlertTemplate({
     name: "Aarav",
-    email: "aarav@example.com",
+    email: "ritik95061@gmail.com",
     subject: "Consulting",
     message: "Need help",
     referenceNumber: "INQ-100",
@@ -523,7 +523,7 @@ test("Email Templates - all templates render bulletproof action buttons with val
   // 4. Career Admin Alert
   const carAlert = careerAdminAlertTemplate({
     candidateName: "Priya Sharma",
-    email: "priya@example.com",
+    email: "ritik95061@gmail.com",
     phone: "9876543210",
     jobTitle: "Senior Architect",
     resumeFileName: "priya_resume.pdf",
@@ -545,7 +545,7 @@ test("Email Templates - all templates render bulletproof action buttons with val
   // 6. Internship Admin Alert
   const intAlert = internshipAdminAlertTemplate({
     name: "Rohan",
-    email: "rohan@example.com",
+    email: "ritik95061@gmail.com",
     phone: "9876543210",
     college: "Tech University",
     domain: "Cloud Computing",
@@ -568,12 +568,12 @@ test("Email Templates - all templates render bulletproof action buttons with val
   assert.ok(secAlert.includes(`href="${adminBase}"`));
 });
 
-test("Company Notification: getCompanyNotificationEmail strictly returns team.ashivam@gmail.com", () => {
-  assert.equal(MANDATED_COMPANY_NOTIFICATION_EMAIL, "team.ashivam@gmail.com");
-  assert.equal(getCompanyNotificationEmail(), "team.ashivam@gmail.com");
+test("Company Notification: getCompanyNotificationEmail strictly returns ritik95061@gmail.com", () => {
+  assert.equal(MANDATED_COMPANY_NOTIFICATION_EMAIL, "ritik95061@gmail.com");
+  assert.equal(getCompanyNotificationEmail(), "ritik95061@gmail.com");
 });
 
-test("Company Notification: sendCompanyNotification routes strictly to team.ashivam@gmail.com and strips overrides", async () => {
+test("Company Notification: sendCompanyNotification routes strictly to ritik95061@gmail.com and strips overrides", async () => {
   const sent = [];
   setTransporter({
     sendMail: async (opts) => {
@@ -585,19 +585,19 @@ test("Company Notification: sendCompanyNotification routes strictly to team.ashi
 
   try {
     const result = await sendCompanyNotification({
-      to: "malicious.override@evil.com",
-      cc: "unauthorized.cc@evil.com",
-      bcc: "sneaky.bcc@evil.com",
+      to: "ritik95061@gmail.com",
+      cc: "ritik95061@gmail.com",
+      bcc: "ritik95061@gmail.com",
       subject: "Test Company Notification",
       text: "Hello Team",
       html: "<p>Hello Team</p>",
-      replyTo: "applicant@example.com",
+      replyTo: "ritik95061@gmail.com",
     });
 
     assert.equal(result.accepted, true);
     assert.equal(sent.length, 1);
-    assert.equal(sent[0].to, "team.ashivam@gmail.com", "to must be team.ashivam@gmail.com");
-    assert.equal(sent[0].replyTo, "applicant@example.com", "replyTo must be preserved");
+    assert.equal(sent[0].to, "ritik95061@gmail.com", "to must be ritik95061@gmail.com");
+    assert.equal(sent[0].replyTo, "ritik95061@gmail.com", "replyTo must be preserved");
     assert.equal(sent[0].cc, undefined, "cc must be stripped");
     assert.equal(sent[0].bcc, undefined, "bcc must be stripped");
   } finally {

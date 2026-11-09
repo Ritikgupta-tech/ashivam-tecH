@@ -59,7 +59,7 @@ This specification maps the Ashivam Technologies corporate and administrative pl
   {
     "success": false,
     "statusCode": 500,
-    "message": "An internal server error occurred. Please contact team.ashivam@gmail.com with your correlation ID.",
+    "message": "An internal server error occurred. Please contact ritik95061@gmail.com with your correlation ID.",
     "correlationId": "req_4fae109..."
   }
   ```

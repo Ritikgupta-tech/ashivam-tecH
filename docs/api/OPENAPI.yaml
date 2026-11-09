@@ -7,7 +7,7 @@ info:
     recruitment, internship operations, and employee administration.
   contact:
     name: Ashivam Engineering Operations
-    email: team.ashivam@gmail.com
+    email: ritik95061@gmail.com
     url: https://ashivam-tec-h.vercel.app/
 servers:
   - url: https://ashivam-tech.onrender.com/api/v1
@@ -668,7 +668,7 @@ components:
         email:
           type: string
           format: email
-          example: a.wright@enterprise.com
+          example: ritik95061@gmail.com
         phone:
           type: string
           example: "+91 98765 43210"
@@ -692,7 +692,7 @@ components:
         email:
           type: string
           format: email
-          example: rahul.k@engineering.edu
+          example: ritik95061@gmail.com
         phone:
           type: string
           example: "+91 98765 12345"
@@ -722,7 +722,7 @@ components:
         email:
           type: string
           format: email
-          example: priya.sharma@ashivam.com
+          example: ritik95061@gmail.com
         department:
           type: string
           example: Engineering

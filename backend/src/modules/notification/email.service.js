@@ -34,7 +34,7 @@ export const sanitizeEmailHeader = (headerValue = "") => {
 };
 
 /**
- * Parses a display email string like 'Ashivam <no-reply@ashivam.com>'
+ * Parses a display email string like 'Ashivam <ritik95061@gmail.com>'
  * into structured name and email fields.
  */
 export const parseSender = (senderString = "") => {
@@ -148,7 +148,7 @@ const withRetry = async (fn, maxRetries = env.isTest ? 0 : 2, baseDelayMs = 300)
  */
 const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
   const payload = {
-    from: env.smtpFrom || env.emailFrom || "Ashivam Technologies <teamashivam@gmail.com>",
+    from: env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>",
     to: [to],
     subject,
     html: html || text || "",
@@ -198,7 +198,7 @@ const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
  * Dispatches an email via Brevo HTTPS API (Port 443).
  */
 const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
-  const fromRaw = env.smtpFrom || env.emailFrom || "Ashivam Technologies <teamashivam@gmail.com>";
+  const fromRaw = env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>";
   const parsedSender = parseSender(fromRaw);
 
   const payload = {
@@ -252,11 +252,11 @@ const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
 /**
  * Mandatory canonical recipient for all company-directed business notifications.
  */
-export const MANDATED_COMPANY_NOTIFICATION_EMAIL = "team.ashivam@gmail.com";
+export const MANDATED_COMPANY_NOTIFICATION_EMAIL = "ritik95061@gmail.com";
 
 /**
  * Returns the validated authorized company notification email address.
- * Strictly guarantees that company notifications always resolve to team.ashivam@gmail.com.
+ * Strictly guarantees that company notifications always resolve to ritik95061@gmail.com.
  */
 export const getCompanyNotificationEmail = () => {
   return env.companyNotificationEmail || MANDATED_COMPANY_NOTIFICATION_EMAIL;
@@ -291,7 +291,7 @@ export const getSafeSmtpStatus = () => {
  * - Website and system administrative notifications
  *
  * Guarantees:
- * 1. The recipient is ALWAYS strictly enforced to team.ashivam@gmail.com.
+ * 1. The recipient is ALWAYS strictly enforced to ritik95061@gmail.com.
  * 2. Any caller-supplied or user-supplied 'to', 'cc', or 'bcc' overrides are completely stripped.
  * 3. Preserves 'replyTo' as the verified submitter email for direct response handling.
  * 4. Fails safely and logs sanitized error without leaking message bodies or credentials.
