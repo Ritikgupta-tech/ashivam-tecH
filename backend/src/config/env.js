@@ -137,12 +137,16 @@ const resolveCompanyNotificationEmail = () => {
 
 const companyNotificationRecipient = resolveCompanyNotificationEmail();
 
+const isTestRunner = Boolean(
+  process.env.NODE_ENV === "test" ||
+  process.env.NODE_TEST_CONTEXT ||
+  process.argv.some((arg) => typeof arg === "string" && (/--test/i.test(arg) || /tests?[\\/]/i.test(arg)))
+);
+
 const env = {
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv: process.env.NODE_ENV || (isTestRunner ? "test" : "development"),
   isProduction: process.env.NODE_ENV === "production",
-  isTest:
-    process.env.NODE_ENV === "test" ||
-    Boolean(process.env.NODE_TEST_CONTEXT),
+  isTest: isTestRunner,
 
   port: Number(process.env.PORT) || 5000,
 
@@ -151,8 +155,9 @@ const env = {
   allowedOrigins: allowedOriginsList,
 
   mongodbUri:
-    process.env.MONGODB_URI ||
-    "mongodb://127.0.0.1:27017/ashivam_technologies",
+    (isTestRunner || process.env.NODE_ENV === "test")
+      ? (process.env.TEST_MONGODB_URI || "mongodb://127.0.0.1:27017/ashivam_technologies_test")
+      : (process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/ashivam_technologies"),
 
   jwtSecret:
     (process.env.JWT_SECRET || "").trim() ||
