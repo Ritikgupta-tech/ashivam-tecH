@@ -29,7 +29,7 @@ describe('Website Database Safety & Test Isolation Defense Suite', () => {
 
   test('validateDatabaseSafety strictly blocks remote cloud MongoDB clusters in test mode', () => {
     assert.throws(() => {
-      validateDatabaseSafety('mongodb+srv://admin:pass@cluster0.mongodb.net/ashivam_technologies_test');
+      validateDatabaseSafety('mongodb+srv://cluster0.mongodb.net/ashivam_technologies_test');
     }, {
       name: 'Error',
       message: /\[FATAL DATA SAFETY VIOLATION\].*remote cloud MongoDB host is blocked/

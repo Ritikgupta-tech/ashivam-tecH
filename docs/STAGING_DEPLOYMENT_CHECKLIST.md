@@ -54,7 +54,7 @@ Under strict engineering policy:
 | :--- | :--- | :--- | :--- |
 | `NODE_ENV` | `production` | Enables Express production optimizations, HSTS, secure cookies | Non-development |
 | `PORT` | `10000` | Port assigned by Render container runtime | Render standard |
-| `MONGODB_URI` | `mongodb+srv://staging_user:ritik95061@gmail.com/ashivam_staging?retryWrites=true&w=majority` | Dedicated staging logical database | Strictly isolated from `ashivam_production` |
+| `MONGODB_URI` | `mongodb+srv://<STAGING_DB_USER>:<STAGING_DB_PASSWORD>@<STAGING_CLUSTER_HOST>/ashivam_staging?retryWrites=true&w=majority` | Dedicated staging logical database | Strictly isolated from `ashivam_production` |
 | `CLIENT_URL` | `https://ashivam-tec-h-staging.vercel.app` | Canonical frontend origin for notifications & links | Must match Vercel staging |
 | `CORS_ORIGIN` | `https://ashivam-tec-h-staging.vercel.app,http://localhost:5173,http://localhost:5199` | Allowed CORS origins for browser fetch | Explicit allowlist; no `*` wildcards |
 | `JWT_SECRET` | 64-character random hex string (`openssl rand -hex 32`) | Signs access tokens (15-min lifespan) | Must differ from `JWT_REFRESH_SECRET` |
