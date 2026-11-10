@@ -9,7 +9,7 @@ export const COMPANY = {
   description:
     'We are a modern technology company building scalable software, digital products, and innovative experiences that move ideas forward.',
   email: 'ritik95061@gmail.com',
-  phone: '+91 XXXXX XXXXX',
+  phone: '+91 92772 29978',
   location: 'Agra, Uttar Pradesh, India',
   headquarters: 'Agra, Uttar Pradesh, India',
   headquartersShort: 'Agra • Uttar Pradesh • India',
