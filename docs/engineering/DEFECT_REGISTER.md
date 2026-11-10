@@ -2,7 +2,7 @@
 **Document Reference:** `docs/engineering/DEFECT_REGISTER.md`  
 **Classification:** Engineering Tracking & Resolution Log  
 **Last Updated:** 2026-11-10  
-**Current State:** 12 Issues Documented (11 Resolved, 1 Staging Infrastructure Characteristic)
+**Current State:** 15 Issues Documented (14 Resolved, 1 Staging Infrastructure Characteristic)
 
 ---
 
@@ -22,6 +22,9 @@
 | **DEF-010** | HRMS | `backend/src/middleware/rateLimiter.js` | **P1** | Expired rate-limit buckets were never deleted | In-memory `Map` grew indefinitely with unique client IPs | Added 10-minute unref interval timer purging expired entries | Verified in Node.js runtime | **RESOLVED** (`bc8c05b`) |
 | **DEF-011** | HRMS | `backend/src/app.js` | **P1** | Operational domain endpoints had no general rate limit | Unauthenticated scripts could flood `/api/v1/employees` or `/payroll` | Exported & mounted `globalApiLimiter` on `/api/v1` domain routes | All 83 backend tests passed | **RESOLVED** (`bc8c05b`) |
 | **DEF-012** | Internship | `backend` (Render Free Tier) | **P2** | Render Free Web Service sleeps after 15m inactivity | 20-30s delay on initial cold-start probe by external evaluators | Frontend surfaces standby indicator; zero-cost tier constraint | Live TLS socket verification | **OPEN (KNOWN LIMITATION)** |
+| **DEF-013** | HRMS | `frontend/src/pages/DashboardPage.jsx` & `StatCards.jsx` | **P1** | StatCards prop mismatch & backend response key divergence | Dashboard rendered 0 for headcount, attendance, and department bars | Normalized backend response mapping and made StatCards prop acceptance polymorphic | Verified in Playwright E2E run (`verified_hrms_dashboard.png`) | **RESOLVED** (`0c48044`) |
+| **DEF-014** | HRMS / Intern | `frontend/src/pages/LoginPage.jsx` | **P1** | Evaluation mode set in-memory session without JWT | Evaluators inspecting dashboards received HTTP 401 Unauthorized errors | Integrated genuine API authentication via seeded Director credentials | Tested live via Chromium E2E script | **RESOLVED** (`7535055`, `0c48044`) |
+| **DEF-015** | Internship | `frontend/src/components/Sidebar.jsx` | **P3** | Static `badge: 'Active'` on Review Committee nav item | Badge rendered persistently across unrelated routes and login view | Removed hardcoded badge; conditioned badge display on active state | Chromium E2E inspection (`verified_internship_login.png`) | **RESOLVED** (`7535055`) |
 
 ---
 
