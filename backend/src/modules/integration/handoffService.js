@@ -45,9 +45,10 @@ export async function dispatchApplicationToInternship(application, job = {}) {
     'ashivam-website'
   );
 
-  if (result.ok && result.data?.data?.applicationNumber) {
+  const deliveredRef = result.data?.applicationNumber || result.data?.data?.applicationNumber;
+  if (result.ok && deliveredRef) {
     handoff.deliveryStatus = HANDOFF_STATUS.DELIVERED;
-    handoff.internshipReference = result.data.data.applicationNumber;
+    handoff.internshipReference = deliveredRef;
     handoff.deliveredAt = new Date();
     handoff.lastError = null;
     await handoff.save();
@@ -86,9 +87,10 @@ export async function reconcilePendingHandoffs(limit = 20) {
       'ashivam-website'
     );
 
-    if (result.ok && result.data?.data?.applicationNumber) {
+    const reconRef = result.data?.applicationNumber || result.data?.data?.applicationNumber;
+    if (result.ok && reconRef) {
       item.deliveryStatus = HANDOFF_STATUS.DELIVERED;
-      item.internshipReference = result.data.data.applicationNumber;
+      item.internshipReference = reconRef;
       item.deliveredAt = new Date();
       item.lastError = null;
       await item.save();
