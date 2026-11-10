@@ -7,6 +7,7 @@ import {
   PaperclipIcon,
   ExclamationCircleIcon,
   CheckIcon,
+  XMarkIcon,
 } from '../icons';
 import { getPublicJobs, applyForJob } from '../../api';
 import { isLegitimatePublishedJob } from '../../utils/careerPublishing';
