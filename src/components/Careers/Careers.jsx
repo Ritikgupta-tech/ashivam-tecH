@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ArrowRightIcon,
   MapPinIcon,
@@ -105,6 +106,16 @@ export default function Careers() {
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+
+  // Lock background scroll when application modal is open
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isModalOpen]);
 
   // Modal focus trap — keep keyboard focus inside modal, close on Escape
   useEffect(() => {
@@ -393,7 +404,7 @@ export default function Careers() {
       </div>
 
       {/* Online Job Application Modal */}
-      {isModalOpen && selectedJob && (
+      {isModalOpen && selectedJob && typeof document !== 'undefined' && createPortal(
         <div
           className="career-modal-backdrop"
           onClick={(e) => {
@@ -616,7 +627,8 @@ export default function Careers() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );
