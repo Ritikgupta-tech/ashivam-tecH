@@ -135,7 +135,7 @@ export default function IndustriesPage() {
           <div className="container">
             {/* Compact Header & Integrated Filter */}
             <header className="industries-header">
-              <span className="industries-eyebrow">Enterprise Domain Architecture</span>
+              <span className="industries-eyebrow">Enterprise • Domain • Architecture</span>
               <h1 className="industries-title">
                 Technology Built Around{' '}
                 <span className="gradient-text-gold">Your Industry</span>
