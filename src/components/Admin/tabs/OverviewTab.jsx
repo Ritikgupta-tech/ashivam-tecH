@@ -99,7 +99,7 @@ export default function OverviewTab({ onNavigateTab }) {
         <div>
           <h1 className="admin-page-title">Executive Overview</h1>
           <p className="admin-page-subtitle">
-            Live operational status across Ashivam Technologies core services
+            Executive metrics and system activity across Ashivam Technologies core services
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>

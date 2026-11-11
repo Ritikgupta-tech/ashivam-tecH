@@ -99,10 +99,10 @@ export default function Footer() {
             <p className="footer__tagline">{COMPANY.tagline}</p>
             <p className="footer__description">{COMPANY.description}</p>
             
-            {/* Status Pill */}
-            <div className="footer__status-badge" title="Service operational status">
-              <span className="footer__status-dot" aria-hidden="true" />
-              <span className="footer__status-text">All Systems Operational</span>
+            {/* Corporate Focus Badge */}
+            <div className="footer__trust-badge">
+              <span className="footer__trust-dot" aria-hidden="true" />
+              <span className="footer__trust-text">Enterprise Software • Digital Systems</span>
             </div>
           </div>
 

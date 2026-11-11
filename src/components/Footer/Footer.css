@@ -243,33 +243,32 @@
   max-width: 340px;
 }
 
-.footer__status-badge {
+.footer__trust-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 0.4rem 0.85rem;
+  gap: 0.5rem;
+  background: rgba(197, 155, 39, 0.08);
+  border: 1px solid rgba(197, 155, 39, 0.22);
+  padding: 0.35rem 0.85rem;
   border-radius: var(--radius-full, 9999px);
   width: fit-content;
-  margin-top: 0.5rem;
+  margin-top: 0.65rem;
 }
 
-.footer__status-dot {
-  width: 8px;
-  height: 8px;
-  background: #10B981;
+.footer__trust-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--clr-gold, #D4AF37);
   border-radius: 50%;
-  box-shadow: 0 0 8px #10B981;
-  animation: pulseDot 2s infinite ease-in-out;
 }
 
-.footer__status-text {
+.footer__trust-text {
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  font-size: 0.75rem;
-  color: #6EE7B7;
+  font-size: 0.725rem;
+  color: #F3E5AB;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* ---------- Columns ---------- */
