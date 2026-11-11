@@ -148,7 +148,7 @@ export default function SolutionsPage() {
           <div className="container">
             {/* Compact Header & Integrated Filter */}
             <header className="solutions-header">
-              <span className="solutions-eyebrow">Enterprise Technology Solutions</span>
+              <span className="solutions-eyebrow">Enterprise • Technology • Solutions</span>
               <h1 className="solutions-title">
                 Software Solutions Built for{' '}
                 <span className="gradient-text-gold">Real Business Needs</span>
