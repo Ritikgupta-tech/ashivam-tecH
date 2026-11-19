@@ -25,6 +25,10 @@ import employeeDocumentRoutes from "./modules/employee-document/employee-documen
 import hrDocumentRoutes from "./modules/hr-document/hrDocument.routes.js";
 import integrationRoutes from "./modules/integration/integration.routes.js";
 import attendanceRoutes from "./modules/attendance/attendance.routes.js";
+import {
+  handleGoogleOAuthCallback,
+  handlePubSubWebhook,
+} from "./modules/attendance/attendance.controller.js";
 
 import {
   notFoundHandler,
@@ -230,7 +234,10 @@ app.use(
 /*
  * Root Discovery & API v1 Base Discovery
  */
-const apiDiscoveryHandler = (req, res) => {
+const apiDiscoveryHandler = (req, res, next) => {
+  if (req.query && (req.query.code || req.query.error)) {
+    return handleGoogleOAuthCallback(req, res, next);
+  }
   return res.status(200).json({
     success: true,
     message: "Ashivam Technologies Official API",
@@ -239,6 +246,7 @@ const apiDiscoveryHandler = (req, res) => {
     endpoints: {
       health: "/api/v1/health",
       auth: "/api/v1/auth",
+      attendance: "/api/v1/attendance",
       career: "/api/v1/career",
       inquiries: "/api/v1/inquiries",
       internships: "/api/v1/internships",
@@ -253,6 +261,12 @@ const apiDiscoveryHandler = (req, res) => {
 };
 
 app.get(["/", "/api/v1", "/api/v1/"], apiDiscoveryHandler);
+app.post(["/", "/api/v1", "/api/v1/"], (req, res, next) => {
+  if (req.body && req.body.message) {
+    return handlePubSubWebhook(req, res, next);
+  }
+  return apiDiscoveryHandler(req, res, next);
+});
 
 /*
  * API v1 Routes
