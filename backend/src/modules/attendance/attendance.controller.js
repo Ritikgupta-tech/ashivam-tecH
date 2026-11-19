@@ -671,7 +671,7 @@ export const updateMeeting = async (req, res, next) => {
     const updates = req.body || {};
     updates.updatedBy = req.user.id;
 
-    const meeting = await Meeting.findByIdAndUpdate(id, { $set: updates }, { new: true });
+    const meeting = await Meeting.findByIdAndUpdate(id, { $set: updates }, { returnDocument: "after" });
     if (!meeting) {
       return res.status(404).json({
         success: false,
@@ -697,7 +697,7 @@ export const deleteMeeting = async (req, res, next) => {
     const meeting = await Meeting.findByIdAndUpdate(
       id,
       { status: "CANCELLED", updatedBy: req.user.id },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!meeting) {

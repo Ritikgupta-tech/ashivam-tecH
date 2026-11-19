@@ -86,7 +86,7 @@ export const exchangeCodeForTokens = async (code) => {
       lastSyncAt: new Date(),
       lastError: null,
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   return integration;

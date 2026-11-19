@@ -148,7 +148,7 @@ const handleParticipantJoinedEvent = async (eventData) => {
       endTime: null,
       deviceType: eventData.deviceType || "UNKNOWN",
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   // Update meeting status to IN_PROGRESS
@@ -180,7 +180,7 @@ const handleParticipantJoinedEvent = async (eventData) => {
           verifiedVia: "PUBSUB_EVENT",
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
   }
 };
@@ -227,7 +227,7 @@ const handleParticipantLeftEvent = async (eventData) => {
           verifiedVia: "PUBSUB_EVENT",
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
   }
 };
@@ -388,7 +388,7 @@ export const reconcileMeetingAttendance = async (meetingId) => {
             verifiedVia: empSessions.length > 0 ? "MEET_REST_API" : "SYSTEM_DEFAULT",
           },
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
       recordsUpdated++;
     }
