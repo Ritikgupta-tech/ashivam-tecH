@@ -50,6 +50,74 @@ const employeeSchema = new mongoose.Schema(
       default: "Employee",
     },
 
+    accountStatus: {
+      type: String,
+      enum: ["INVITED", "PENDING_ACTIVATION", "ACTIVE", "SUSPENDED", "DEACTIVATED"],
+      default: "INVITED",
+      index: true,
+    },
+
+    employmentStatus: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE", "TERMINATED", "ON_LEAVE"],
+      default: "ACTIVE",
+      index: true,
+    },
+
+    activationTokenHash: {
+      type: String,
+      select: false,
+      default: null,
+    },
+
+    activationTokenExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    activationSentAt: {
+      type: Date,
+      default: null,
+    },
+
+    activationResendCount: {
+      type: Number,
+      default: 0,
+    },
+
+    resetPasswordTokenHash: {
+      type: String,
+      select: false,
+      default: null,
+    },
+
+    resetPasswordExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    resetPasswordSentAt: {
+      type: Date,
+      default: null,
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    verifiedGoogleEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      default: null,
+    },
+
+    googleEmailVerifiedAt: {
+      type: Date,
+      default: null,
+    },
+
     lastLoginAt: {
       type: Date,
       default: null,
@@ -232,6 +300,54 @@ employeeSchema.index({
 employeeSchema.index({
   displayOrder: 1,
   createdAt: -1,
+});
+
+employeeSchema.index(
+  { activationTokenHash: 1 },
+  {
+    sparse: true,
+    name: "activationTokenHash_sparse",
+  }
+);
+
+employeeSchema.index(
+  { resetPasswordTokenHash: 1 },
+  {
+    sparse: true,
+    name: "resetPasswordTokenHash_sparse",
+  }
+);
+
+employeeSchema.index(
+  { accountStatus: 1, employmentStatus: 1 },
+  {
+    name: "account_employment_status_idx",
+  }
+);
+
+employeeSchema.pre("save", function () {
+  // Synchronize isActive with accountStatus and employmentStatus
+  if (
+    this.accountStatus === "DEACTIVATED" ||
+    this.accountStatus === "SUSPENDED" ||
+    this.employmentStatus === "INACTIVE" ||
+    this.employmentStatus === "TERMINATED"
+  ) {
+    this.isActive = false;
+  } else if (this.accountStatus === "ACTIVE" && this.employmentStatus === "ACTIVE") {
+    this.isActive = true;
+  } else if (this.isModified("isActive") && !this.isActive) {
+    if (this.accountStatus === "ACTIVE") {
+      this.accountStatus = "DEACTIVATED";
+    }
+  }
+
+  // Auto-promote accounts created with explicit password to ACTIVE
+  if (this.passwordHash && this.accountStatus === "INVITED") {
+    this.accountStatus = "ACTIVE";
+    this.isEmailVerified = true;
+    this.isActive = true;
+  }
 });
 
 const Employee =

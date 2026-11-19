@@ -1,10 +1,18 @@
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import Employee from "./employee.model.js";
+import Counter from "../../models/counter.model.js";
+import RefreshToken from "../../models/refreshToken.model.js";
+import env from "../../config/env.js";
 import { escapeRegex } from "../../utils/query.js";
 import { toCsv } from "../../utils/csv.js";
+import {
+  sendEmployeeInvitation,
+  sendEmployeePasswordReset,
+} from "../notification/email.service.js";
 
 export const EMPLOYEE_PROJECTION =
-  "_id firstName lastName email employeeId googleEmail role phone profileImage designation department employmentType joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive lastLoginAt createdAt updatedAt";
+  "_id firstName lastName email employeeId googleEmail role phone profileImage designation department employmentType employmentStatus accountStatus joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive isEmailVerified activationSentAt activationResendCount lastLoginAt createdAt updatedAt";
 
 export const PUBLIC_EMPLOYEE_PROJECTION =
   "_id firstName lastName designation department profileImage bio skills socialLinks displayOrder isFeatured workLocation";
@@ -206,9 +214,41 @@ export const createEmployee = async (
     throw error;
   }
 
+  let assignedEmployeeId = data.employeeId ? String(data.employeeId).trim().toUpperCase() : null;
+  if (!assignedEmployeeId) {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: "employeeId" },
+      { $inc: { seq: 1 } },
+      { upsert: true, returnDocument: "after" }
+    );
+    assignedEmployeeId = `ASH-EMP-${String(1000 + counter.seq).padStart(4, "0")}`;
+  } else {
+    const duplicateId = await Employee.findOne({
+      employeeId: assignedEmployeeId,
+      deletedAt: null,
+    });
+    if (duplicateId) {
+      const error = new Error("Employee ID already exists");
+      error.statusCode = 409;
+      throw error;
+    }
+  }
+
   let passwordHash = null;
+  let accountStatus = data.accountStatus || "INVITED";
+  let isEmailVerified = false;
+  let rawActivationToken = null;
+  let activationTokenHash = null;
+  let activationTokenExpiresAt = null;
+
   if (data.password && typeof data.password === "string") {
     passwordHash = await bcrypt.hash(data.password, 12);
+    accountStatus = "ACTIVE";
+    isEmailVerified = true;
+  } else {
+    rawActivationToken = crypto.randomBytes(32).toString("hex");
+    activationTokenHash = crypto.createHash("sha256").update(rawActivationToken).digest("hex");
+    activationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
   }
 
   const employee =
@@ -216,10 +256,17 @@ export const createEmployee = async (
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
       email: normalizedEmail,
-      employeeId: data.employeeId ? String(data.employeeId).trim().toUpperCase() : null,
+      employeeId: assignedEmployeeId,
       googleEmail: data.googleEmail ? String(data.googleEmail).trim().toLowerCase() : normalizedEmail,
       passwordHash,
       role: data.role || "Employee",
+      accountStatus,
+      employmentStatus: data.employmentStatus || "ACTIVE",
+      activationTokenHash,
+      activationTokenExpiresAt,
+      activationSentAt: null,
+      activationResendCount: 0,
+      isEmailVerified,
       phone: data.phone?.trim() || "",
       profileImage:
         data.profileImage?.trim() || null,
@@ -246,12 +293,40 @@ export const createEmployee = async (
       isFeatured:
         data.isFeatured ?? false,
       isActive:
-        data.isActive ?? true,
+        data.isActive ?? (accountStatus === "ACTIVE"),
       createdBy: adminId,
       updatedBy: adminId,
     });
 
-  return getEmployeeById(employee._id);
+  let invitationStatus = "NOT_REQUIRED";
+  let invitationError = null;
+
+  if (rawActivationToken && accountStatus !== "ACTIVE") {
+    try {
+      await sendEmployeeInvitation({
+        employee,
+        rawToken: rawActivationToken,
+      });
+      employee.accountStatus = "PENDING_ACTIVATION";
+      employee.activationSentAt = new Date();
+      await employee.save();
+      invitationStatus = "SENT";
+    } catch (err) {
+      invitationStatus = "FAILED";
+      invitationError = err.message;
+      if (!env.isTest) {
+        console.warn(`[Employee Service] Invitation email delivery failed for ${employee.email}:`, err.message);
+      }
+    }
+  }
+
+  const createdRecord = await getEmployeeById(employee._id);
+  return {
+    ...createdRecord,
+    invitationStatus,
+    invitationError,
+    ...(env.isTest && rawActivationToken ? { rawActivationToken } : {}),
+  };
 };
 
 export const updateEmployee = async (
@@ -370,6 +445,31 @@ export const updateEmployee = async (
       data.isActive;
   }
 
+  if (data.accountStatus !== undefined) {
+    employee.accountStatus = data.accountStatus;
+    if (data.accountStatus === "DEACTIVATED" || data.accountStatus === "SUSPENDED") {
+      employee.isActive = false;
+      await RefreshToken.updateMany(
+        { userId: employee._id },
+        { $set: { isRevoked: true } }
+      );
+    } else if (data.accountStatus === "ACTIVE") {
+      employee.isActive = true;
+    }
+  }
+
+  if (data.employmentStatus !== undefined) {
+    employee.employmentStatus = data.employmentStatus;
+    if (data.employmentStatus === "TERMINATED" || data.employmentStatus === "INACTIVE") {
+      employee.accountStatus = "DEACTIVATED";
+      employee.isActive = false;
+      await RefreshToken.updateMany(
+        { userId: employee._id },
+        { $set: { isRevoked: true } }
+      );
+    }
+  }
+
   employee.updatedBy = adminId;
 
   await employee.save();
@@ -392,7 +492,18 @@ export const updateEmployeeStatus = async (
     return null;
   }
 
-  employee.isActive = Boolean(isActive);
+  const boolActive = Boolean(isActive);
+  employee.isActive = boolActive;
+  if (!boolActive) {
+    employee.accountStatus = "DEACTIVATED";
+    await RefreshToken.updateMany(
+      { userId: employee._id },
+      { $set: { isRevoked: true } }
+    );
+  } else if (boolActive && employee.accountStatus === "DEACTIVATED") {
+    employee.accountStatus = "ACTIVE";
+    employee.employmentStatus = "ACTIVE";
+  }
   employee.updatedBy = adminId;
 
   await employee.save();
@@ -416,11 +527,214 @@ export const deleteEmployee = async (
 
   employee.deletedAt = new Date();
   employee.isActive = false;
+  employee.accountStatus = "DEACTIVATED";
+  employee.employmentStatus = "INACTIVE";
   employee.updatedBy = adminId;
+
+  await RefreshToken.updateMany(
+    { userId: employee._id },
+    { $set: { isRevoked: true } }
+  );
 
   await employee.save();
 
   return true;
+};
+
+export const resendEmployeeInvitation = async (employeeId, adminId) => {
+  const employee = await Employee.findOne({
+    _id: employeeId,
+    deletedAt: null,
+  }).select("+activationTokenHash");
+
+  if (!employee) {
+    const error = new Error("Employee not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (employee.accountStatus === "ACTIVE") {
+    const error = new Error("Employee account is already activated and active.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (employee.accountStatus === "DEACTIVATED") {
+    const error = new Error(
+      "Cannot send invitation to a deactivated employee. Please reactivate the employee first."
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+  employee.activationTokenHash = tokenHash;
+  employee.activationTokenExpiresAt = expiresAt;
+  employee.activationSentAt = new Date();
+  employee.activationResendCount = (employee.activationResendCount || 0) + 1;
+  employee.accountStatus = "PENDING_ACTIVATION";
+  employee.updatedBy = adminId;
+  await employee.save();
+
+  let invitationStatus = "SENT";
+  let invitationError = null;
+
+  try {
+    await sendEmployeeInvitation({
+      employee,
+      rawToken,
+    });
+  } catch (err) {
+    invitationStatus = "FAILED";
+    invitationError = err.message;
+    if (!env.isTest) {
+      console.warn(`[Employee Service] Resend invitation failed for ${employee.email}:`, err.message);
+    }
+  }
+
+  const updatedRecord = await getEmployeeById(employee._id);
+  return {
+    employee: updatedRecord,
+    invitationStatus,
+    invitationError,
+    ...(env.isTest ? { rawToken } : {}),
+  };
+};
+
+export const updateEmployeeAccountStatus = async (employeeId, newStatus, adminId) => {
+  const allowed = ["ACTIVE", "SUSPENDED", "DEACTIVATED"];
+  if (!allowed.includes(newStatus)) {
+    const error = new Error(`Invalid account status. Allowed: ${allowed.join(", ")}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const employee = await Employee.findOne({
+    _id: employeeId,
+    deletedAt: null,
+  });
+
+  if (!employee) {
+    const error = new Error("Employee not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (adminId && String(employee._id) === String(adminId)) {
+    const error = new Error("You cannot change the status of your own account");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  employee.accountStatus = newStatus;
+  employee.updatedBy = adminId;
+
+  if (newStatus === "SUSPENDED" || newStatus === "DEACTIVATED") {
+    employee.isActive = false;
+    await RefreshToken.updateMany(
+      { userId: employee._id },
+      { $set: { isRevoked: true } }
+    );
+  } else if (newStatus === "ACTIVE") {
+    employee.isActive = true;
+    if (employee.employmentStatus === "INACTIVE" || employee.employmentStatus === "TERMINATED") {
+      employee.employmentStatus = "ACTIVE";
+    }
+  }
+
+  await employee.save();
+  return getEmployeeById(employee._id);
+};
+
+export const updateEmployeeEmploymentStatus = async (employeeId, newStatus, adminId) => {
+  const allowed = ["ACTIVE", "INACTIVE", "TERMINATED", "ON_LEAVE"];
+  if (!allowed.includes(newStatus)) {
+    const error = new Error(`Invalid employment status. Allowed: ${allowed.join(", ")}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const employee = await Employee.findOne({
+    _id: employeeId,
+    deletedAt: null,
+  });
+
+  if (!employee) {
+    const error = new Error("Employee not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  employee.employmentStatus = newStatus;
+  employee.updatedBy = adminId;
+
+  if (newStatus === "TERMINATED" || newStatus === "INACTIVE") {
+    employee.accountStatus = "DEACTIVATED";
+    employee.isActive = false;
+    await RefreshToken.updateMany(
+      { userId: employee._id },
+      { $set: { isRevoked: true } }
+    );
+  } else if (newStatus === "ACTIVE" && employee.accountStatus === "DEACTIVATED") {
+    employee.accountStatus = "ACTIVE";
+    employee.isActive = true;
+  }
+
+  await employee.save();
+  return getEmployeeById(employee._id);
+};
+
+export const initiateAdminPasswordReset = async (employeeId, adminId) => {
+  const employee = await Employee.findOne({
+    _id: employeeId,
+    deletedAt: null,
+  }).select("+resetPasswordTokenHash");
+
+  if (!employee) {
+    const error = new Error("Employee not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (employee.accountStatus !== "ACTIVE") {
+    const error = new Error("Cannot send password reset to an unactivated or inactive employee.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  employee.resetPasswordTokenHash = tokenHash;
+  employee.resetPasswordExpiresAt = expiresAt;
+  employee.resetPasswordSentAt = new Date();
+  employee.updatedBy = adminId;
+  await employee.save();
+
+  let dispatchStatus = "SENT";
+  let dispatchError = null;
+
+  try {
+    await sendEmployeePasswordReset({
+      employee,
+      rawToken,
+    });
+  } catch (err) {
+    dispatchStatus = "FAILED";
+    dispatchError = err.message;
+  }
+
+  return {
+    success: true,
+    message: "Password reset instructions dispatched.",
+    dispatchStatus,
+    dispatchError,
+    ...(env.isTest ? { rawToken } : {}),
+  };
 };
 
 export const restoreEmployee = async (
@@ -453,6 +767,8 @@ export const restoreEmployee = async (
 
   employee.deletedAt = null;
   employee.isActive = true;
+  employee.accountStatus = "ACTIVE";
+  employee.employmentStatus = "ACTIVE";
   employee.updatedBy = adminId;
 
   await employee.save();
@@ -500,7 +816,7 @@ export const exportEmployeesCsv = async ({
     .lean();
 
   const columns = [
-    { key: "id", label: "Employee ID", transform: (e) => e._id?.toString() || "" },
+    { key: "employeeId", label: "Employee ID", transform: (e) => e.employeeId || e._id?.toString() || "" },
     {
       key: "name",
       label: "Full Name",
@@ -510,14 +826,17 @@ export const exportEmployeesCsv = async ({
     { key: "phone", label: "Phone", transform: (e) => e.phone || "" },
     { key: "department", label: "Department" },
     { key: "designation", label: "Designation" },
+    { key: "googleEmail", label: "Google Workspace Email", transform: (e) => e.googleEmail || e.email || "" },
     { key: "employmentType", label: "Employment Type", transform: (e) => e.employmentType || "Full-time" },
+    { key: "employmentStatus", label: "Employment Status", transform: (e) => e.employmentStatus || (e.isActive ? "ACTIVE" : "INACTIVE") },
+    { key: "accountStatus", label: "Account Security Status", transform: (e) => e.accountStatus || (e.isActive ? "ACTIVE" : "DEACTIVATED") },
     { key: "workLocation", label: "Work Location", transform: (e) => e.workLocation || "" },
     {
       key: "joiningDate",
       label: "Joining Date",
       transform: (e) => (e.joiningDate ? new Date(e.joiningDate).toISOString().slice(0, 10) : ""),
     },
-    { key: "status", label: "Status", transform: (e) => (e.isActive ? "Active" : "Inactive") },
+    { key: "status", label: "Overall Active", transform: (e) => (e.isActive ? "Yes" : "No") },
     { key: "featured", label: "Featured on Website", transform: (e) => (e.isFeatured ? "Yes" : "No") },
   ];
 

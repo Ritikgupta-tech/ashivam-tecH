@@ -38,7 +38,13 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    if (!user.isActive) {
+    const isEmployee = user.role === "Employee";
+
+    if (
+      !user.isActive ||
+      (isEmployee &&
+        (user.accountStatus === "DEACTIVATED" || user.accountStatus === "SUSPENDED"))
+    ) {
       return res.status(403).json({
         success: false,
         message: "Account is inactive",
@@ -60,8 +66,6 @@ export const authenticate = async (req, res, next) => {
         });
       }
     }
-
-    const isEmployee = user.role === "Employee";
 
     req.user = {
       id: user._id.toString(),

@@ -3,11 +3,16 @@ import bcrypt from "bcryptjs";
 import Admin from "../../models/admin.model.js";
 import Employee from "../employee/employee.model.js";
 import RefreshToken from "../../models/refreshToken.model.js";
+import env from "../../config/env.js";
 import {
   generateAccessToken,
   generateRefreshToken,
   hashToken,
 } from "../../utils/jwt.js";
+import {
+  sendEmployeePasswordReset,
+  sendEmployeePasswordResetConfirmation,
+} from "../notification/email.service.js";
 
 // Precomputed valid bcrypt hash for timing attack mitigation (cost factor 10)
 const DUMMY_HASH = "$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/bB8t6dJmD3kZcZ0nL5o2b3C4f9ye";
@@ -81,7 +86,43 @@ export const loginAdmin = async (identifier, password, clientMeta = {}) => {
     deletedAt: null,
   }).select("+passwordHash");
 
-  if (employee && employee.isActive && employee.passwordHash) {
+  if (employee) {
+    if (employee.accountStatus === "INVITED" || employee.accountStatus === "PENDING_ACTIVATION") {
+      const error = new Error(
+        "Your account is pending activation. Please check your official email for the activation link."
+      );
+      error.statusCode = 403;
+      error.code = "PENDING_ACTIVATION";
+      throw error;
+    }
+
+    if (employee.accountStatus === "SUSPENDED") {
+      const error = new Error(
+        "Your employee account has been suspended. Please contact IT administration."
+      );
+      error.statusCode = 403;
+      error.code = "ACCOUNT_SUSPENDED";
+      throw error;
+    }
+
+    if (
+      employee.accountStatus === "DEACTIVATED" ||
+      employee.employmentStatus === "TERMINATED" ||
+      !employee.isActive
+    ) {
+      await bcrypt.compare(password || "", DUMMY_HASH);
+      return null;
+    }
+
+    if (!employee.passwordHash) {
+      const error = new Error(
+        "Account credentials are not configured. Please activate your account via your invitation email."
+      );
+      error.statusCode = 403;
+      error.code = "NOT_ACTIVATED";
+      throw error;
+    }
+
     const passwordValid = await bcrypt.compare(
       password || "",
       employee.passwordHash
@@ -204,7 +245,12 @@ export const rotateRefreshToken = async (rawRefreshToken, clientMeta = {}) => {
     userType = "Employee";
   }
 
-  if (!user || !user.isActive) {
+  if (
+    !user ||
+    !user.isActive ||
+    (userType === "Employee" &&
+      (user.accountStatus === "DEACTIVATED" || user.accountStatus === "SUSPENDED"))
+  ) {
     tokenRecord.isRevoked = true;
     await tokenRecord.save();
 
@@ -352,5 +398,307 @@ export const changeAdminPassword = async (
     accessToken,
     refreshToken: rawRefreshToken,
     passwordChangedAt: admin.passwordChangedAt,
+  };
+};
+
+/**
+ * Validates a single-use employee activation token and returns public invitation details.
+ */
+export const verifyActivationToken = async (rawToken) => {
+  if (!rawToken || typeof rawToken !== "string") {
+    const error = new Error("Activation token is required");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
+  const employee = await Employee.findOne({
+    activationTokenHash: tokenHash,
+    deletedAt: null,
+  }).select("+activationTokenHash");
+
+  if (!employee) {
+    const error = new Error("Invalid or unverified activation link");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (employee.accountStatus === "ACTIVE") {
+    const error = new Error(
+      "This employee account has already been activated. Please log in directly."
+    );
+    error.statusCode = 400;
+    error.code = "ALREADY_ACTIVE";
+    throw error;
+  }
+
+  if (employee.activationTokenExpiresAt && employee.activationTokenExpiresAt < new Date()) {
+    const error = new Error(
+      "Activation link has expired. Please contact IT administration to request a new invitation."
+    );
+    error.statusCode = 400;
+    error.code = "TOKEN_EXPIRED";
+    throw error;
+  }
+
+  return {
+    valid: true,
+    employee: {
+      id: employee._id,
+      name: employee.fullName || `${employee.firstName} ${employee.lastName}`.trim(),
+      email: employee.email,
+      employeeId: employee.employeeId,
+      designation: employee.designation,
+      department: employee.department,
+    },
+  };
+};
+
+/**
+ * Activates an employee account, hashes their new password, and issues initial session tokens.
+ */
+export const activateEmployeeAccount = async (rawToken, password, clientMeta = {}) => {
+  if (!rawToken || typeof rawToken !== "string") {
+    const error = new Error("Activation token is required");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!password || typeof password !== "string" || password.length < 8) {
+    const error = new Error("Password must be at least 8 characters long");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
+  const employee = await Employee.findOne({
+    activationTokenHash: tokenHash,
+    deletedAt: null,
+  }).select("+activationTokenHash");
+
+  if (!employee) {
+    const error = new Error("Invalid or unverified activation link");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (employee.accountStatus === "ACTIVE") {
+    const error = new Error(
+      "This employee account has already been activated. Please log in directly."
+    );
+    error.statusCode = 400;
+    error.code = "ALREADY_ACTIVE";
+    throw error;
+  }
+
+  if (employee.activationTokenExpiresAt && employee.activationTokenExpiresAt < new Date()) {
+    const error = new Error(
+      "Activation link has expired. Please contact IT administration to request a new invitation."
+    );
+    error.statusCode = 400;
+    error.code = "TOKEN_EXPIRED";
+    throw error;
+  }
+
+  const salt = await bcrypt.genSalt(12);
+  employee.passwordHash = await bcrypt.hash(password, salt);
+  employee.accountStatus = "ACTIVE";
+  employee.employmentStatus = "ACTIVE";
+  employee.isActive = true;
+  employee.isEmailVerified = true;
+  employee.activationTokenHash = null;
+  employee.activationTokenExpiresAt = null;
+  employee.passwordChangedAt = new Date();
+  employee.lastLoginAt = new Date();
+  await employee.save();
+
+  const accessToken = generateAccessToken(employee);
+  const rawRefreshToken = generateRefreshToken();
+  const refreshTokenHash = hashToken(rawRefreshToken);
+  const familyId = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+
+  await RefreshToken.create({
+    userId: employee._id,
+    familyId,
+    tokenHash: refreshTokenHash,
+    isRevoked: false,
+    expiresAt,
+    createdByIp: clientMeta.ip || null,
+    userAgent: clientMeta.userAgent || null,
+  });
+
+  return {
+    accessToken,
+    refreshToken: rawRefreshToken,
+    user: {
+      id: employee._id,
+      employeeId: employee.employeeId || employee._id.toString(),
+      name: employee.fullName || `${employee.firstName} ${employee.lastName}`.trim(),
+      email: employee.email,
+      googleEmail: employee.googleEmail || employee.email,
+      role: "Employee",
+      department: employee.department,
+      designation: employee.designation,
+      permissions: [],
+      lastLoginAt: employee.lastLoginAt,
+    },
+  };
+};
+
+/**
+ * Initiates an email password reset request for an active employee.
+ * Returns a generic success response to prevent account enumeration.
+ */
+export const requestPasswordReset = async (email) => {
+  if (!email || typeof email !== "string") {
+    return {
+      success: true,
+      message:
+        "If an active account associated with that email exists, password reset instructions have been sent.",
+    };
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const employee = await Employee.findOne({
+    email: cleanEmail,
+    deletedAt: null,
+  }).select("+resetPasswordTokenHash");
+
+  if (employee && employee.accountStatus === "ACTIVE" && employee.isActive) {
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    employee.resetPasswordTokenHash = tokenHash;
+    employee.resetPasswordExpiresAt = expiresAt;
+    employee.resetPasswordSentAt = new Date();
+    await employee.save();
+
+    try {
+      await sendEmployeePasswordReset({
+        employee,
+        rawToken,
+      });
+    } catch (err) {
+      if (!env.isTest) {
+        console.warn(`[Auth Service] Password reset email dispatch failed for ${cleanEmail}:`, err.message);
+      }
+    }
+
+    return {
+      success: true,
+      message:
+        "If an active account associated with that email exists, password reset instructions have been sent.",
+      ...(env.isTest ? { rawToken } : {}),
+    };
+  }
+
+  return {
+    success: true,
+    message:
+      "If an active account associated with that email exists, password reset instructions have been sent.",
+  };
+};
+
+/**
+ * Verifies the validity of an unexpired password reset token.
+ */
+export const verifyPasswordResetToken = async (rawToken) => {
+  if (!rawToken || typeof rawToken !== "string") {
+    const error = new Error("Password reset token is required");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
+  const employee = await Employee.findOne({
+    resetPasswordTokenHash: tokenHash,
+    deletedAt: null,
+  }).select("+resetPasswordTokenHash");
+
+  if (!employee) {
+    const error = new Error("Invalid or expired password reset link");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (employee.resetPasswordExpiresAt && employee.resetPasswordExpiresAt < new Date()) {
+    const error = new Error(
+      "Password reset link has expired. Please submit a new password reset request."
+    );
+    error.statusCode = 400;
+    error.code = "TOKEN_EXPIRED";
+    throw error;
+  }
+
+  return {
+    valid: true,
+    email: employee.email,
+  };
+};
+
+/**
+ * Resets an employee password using a valid single-use reset token and revokes all active sessions.
+ */
+export const resetEmployeePassword = async (rawToken, password, clientMeta = {}) => {
+  if (!rawToken || typeof rawToken !== "string") {
+    const error = new Error("Password reset token is required");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!password || typeof password !== "string" || password.length < 8) {
+    const error = new Error("Password must be at least 8 characters long");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
+  const employee = await Employee.findOne({
+    resetPasswordTokenHash: tokenHash,
+    deletedAt: null,
+  }).select("+resetPasswordTokenHash");
+
+  if (!employee) {
+    const error = new Error("Invalid or expired password reset link");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (employee.resetPasswordExpiresAt && employee.resetPasswordExpiresAt < new Date()) {
+    const error = new Error(
+      "Password reset link has expired. Please submit a new password reset request."
+    );
+    error.statusCode = 400;
+    error.code = "TOKEN_EXPIRED";
+    throw error;
+  }
+
+  const salt = await bcrypt.genSalt(12);
+  employee.passwordHash = await bcrypt.hash(password, salt);
+  employee.passwordChangedAt = new Date();
+  employee.resetPasswordTokenHash = null;
+  employee.resetPasswordExpiresAt = null;
+  await employee.save();
+
+  // Invalidate ALL existing refresh tokens for this user across all sessions
+  await RefreshToken.updateMany(
+    { userId: employee._id },
+    { $set: { isRevoked: true } }
+  );
+
+  // Dispatch confirmation email
+  try {
+    await sendEmployeePasswordResetConfirmation({ employee });
+  } catch (err) {
+    if (!env.isTest) {
+      console.warn(`[Auth Service] Password reset confirmation email failed for ${employee.email}:`, err.message);
+    }
+  }
+
+  return {
+    success: true,
+    message: "Password reset successfully. You may now log in with your new credentials.",
   };
 };

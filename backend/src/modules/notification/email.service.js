@@ -1,5 +1,10 @@
 import nodemailer from "nodemailer";
 import env from "../../config/env.js";
+import {
+  employeeInvitationEmail,
+  employeePasswordResetEmail,
+  employeePasswordResetConfirmationEmail,
+} from "./email.templates.js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -600,4 +605,90 @@ export const verifyEmailTransport = async () => {
       code: err.code || null,
     };
   }
+};
+
+/**
+ * Sends an account activation invitation email to an employee.
+ */
+export const sendEmployeeInvitation = async ({
+  employee,
+  rawToken,
+  activationUrl,
+  expiresHours = 24,
+}) => {
+  const clientBase = env.clientUrl || "https://ashivam-tec-h.vercel.app";
+  const url = activationUrl || `${clientBase}/activate-account?token=${rawToken}`;
+  const employeeName =
+    employee.fullName ||
+    `${employee.firstName || ""} ${employee.lastName || ""}`.trim() ||
+    "Staff Member";
+
+  const html = employeeInvitationEmail({
+    employeeName,
+    employeeEmail: employee.email,
+    employeeId: employee.employeeId,
+    designation: employee.designation,
+    department: employee.department,
+    activationUrl: url,
+    expiresHours,
+  });
+
+  return sendEmail({
+    to: employee.email,
+    subject: "Welcome to Ashivam Technologies — Activate Your Employee Workspace",
+    html,
+  });
+};
+
+/**
+ * Sends a password reset email to an employee.
+ */
+export const sendEmployeePasswordReset = async ({
+  employee,
+  rawToken,
+  resetUrl,
+  expiresHours = 1,
+}) => {
+  const clientBase = env.clientUrl || "https://ashivam-tec-h.vercel.app";
+  const url = resetUrl || `${clientBase}/reset-password?token=${rawToken}`;
+  const employeeName =
+    employee.fullName ||
+    `${employee.firstName || ""} ${employee.lastName || ""}`.trim() ||
+    "Staff Member";
+
+  const html = employeePasswordResetEmail({
+    employeeName,
+    employeeEmail: employee.email,
+    resetUrl: url,
+    expiresHours,
+  });
+
+  return sendEmail({
+    to: employee.email,
+    subject: "Password Reset Request — Ashivam Technologies",
+    html,
+  });
+};
+
+/**
+ * Sends a confirmation email after an employee's password has been successfully reset.
+ */
+export const sendEmployeePasswordResetConfirmation = async ({
+  employee,
+}) => {
+  const employeeName =
+    employee.fullName ||
+    `${employee.firstName || ""} ${employee.lastName || ""}`.trim() ||
+    "Staff Member";
+
+  const html = employeePasswordResetConfirmationEmail({
+    employeeName,
+    employeeEmail: employee.email,
+  });
+
+  return sendEmail({
+    to: employee.email,
+    subject: "Password Changed Successfully — Ashivam Technologies",
+    html,
+  });
 };

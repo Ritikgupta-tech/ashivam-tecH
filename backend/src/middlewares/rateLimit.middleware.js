@@ -107,3 +107,16 @@ export const passwordChangeLimiter = rateLimit({
   validate: { xForwardedForHeader: false },
   handler: createRateLimitHandler("Too many password change attempts. Please try again later."),
 });
+
+/*
+ * Rate limiter for sensitive auth actions (account activation, forgot password, reset password)
+ * to prevent automated scraping, email enumeration, and brute force attacks.
+ */
+export const authActionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: env.isTest ? 1000 : 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  handler: createRateLimitHandler("Too many authentication requests. Please try again later."),
+});

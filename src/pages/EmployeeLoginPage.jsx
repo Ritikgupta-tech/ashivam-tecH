@@ -77,6 +77,10 @@ export default function EmployeeLoginPage() {
       if (err.status === 401) {
         friendlyMessage =
           'Invalid work email or password. Please verify your employee credentials.';
+      } else if (err.status === 403) {
+        friendlyMessage =
+          err.message ||
+          'Access restricted. Your account may be pending activation, suspended, or inactive.';
       } else if (err.status === 429) {
         friendlyMessage =
           'Too many login attempts. Your IP has been temporarily rate limited. Please wait 15 minutes before retrying.';
@@ -272,6 +276,11 @@ export default function EmployeeLoginPage() {
                 {fieldErrors.password}
               </span>
             )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+              <Link to="/forgot-password" className="admin-login-back-link" style={{ fontSize: '0.8rem', color: '#3b82f6', textDecoration: 'none' }}>
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           <button
@@ -297,6 +306,12 @@ export default function EmployeeLoginPage() {
         {/* Access Support Note */}
         <div className="employee-login-card__support">
           <p>
+            <strong>First time logging in?</strong> Please check your corporate email for the activation link or{' '}
+            <Link to="/activate-account" style={{ color: '#3b82f6', fontWeight: 600 }}>
+              Activate your workspace account
+            </Link>.
+          </p>
+          <p style={{ marginTop: '6px' }}>
             <strong>Need access assistance?</strong> Credentials are managed by Ashivam IT Administration. Contact your coordinator or email{' '}
             <a href="mailto:ritik95061@gmail.com">ritik95061@gmail.com</a>.
           </p>

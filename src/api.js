@@ -323,6 +323,30 @@ export const changeAdminPassword = ({ currentPassword, newPassword }) =>
     body: JSON.stringify({ currentPassword, newPassword }),
   });
 
+export const verifyActivationToken = (token) =>
+  request(`/auth/verify-activation-token?token=${encodeURIComponent(token)}`);
+
+export const activateEmployeeAccount = ({ token, password, confirmPassword }) =>
+  request('/auth/activate', {
+    method: 'POST',
+    body: JSON.stringify({ token, password, confirmPassword }),
+  });
+
+export const requestForgotPassword = ({ email }) =>
+  request('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+
+export const verifyResetPasswordToken = (token) =>
+  request(`/auth/verify-reset-token?token=${encodeURIComponent(token)}`);
+
+export const resetEmployeePassword = ({ token, password, confirmPassword }) =>
+  request('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password, confirmPassword }),
+  });
+
 export const refreshSession = () => executeTokenRefresh();
 
 export const logoutAdmin = async () => {
@@ -567,6 +591,28 @@ export const updateEmployeeStatus = (id, isActive) =>
 export const deleteEmployee = (id) =>
   request(`/employees/${encodeURIComponent(id)}`, {
     method: 'DELETE',
+  });
+
+export const resendEmployeeInvitation = (employeeId) =>
+  request(`/employees/${encodeURIComponent(employeeId)}/resend-invitation`, {
+    method: 'POST',
+  });
+
+export const updateEmployeeAccountStatus = (employeeId, status) =>
+  request(`/employees/${encodeURIComponent(employeeId)}/account-status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+
+export const updateEmployeeEmploymentStatus = (employeeId, status) =>
+  request(`/employees/${encodeURIComponent(employeeId)}/employment-status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+
+export const adminResetEmployeePassword = (employeeId) =>
+  request(`/employees/${encodeURIComponent(employeeId)}/reset-password`, {
+    method: 'POST',
   });
 
 export const getEmployeeDocuments = (employeeId) =>

@@ -12,6 +12,10 @@ import {
   departments,
   designations,
   exportCsv,
+  resendInvitation,
+  updateAccountStatus,
+  updateEmploymentStatus,
+  adminResetPassword,
 } from "./employee.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -57,6 +61,14 @@ router.post("/", ...adminAccess, create);
 router.patch("/:employeeId", ...adminAccess, update);
 
 router.patch("/:employeeId/status", ...adminAccess, updateStatus);
+
+router.post("/:employeeId/resend-invitation", ...adminAccess, resendInvitation);
+
+router.patch("/:employeeId/account-status", ...adminAccess, updateAccountStatus);
+
+router.patch("/:employeeId/employment-status", ...adminAccess, updateEmploymentStatus);
+
+router.post("/:employeeId/reset-password", ...adminAccess, adminResetPassword);
 
 router.delete("/:employeeId", ...superadminAccess, remove);
 

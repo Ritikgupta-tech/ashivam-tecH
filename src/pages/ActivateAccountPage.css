@@ -1,0 +1,32 @@
+.activate-account-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.activate-account-card {
+  max-width: 480px;
+  width: 100%;
+}
+
+.activate-state-box {
+  margin: 1.5rem 0;
+}
+
+.activate-emp-preview {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.activate-checklist {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+}

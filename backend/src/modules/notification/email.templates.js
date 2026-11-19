@@ -319,3 +319,85 @@ export const internshipAdminAlertTemplate = ({
     websiteUrl: env.clientUrl,
   });
 };
+
+/**
+ * Employee Account Invitation & Activation email template.
+ */
+export const employeeInvitationEmail = ({
+  employeeName,
+  employeeEmail,
+  employeeId,
+  designation,
+  department,
+  activationUrl,
+  expiresHours = 24,
+}) => {
+  return baseTemplate({
+    title: "Welcome to Ashivam Technologies — Activate Your Employee Workspace",
+    contentHtml: `
+      <p>Dear <strong>${escapeHtml(employeeName)}</strong>,</p>
+      <p>Welcome to the <strong>Ashivam Technologies</strong> engineering team! Your employee profile has been created in our internal workspace directory.</p>
+      <table style="width:100%;border-collapse:collapse;margin:20px 0;background:#f8fafc;border-radius:8px;padding:12px;font-size:13px;">
+        <tr><td style="padding:8px 12px;color:#64748b;width:140px;"><strong>Official Email:</strong></td><td style="padding:8px 12px;color:#0f172a;"><strong>${escapeHtml(employeeEmail)}</strong></td></tr>
+        ${employeeId ? `<tr><td style="padding:8px 12px;color:#64748b;"><strong>Employee ID:</strong></td><td style="padding:8px 12px;color:#0f172a;"><code>${escapeHtml(employeeId)}</code></td></tr>` : ""}
+        <tr><td style="padding:8px 12px;color:#64748b;"><strong>Designation:</strong></td><td style="padding:8px 12px;color:#0f172a;">${escapeHtml(designation || "Staff Member")}</td></tr>
+        <tr><td style="padding:8px 12px;color:#64748b;"><strong>Department:</strong></td><td style="padding:8px 12px;color:#0f172a;">${escapeHtml(department || "Engineering")}</td></tr>
+      </table>
+      <p>To access the <strong>Employee Portal</strong>, review your daily meeting schedule, and track attendance, please activate your account and establish your secure password:</p>
+      <p style="font-size:12px;color:#64748b;margin-top:16px;">
+        <em>Note: This single-use activation invitation is valid for <strong>${expiresHours} hours</strong>. For security reasons, never share your activation link.</em>
+      </p>
+    `,
+    actionUrl: activationUrl,
+    actionText: "Activate Employee Account",
+    websiteUrl: env.clientUrl,
+  });
+};
+
+/**
+ * Employee Password Reset Request email template.
+ */
+export const employeePasswordResetEmail = ({
+  employeeName,
+  employeeEmail,
+  resetUrl,
+  expiresHours = 1,
+}) => {
+  return baseTemplate({
+    title: "Password Reset Request — Ashivam Technologies",
+    contentHtml: `
+      <p>Hello <strong>${escapeHtml(employeeName)}</strong>,</p>
+      <p>We received a request to reset the password for your Ashivam Technologies employee account (<strong>${escapeHtml(employeeEmail)}</strong>).</p>
+      <p>Click the button below to establish a new password for your account:</p>
+      <p style="font-size:12px;color:#64748b;margin-top:16px;">
+        <em>This password reset link is single-use and will expire in <strong>${expiresHours} hour(s)</strong>. If you did not make this request, you can safely ignore this email; your existing password will remain unchanged.</em>
+      </p>
+    `,
+    actionUrl: resetUrl,
+    actionText: "Reset My Password",
+    websiteUrl: env.clientUrl,
+  });
+};
+
+/**
+ * Employee Password Reset Confirmation email template.
+ */
+export const employeePasswordResetConfirmationEmail = ({
+  employeeName,
+  employeeEmail,
+}) => {
+  return baseTemplate({
+    title: "Password Changed Successfully — Ashivam Technologies",
+    contentHtml: `
+      <p>Hello <strong>${escapeHtml(employeeName)}</strong>,</p>
+      <p>This is confirmation that the password for your Ashivam Technologies employee account (<strong>${escapeHtml(employeeEmail)}</strong>) was updated successfully on ${new Date().toUTCString()}.</p>
+      <p>All previous active browser sessions for your account have been invalidated for security.</p>
+      <p style="font-size:12px;color:#ef4444;margin-top:16px;">
+        <strong>Important:</strong> If you did not perform this change, please contact Ashivam IT Administration immediately at <a href="mailto:${escapeHtml(env.companyNotificationEmail || "ritik95061@gmail.com")}" style="color:#2563eb;">${escapeHtml(env.companyNotificationEmail || "ritik95061@gmail.com")}</a>.
+      </p>
+    `,
+    actionUrl: `${env.clientUrl}/employee-login/employee`,
+    actionText: "Log In to Workspace",
+    websiteUrl: env.clientUrl,
+  });
+};

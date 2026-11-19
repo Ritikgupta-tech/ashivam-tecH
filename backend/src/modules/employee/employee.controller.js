@@ -10,6 +10,10 @@ import {
   getEmployeeDepartments,
   getEmployeeDesignations,
   exportEmployeesCsv,
+  resendEmployeeInvitation,
+  updateEmployeeAccountStatus,
+  updateEmployeeEmploymentStatus,
+  initiateAdminPasswordReset,
 } from "./employee.service.js";
 
 import {
@@ -145,6 +149,7 @@ export const create = async (
       message: "Employee created successfully",
       data: {
         employee,
+        rawActivationToken: employee.rawActivationToken,
       },
     });
   } catch (error) {
@@ -406,6 +411,136 @@ export const exportCsv = async (req, res, next) => {
       'attachment; filename="ashivam_employees_export.csv"'
     );
     return res.status(200).send(csv);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendInvitation = async (req, res, next) => {
+  try {
+    const adminId = getAdminId(req);
+    const result = await resendEmployeeInvitation(req.params.employeeId, adminId);
+
+    await createAuditLog({
+      req,
+      action: "INVITATION_RESEND",
+      module: "employee",
+      entity: "Employee",
+      entityId: req.params.employeeId,
+      description: `Resent activation invitation for employee ${result.employee?.fullName || req.params.employeeId}`,
+      metadata: {
+        email: result.employee?.email,
+        invitationStatus: result.invitationStatus,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Activation invitation email resent successfully",
+      data: result,
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateAccountStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body || {};
+    if (!status || typeof status !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required and must be a string",
+        requestId: req.id,
+      });
+    }
+
+    const adminId = getAdminId(req);
+    const employee = await updateEmployeeAccountStatus(req.params.employeeId, status.toUpperCase().trim(), adminId);
+
+    await createAuditLog({
+      req,
+      action: "ACCOUNT_STATUS_CHANGE",
+      module: "employee",
+      entity: "Employee",
+      entityId: req.params.employeeId,
+      description: `Changed employee account status to ${status}`,
+      metadata: {
+        accountStatus: employee.accountStatus,
+        isActive: employee.isActive,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Employee account status updated to ${employee.accountStatus}`,
+      data: { employee },
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateEmploymentStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body || {};
+    if (!status || typeof status !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required and must be a string",
+        requestId: req.id,
+      });
+    }
+
+    const adminId = getAdminId(req);
+    const employee = await updateEmployeeEmploymentStatus(req.params.employeeId, status.toUpperCase().trim(), adminId);
+
+    await createAuditLog({
+      req,
+      action: "EMPLOYMENT_STATUS_CHANGE",
+      module: "employee",
+      entity: "Employee",
+      entityId: req.params.employeeId,
+      description: `Changed employee employment status to ${status}`,
+      metadata: {
+        employmentStatus: employee.employmentStatus,
+        accountStatus: employee.accountStatus,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Employee employment status updated to ${employee.employmentStatus}`,
+      data: { employee },
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const adminResetPassword = async (req, res, next) => {
+  try {
+    const adminId = getAdminId(req);
+    const result = await initiateAdminPasswordReset(req.params.employeeId, adminId);
+
+    await createAuditLog({
+      req,
+      action: "ADMIN_RESET_PASSWORD",
+      module: "employee",
+      entity: "Employee",
+      entityId: req.params.employeeId,
+      description: "Admin initiated employee password reset",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result,
+      requestId: req.id,
+    });
   } catch (error) {
     next(error);
   }

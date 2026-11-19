@@ -6,6 +6,11 @@ import {
   changePassword,
   refreshToken,
   logout,
+  verifyActivation,
+  activate,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 } from "./auth.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -13,6 +18,7 @@ import {
   loginLimiter,
   refreshLimiter,
   passwordChangeLimiter,
+  authActionLimiter,
 } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router();
@@ -53,5 +59,14 @@ router.get("/logout", (req, res) => {
 router.get("/me", authenticate, getCurrentAdmin);
 
 router.post("/change-password", authenticate, passwordChangeLimiter, changePassword);
+
+/*
+ * Employee Account Activation & Password Recovery Endpoints
+ */
+router.get("/verify-activation-token", authActionLimiter, verifyActivation);
+router.post("/activate", authActionLimiter, activate);
+router.post("/forgot-password", authActionLimiter, forgotPassword);
+router.get("/verify-reset-token", authActionLimiter, verifyResetToken);
+router.post("/reset-password", authActionLimiter, resetPassword);
 
 export default router;

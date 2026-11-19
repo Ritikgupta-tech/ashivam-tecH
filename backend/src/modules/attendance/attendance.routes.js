@@ -35,6 +35,7 @@ router.get("/my", authenticate, getMyAttendance);
 router.get("/my/summary", authenticate, getMySummary);
 router.get("/my/calendar", authenticate, getMyCalendar);
 router.get("/meetings/upcoming", authenticate, getUpcomingMeetings);
+router.get("/my/upcoming-meetings", authenticate, getUpcomingMeetings);
 router.get("/meetings/:id", authenticate, getMeetingById);
 router.post("/corrections", authenticate, submitCorrectionRequest);
 

@@ -746,3 +746,13 @@ export const ShieldIcon = ShieldCheckIcon;
 export const CodeIcon = SoftwareIcon;
 export const ServerIcon = ApiIcon;
 
+export function KeyIcon({ size = 20, className = '', ...props }) {
+  return (
+    <IconBase size={size} className={className} stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+      <path d="m21 2-9.6 9.6" />
+      <circle cx="7.5" cy="16.5" r="5.5" />
+    </IconBase>
+  );
+}
+

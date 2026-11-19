@@ -5,6 +5,11 @@ import {
   changeAdminPassword,
   rotateRefreshToken,
   revokeSession,
+  verifyActivationToken,
+  activateEmployeeAccount,
+  requestPasswordReset,
+  verifyPasswordResetToken,
+  resetEmployeePassword,
 } from "./auth.service.js";
 import {
   getRefreshTokenCookieOptions,
@@ -206,6 +211,148 @@ export const changePassword = async (req, res, next) => {
         accessToken: result.accessToken,
         passwordChangedAt: result.passwordChangedAt,
       },
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyActivation = async (req, res, next) => {
+  try {
+    const { token } = req.query || {};
+    const result = await verifyActivationToken(token);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const activate = async (req, res, next) => {
+  try {
+    const { token, password, confirmPassword } = req.body || {};
+
+    if (!token || typeof token !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Activation token is required",
+        requestId: req.id,
+      });
+    }
+
+    if (!password || typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+        requestId: req.id,
+      });
+    }
+
+    if (confirmPassword !== undefined && password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Passwords do not match",
+        requestId: req.id,
+      });
+    }
+
+    const clientMeta = {
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    };
+
+    const result = await activateEmployeeAccount(token, password, clientMeta);
+
+    res.cookie("refreshToken", result.refreshToken, getRefreshTokenCookieOptions());
+
+    return res.status(200).json({
+      success: true,
+      message: "Employee account activated successfully",
+      data: {
+        accessToken: result.accessToken,
+        user: result.user,
+      },
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body || {};
+    const result = await requestPasswordReset(email);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      requestId: req.id,
+      ...(result.rawToken ? { rawToken: result.rawToken } : {}),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyResetToken = async (req, res, next) => {
+  try {
+    const { token } = req.query || {};
+    const result = await verifyPasswordResetToken(token);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password, confirmPassword } = req.body || {};
+
+    if (!token || typeof token !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Password reset token is required",
+        requestId: req.id,
+      });
+    }
+
+    if (!password || typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+        requestId: req.id,
+      });
+    }
+
+    if (confirmPassword !== undefined && password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Passwords do not match",
+        requestId: req.id,
+      });
+    }
+
+    const clientMeta = {
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    };
+
+    const result = await resetEmployeePassword(token, password, clientMeta);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
       requestId: req.id,
     });
   } catch (error) {

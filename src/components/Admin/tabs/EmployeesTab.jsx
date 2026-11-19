@@ -6,6 +6,10 @@ import {
   updateEmployeeStatus,
   deleteEmployee,
   exportEmployeesCsv,
+  resendEmployeeInvitation,
+  updateEmployeeAccountStatus,
+  updateEmployeeEmploymentStatus,
+  adminResetEmployeePassword,
 } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
@@ -17,6 +21,7 @@ import {
   XMarkIcon,
   PencilSquareIcon,
   DownloadIcon,
+  KeyIcon,
 } from '../../icons';
 
 export default function EmployeesTab() {
@@ -43,10 +48,14 @@ export default function EmployeesTab() {
     firstName: '',
     lastName: '',
     email: '',
+    employeeId: '',
+    googleEmail: '',
     phone: '',
     designation: '',
     department: 'Software Engineering',
     employmentType: 'Full-time',
+    employmentStatus: 'ACTIVE',
+    accountStatus: 'INVITED',
     workLocation: 'Office',
     joiningDate: new Date().toISOString().split('T')[0],
     bio: '',
@@ -110,10 +119,14 @@ export default function EmployeesTab() {
       firstName: '',
       lastName: '',
       email: '',
+      employeeId: '',
+      googleEmail: '',
       phone: '',
       designation: '',
       department: 'Software Engineering',
       employmentType: 'Full-time',
+      employmentStatus: 'ACTIVE',
+      accountStatus: 'INVITED',
       workLocation: 'Office',
       joiningDate: new Date().toISOString().split('T')[0],
       bio: '',
@@ -132,10 +145,14 @@ export default function EmployeesTab() {
       firstName: emp.firstName || '',
       lastName: emp.lastName || '',
       email: emp.email || '',
+      employeeId: emp.employeeId || '',
+      googleEmail: emp.googleEmail || '',
       phone: emp.phone || '',
       designation: emp.designation || '',
       department: emp.department || 'Software Engineering',
       employmentType: emp.employmentType || 'Full-time',
+      employmentStatus: emp.employmentStatus || (emp.isActive ? 'ACTIVE' : 'INACTIVE'),
+      accountStatus: emp.accountStatus || (emp.isActive ? 'ACTIVE' : 'DEACTIVATED'),
       workLocation: emp.workLocation || 'Office',
       joiningDate: emp.joiningDate
         ? new Date(emp.joiningDate).toISOString().split('T')[0]
@@ -164,10 +181,14 @@ export default function EmployeesTab() {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim().toLowerCase(),
+        employeeId: form.employeeId?.trim() ? form.employeeId.trim().toUpperCase() : undefined,
+        googleEmail: form.googleEmail?.trim() ? form.googleEmail.trim().toLowerCase() : undefined,
         phone: form.phone.trim(),
         designation: form.designation.trim(),
         department: form.department,
         employmentType: form.employmentType,
+        employmentStatus: form.employmentStatus || 'ACTIVE',
+        accountStatus: form.accountStatus || 'INVITED',
         workLocation: form.workLocation,
         joiningDate: form.joiningDate,
         bio: form.bio.trim(),
@@ -181,8 +202,14 @@ export default function EmployeesTab() {
         await updateEmployee(editingEmp._id, payload);
         toast.success(`Employee profile for ${payload.firstName} ${payload.lastName} updated.`);
       } else {
-        await createEmployee(payload);
-        toast.success(`Employee ${payload.firstName} ${payload.lastName} registered.`);
+        const createRes = await createEmployee(payload);
+        if (createRes?.data?.invitationStatus === 'FAILED') {
+          toast.warning(
+            `Staff member ${payload.firstName} registered, but invitation email dispatch failed (${createRes.data.invitationError || 'Check SMTP'}). You can use 'Resend Invite' anytime.`
+          );
+        } else {
+          toast.success(`Employee ${payload.firstName} ${payload.lastName} registered and activation invitation sent.`);
+        }
       }
 
       setShowModal(false);
@@ -191,6 +218,39 @@ export default function EmployeesTab() {
       toast.error(err.message || 'Failed to save employee profile');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleResendInvitation = async (emp) => {
+    try {
+      const res = await resendEmployeeInvitation(emp._id);
+      if (res?.data?.invitationStatus === 'FAILED') {
+        toast.warning(
+          `Invitation token generated, but email delivery failed (${res.data.invitationError || 'Check SMTP'}).`
+        );
+      } else {
+        toast.success(`Activation invitation email dispatched to ${emp.email}.`);
+      }
+      fetchEmployeesList();
+    } catch (err) {
+      toast.error(err.message || 'Failed to resend activation invitation');
+    }
+  };
+
+  const handleAdminResetPassword = async (emp) => {
+    const ok = await confirm({
+      title: 'Initiate Employee Password Reset',
+      message: `Send an official password reset link to "${emp.firstName} ${emp.lastName}" (${emp.email})?`,
+      confirmLabel: 'Send Reset Link',
+      tone: 'primary',
+    });
+    if (!ok) return;
+
+    try {
+      await adminResetEmployeePassword(emp._id);
+      toast.success(`Password reset link dispatched to ${emp.email}.`);
+    } catch (err) {
+      toast.error(err.message || 'Failed to dispatch password reset link');
     }
   };
 
@@ -245,10 +305,11 @@ export default function EmployeesTab() {
 
   const columns = useMemo(
     () => [
-      { key: 'employee', label: 'Employee' },
+      { key: 'employee', label: 'Employee & Corporate ID' },
       { key: 'role', label: 'Role & Department' },
-      { key: 'work', label: 'Work & Location' },
-      { key: 'status', label: 'Status' },
+      { key: 'google', label: 'Google Meet Email' },
+      { key: 'accountStatus', label: 'Security & Activation' },
+      { key: 'status', label: 'Employment' },
       { key: 'actions', label: 'Actions', style: { textAlign: 'right' } },
     ],
     []
@@ -358,7 +419,11 @@ export default function EmployeesTab() {
                         {emp.firstName} {emp.lastName}
                       </span>
                       <span className="admin-cell-sub">{emp.email}</span>
-                      {emp.phone && <span className="admin-cell-muted">{emp.phone}</span>}
+                      {emp.employeeId && (
+                        <span style={{ display: 'inline-block', fontSize: '0.7rem', padding: '1px 6px', background: '#f1f5f9', color: '#0f172a', borderRadius: '4px', marginTop: '2px', fontFamily: 'monospace', fontWeight: 600 }}>
+                          {emp.employeeId}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -367,17 +432,54 @@ export default function EmployeesTab() {
                   <span className="admin-cell-sub">{emp.department}</span>
                 </td>
                 <td>
-                  <span className="admin-cell-title">{emp.employmentType}</span>
-                  <span className="admin-cell-sub">{emp.workLocation}</span>
+                  <span className="admin-cell-title" style={{ fontSize: '0.85rem' }}>
+                    {emp.googleEmail || emp.email}
+                  </span>
+                  <span className="admin-cell-sub" style={{ fontSize: '0.75rem', color: emp.googleEmail ? '#10b981' : '#64748b' }}>
+                    {emp.googleEmail ? 'Mapped for Meet' : 'Default to Work Email'}
+                  </span>
+                </td>
+                <td>
+                  {(() => {
+                    const st = emp.accountStatus || (emp.isActive ? 'ACTIVE' : 'DEACTIVATED');
+                    if (st === 'ACTIVE') return <StatusBadge label="Active / Verified" tone="green" />;
+                    if (st === 'PENDING_ACTIVATION') return <StatusBadge label="Pending Activation" tone="amber" />;
+                    if (st === 'INVITED') return <StatusBadge label="Invited" tone="blue" />;
+                    if (st === 'SUSPENDED') return <StatusBadge label="Suspended" tone="amber" />;
+                    return <StatusBadge label="Deactivated" tone="red" />;
+                  })()}
                 </td>
                 <td>
                   <StatusBadge
-                    label={emp.deletedAt ? 'Deleted' : emp.isActive ? 'Active' : 'Inactive'}
-                    tone={emp.deletedAt ? 'red' : emp.isActive ? 'green' : 'slate'}
+                    label={emp.deletedAt ? 'Deleted' : emp.employmentStatus || (emp.isActive ? 'ACTIVE' : 'INACTIVE')}
+                    tone={emp.deletedAt ? 'red' : (emp.employmentStatus === 'ACTIVE' || emp.isActive) ? 'green' : 'slate'}
                   />
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div className="admin-table-actions">
+                    {/* Resend Invitation if account is not active */}
+                    {(emp.accountStatus === 'INVITED' || emp.accountStatus === 'PENDING_ACTIVATION') && !emp.deletedAt && (
+                      <button
+                        type="button"
+                        className="admin-action-btn"
+                        onClick={() => handleResendInvitation(emp)}
+                        title="Resend Activation Invitation"
+                        style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.75rem' }}
+                      >
+                        Resend Invite
+                      </button>
+                    )}
+                    {/* Password reset for active accounts */}
+                    {emp.accountStatus === 'ACTIVE' && !emp.deletedAt && (
+                      <button
+                        type="button"
+                        className="admin-action-btn"
+                        onClick={() => handleAdminResetPassword(emp)}
+                        title="Dispatch Password Reset Link"
+                      >
+                        <KeyIcon size={14} />
+                      </button>
+                    )}
                     <button
                       type="button"
                       className="admin-action-btn"
@@ -524,6 +626,75 @@ export default function EmployeesTab() {
                     />
                   </div>
                 </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="emp-id-input">
+                      Corporate Employee ID (Optional)
+                    </label>
+                    <input
+                      id="emp-id-input"
+                      type="text"
+                      className="admin-form-input"
+                      value={form.employeeId}
+                      onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
+                      placeholder="e.g. ASH-EMP-1001 (Auto-generated if empty)"
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="emp-google-email-input">
+                      Google Meet Account / Workspace Email
+                    </label>
+                    <input
+                      id="emp-google-email-input"
+                      type="email"
+                      className="admin-form-input"
+                      value={form.googleEmail}
+                      onChange={(e) => setForm({ ...form, googleEmail: e.target.value })}
+                      placeholder="Leave blank to use Company Email"
+                    />
+                  </div>
+                </div>
+
+                {editingEmp && (
+                  <div className="admin-form-row">
+                    <div className="admin-form-group">
+                      <label className="admin-form-label" htmlFor="emp-acc-status-input">
+                        Account Security Status
+                      </label>
+                      <select
+                        id="emp-acc-status-input"
+                        className="admin-form-input"
+                        value={form.accountStatus}
+                        onChange={(e) => setForm({ ...form, accountStatus: e.target.value })}
+                      >
+                        <option value="INVITED">INVITED (Awaiting Invitation)</option>
+                        <option value="PENDING_ACTIVATION">PENDING_ACTIVATION (Email Sent)</option>
+                        <option value="ACTIVE">ACTIVE (Verified & Allowed)</option>
+                        <option value="SUSPENDED">SUSPENDED (Temporary Lockout)</option>
+                        <option value="DEACTIVATED">DEACTIVATED (Offboarded)</option>
+                      </select>
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label className="admin-form-label" htmlFor="emp-employment-status-input">
+                        Employment Status
+                      </label>
+                      <select
+                        id="emp-employment-status-input"
+                        className="admin-form-input"
+                        value={form.employmentStatus}
+                        onChange={(e) => setForm({ ...form, employmentStatus: e.target.value })}
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="TERMINATED">TERMINATED</option>
+                        <option value="ON_LEAVE">ON_LEAVE</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
 
                 <div className="admin-form-row">
                   <div className="admin-form-group">

@@ -93,26 +93,50 @@ export const processMeetCloudEvent = async (eventType, payload) => {
   }
 };
 
-const handleParticipantJoinedEvent = async (eventData) => {
-  const sessionName = eventData.name; // e.g. "conferenceRecords/xxx/participants/yyy/participantSessions/zzz"
-  if (!sessionName) return;
+export const processParticipantJoinedEvent = async (eventData) => {
+  const sessionName =
+    eventData.session?.sessionName ||
+    eventData.participantSession ||
+    eventData.name;
+  if (!sessionName) return null;
 
   const parts = sessionName.split("/");
-  const conferenceRecordId = parts.slice(0, 2).join("/"); // "conferenceRecords/xxx"
-  const participantName = parts.slice(0, 4).join("/");
+  let conferenceRecordId = "";
+  const confIdx = parts.indexOf("conferenceRecords");
+  if (confIdx !== -1 && parts.length > confIdx + 1) {
+    conferenceRecordId = parts.slice(confIdx, confIdx + 2).join("/");
+  } else {
+    conferenceRecordId = parts.slice(0, 2).join("/");
+  }
+
+  let participantName = "";
+  const partIdx = parts.indexOf("participants");
+  if (partIdx !== -1 && parts.length > partIdx + 1) {
+    participantName = parts.slice(0, partIdx + 2).join("/");
+  } else {
+    participantName = parts.slice(0, 4).join("/");
+  }
 
   // Locate the meeting linked to this conference record or space
   let conference = await MeetingConference.findOne({ googleConferenceRecordId: conferenceRecordId });
   let meeting = conference ? await Meeting.findById(conference.meetingId) : null;
 
-  if (!meeting && eventData.space) {
-    meeting = await Meeting.findOne({
-      googleMeetingSpaceName: eventData.space,
-      status: { $in: ["SCHEDULED", "IN_PROGRESS"] },
-    }).sort({ scheduledStartTime: -1 });
+  if (!meeting && (eventData.space || eventData.conferenceRecord)) {
+    const spaceQuery = eventData.space || (eventData.conferenceRecord ? eventData.conferenceRecord.split("/conferenceRecords")[0] : null);
+    if (spaceQuery) {
+      meeting = await Meeting.findOne({
+        googleMeetingSpaceName: spaceQuery,
+        status: { $in: ["SCHEDULED", "IN_PROGRESS"] },
+      }).sort({ scheduledStartTime: -1 });
+    }
   }
 
-  if (!meeting) return;
+  // Fallback to active meeting if in progress
+  if (!meeting) {
+    meeting = await Meeting.findOne({ status: "IN_PROGRESS" }).sort({ updatedAt: -1 });
+  }
+
+  if (!meeting) return null;
 
   // Extract participant identity
   const userType = eventData.signedinUser ? "SIGNED_IN" : eventData.phoneUser ? "PHONE" : "ANONYMOUS";
@@ -127,13 +151,19 @@ const handleParticipantJoinedEvent = async (eventData) => {
     matchedEmployee = await Employee.findOne({
       $or: [{ googleEmail }, { email: googleEmail }],
       deletedAt: null,
+      isActive: true,
+      accountStatus: "ACTIVE",
     });
   }
 
-  const startTime = eventData.startTime ? new Date(eventData.startTime) : new Date();
+  const startTime = eventData.session?.startTime
+    ? new Date(eventData.session.startTime)
+    : eventData.startTime
+    ? new Date(eventData.startTime)
+    : new Date();
 
   // Create or update participant session
-  await ParticipantSession.findOneAndUpdate(
+  const session = await ParticipantSession.findOneAndUpdate(
     { sessionName },
     {
       meetingId: meeting._id,
@@ -157,12 +187,22 @@ const handleParticipantJoinedEvent = async (eventData) => {
     await meeting.save();
   }
 
+  return session;
+};
+
+const handleParticipantJoinedEvent = async (eventData) => {
+  const session = await processParticipantJoinedEvent(eventData);
+  if (!session) return;
+
+  const meeting = await Meeting.findById(session.meetingId);
+  if (!meeting) return;
+
   // Update provisional attendance record if employee is matched
-  if (matchedEmployee) {
+  if (session.matchedEmployeeId) {
     const policy = meeting.policyId ? await AttendancePolicy.findById(meeting.policyId) : {};
     const sessions = await ParticipantSession.find({
       meetingId: meeting._id,
-      matchedEmployeeId: matchedEmployee._id,
+      matchedEmployeeId: session.matchedEmployeeId,
     });
 
     const evaluated = evaluateAttendanceStatus({
@@ -173,7 +213,7 @@ const handleParticipantJoinedEvent = async (eventData) => {
     });
 
     await AttendanceRecord.findOneAndUpdate(
-      { meetingId: meeting._id, employeeId: matchedEmployee._id },
+      { meetingId: meeting._id, employeeId: session.matchedEmployeeId },
       {
         $set: {
           ...evaluated,
@@ -303,6 +343,8 @@ export const reconcileMeetingAttendance = async (meetingId) => {
               matchedEmployee = await Employee.findOne({
                 $or: [{ googleEmail }, { email: googleEmail }],
                 deletedAt: null,
+                isActive: true,
+                accountStatus: "ACTIVE",
               });
             }
 
@@ -348,6 +390,7 @@ export const reconcileMeetingAttendance = async (meetingId) => {
     if (meeting.assignedEmployees && meeting.assignedEmployees.length > 0) {
       targetEmployees = await Employee.find({
         _id: { $in: meeting.assignedEmployees },
+        isActive: true,
         deletedAt: null,
       });
     } else if (meeting.assignedDepartments && meeting.assignedDepartments.length > 0) {

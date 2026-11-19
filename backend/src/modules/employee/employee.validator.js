@@ -18,6 +18,21 @@ const WORK_LOCATIONS = [
   "Hybrid",
 ];
 
+const ACCOUNT_STATUSES = [
+  "INVITED",
+  "PENDING_ACTIVATION",
+  "ACTIVE",
+  "SUSPENDED",
+  "DEACTIVATED",
+];
+
+const EMPLOYMENT_STATUSES = [
+  "ACTIVE",
+  "INACTIVE",
+  "TERMINATED",
+  "ON_LEAVE",
+];
+
 const isValidDate = (value) => {
   const date = new Date(value);
 
@@ -91,6 +106,27 @@ export const validateCreateEmployee = (body) => {
   }
 
   if (
+    body.googleEmail &&
+    (typeof body.googleEmail !== "string" || !EMAIL_REGEX.test(body.googleEmail.trim()))
+  ) {
+    errors.googleEmail = "Invalid Google email address";
+  }
+
+  if (
+    body.accountStatus &&
+    !ACCOUNT_STATUSES.includes(body.accountStatus)
+  ) {
+    errors.accountStatus = `Account status must be one of: ${ACCOUNT_STATUSES.join(", ")}`;
+  }
+
+  if (
+    body.employmentStatus &&
+    !EMPLOYMENT_STATUSES.includes(body.employmentStatus)
+  ) {
+    errors.employmentStatus = `Employment status must be one of: ${EMPLOYMENT_STATUSES.join(", ")}`;
+  }
+
+  if (
     body.displayOrder !== undefined &&
     (
       Number.isNaN(Number(body.displayOrder)) ||
@@ -155,6 +191,28 @@ export const validateUpdateEmployee = (body) => {
   ) {
     errors.employmentType =
       `Employment type must be one of: ${EMPLOYMENT_TYPES.join(", ")}`;
+  }
+
+  if (
+    body.googleEmail !== undefined &&
+    body.googleEmail &&
+    (typeof body.googleEmail !== "string" || !EMAIL_REGEX.test(body.googleEmail.trim()))
+  ) {
+    errors.googleEmail = "Invalid Google email address";
+  }
+
+  if (
+    body.accountStatus !== undefined &&
+    !ACCOUNT_STATUSES.includes(body.accountStatus)
+  ) {
+    errors.accountStatus = `Account status must be one of: ${ACCOUNT_STATUSES.join(", ")}`;
+  }
+
+  if (
+    body.employmentStatus !== undefined &&
+    !EMPLOYMENT_STATUSES.includes(body.employmentStatus)
+  ) {
+    errors.employmentStatus = `Employment status must be one of: ${EMPLOYMENT_STATUSES.join(", ")}`;
   }
 
   if (

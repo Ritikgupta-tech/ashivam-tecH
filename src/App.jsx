@@ -8,6 +8,9 @@ import SolutionsPage from './pages/SolutionsPage';
 import CareersPage from './pages/CareersPage';
 import EmployeePortalSelector from './pages/EmployeePortalSelector';
 import EmployeeLoginPage from './pages/EmployeeLoginPage';
+import ActivateAccountPage from './pages/ActivateAccountPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LegalPage from './pages/LegalPage';
 import RouteScrollWatcher from './components/RouteScrollWatcher';
@@ -67,6 +70,9 @@ function App() {
           {/* Dedicated Employee & Admin Authentication Gateways */}
           <Route path="/employee-login" element={<EmployeePortalSelector />} />
           <Route path="/employee-login/employee" element={<EmployeeLoginPage />} />
+          <Route path="/activate-account" element={<ActivateAccountPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/employee-login/admin" element={
             <Suspense fallback={<AdminLoadingFallback />}>
               <AdminLogin />
