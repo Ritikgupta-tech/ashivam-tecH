@@ -1,3 +1,7 @@
+import crypto from "crypto";
+import mongoose from "mongoose";
+import env from "../../config/env.js";
+import Employee from "../employee/employee.model.js";
 import {
   loginAdmin,
   getAdminById,
@@ -353,6 +357,62 @@ export const resetPassword = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: result.message,
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Development-only secure activation link helper for local testing when SMTP is not configured.
+ * Strictly blocked in production environments and requires Superadmin authorization.
+ * Zero token logging in console or application logs.
+ */
+export const getDevActivationLink = async (req, res, next) => {
+  try {
+    if (env.isProduction) {
+      return res.status(404).json({ success: false, message: "Not found", requestId: req.id });
+    }
+
+    const { employeeId } = req.params;
+    const isId = mongoose.isValidObjectId(employeeId);
+    const employee = await Employee.findOne({
+      $or: [
+        ...(isId ? [{ _id: employeeId }] : []),
+        { employeeId: String(employeeId).trim().toUpperCase() },
+        { email: String(employeeId).trim().toLowerCase() },
+      ],
+      deletedAt: null,
+    }).select("+activationTokenHash");
+
+    if (!employee) {
+      return res.status(404).json({ success: false, message: "Employee not found", requestId: req.id });
+    }
+
+    if (employee.accountStatus === "ACTIVE") {
+      return res.status(400).json({ success: false, message: "Employee account is already active", requestId: req.id });
+    }
+
+    // Generate fresh development activation token and update hash
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    employee.activationTokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    employee.activationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    employee.accountStatus = "PENDING_ACTIVATION";
+    await employee.save();
+
+    const clientBase = (env.clientUrl || "http://localhost:5173").split(",")[0].trim().replace(/\/+$/, "");
+    const activationUrl = `${clientBase}/activate-account?token=${rawToken}`;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        employeeId: employee.employeeId,
+        email: employee.email,
+        activationUrl,
+        expiresAt: employee.activationTokenExpiresAt,
+      },
+      message: "Development-only activation link generated successfully. Disabled in production.",
       requestId: req.id,
     });
   } catch (error) {

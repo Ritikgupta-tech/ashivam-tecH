@@ -11,9 +11,12 @@ import {
   forgotPassword,
   verifyResetToken,
   resetPassword,
+  getDevActivationLink,
 } from "./auth.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
+import { requireRole } from "../../middlewares/authorization.middleware.js";
+import env from "../../config/env.js";
 import {
   loginLimiter,
   refreshLimiter,
@@ -68,5 +71,10 @@ router.post("/activate", authActionLimiter, activate);
 router.post("/forgot-password", authActionLimiter, forgotPassword);
 router.get("/verify-reset-token", authActionLimiter, verifyResetToken);
 router.post("/reset-password", authActionLimiter, resetPassword);
+
+// Secure development-only activation link helper (Strictly Superadmin authenticated, blocked in production)
+if (!env.isProduction) {
+  router.get("/dev/activation-link/:employeeId", authenticate, requireRole("Superadmin"), getDevActivationLink);
+}
 
 export default router;

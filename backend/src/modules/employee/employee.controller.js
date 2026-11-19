@@ -22,6 +22,7 @@ import {
 } from "./employee.validator.js";
 
 import { createAuditLog } from "../audit/audit.service.js";
+import env from "../../config/env.js";
 
 const getAdminId = (req) =>
   req.user?.id ||
@@ -144,12 +145,14 @@ export const create = async (
       },
     });
 
+    const { rawActivationToken: testToken, ...safeEmployee } = employee;
+
     return res.status(201).json({
       success: true,
       message: "Employee created successfully",
       data: {
-        employee,
-        rawActivationToken: employee.rawActivationToken,
+        employee: safeEmployee,
+        ...(env.isTest && testToken ? { rawActivationToken: testToken } : {}),
       },
     });
   } catch (error) {

@@ -10,6 +10,7 @@ import {
   updateEmployeeAccountStatus,
   updateEmployeeEmploymentStatus,
   adminResetEmployeePassword,
+  getDevActivationLink,
 } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
@@ -467,6 +468,28 @@ export default function EmployeesTab() {
                         style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.75rem' }}
                       >
                         Resend Invite
+                      </button>
+                    )}
+                    {/* Development-only activation link shortcut (strictly disabled in production) */}
+                    {import.meta.env.DEV && (emp.accountStatus === 'INVITED' || emp.accountStatus === 'PENDING_ACTIVATION') && !emp.deletedAt && (
+                      <button
+                        type="button"
+                        className="admin-action-btn"
+                        onClick={async () => {
+                          try {
+                            const res = await getDevActivationLink(emp.employeeId || emp._id);
+                            if (res?.data?.activationUrl) {
+                              await navigator.clipboard.writeText(res.data.activationUrl);
+                              toast.success("Development activation URL copied to clipboard!");
+                            }
+                          } catch (e) {
+                            toast.error("Dev Link Error: " + (e.message || "Failed to generate link"));
+                          }
+                        }}
+                        title="Copy Development Activation Link to Clipboard (Dev Only)"
+                        style={{ color: '#059669', fontWeight: 600, fontSize: '0.75rem' }}
+                      >
+                        Dev Link
                       </button>
                     )}
                     {/* Password reset for active accounts */}

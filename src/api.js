@@ -347,6 +347,9 @@ export const resetEmployeePassword = ({ token, password, confirmPassword }) =>
     body: JSON.stringify({ token, password, confirmPassword }),
   });
 
+export const getDevActivationLink = (employeeId) =>
+  request(`/auth/dev/activation-link/${encodeURIComponent(employeeId)}`);
+
 export const refreshSession = () => executeTokenRefresh();
 
 export const logoutAdmin = async () => {
