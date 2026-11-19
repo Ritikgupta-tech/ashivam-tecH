@@ -24,6 +24,42 @@ const employeeSchema = new mongoose.Schema(
       maxlength: 160,
     },
 
+    employeeId: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      default: null,
+    },
+
+    googleEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      default: null,
+    },
+
+    passwordHash: {
+      type: String,
+      select: false,
+      default: null,
+    },
+
+    role: {
+      type: String,
+      enum: ["Employee", "Admin", "Superadmin"],
+      default: "Employee",
+    },
+
+    lastLoginAt: {
+      type: Date,
+      default: null,
+    },
+
+    passwordChangedAt: {
+      type: Date,
+      default: null,
+    },
+
     phone: {
       type: String,
       trim: true,
@@ -155,6 +191,23 @@ employeeSchema.index(
     unique: true,
     partialFilterExpression: { deletedAt: null },
     name: "email_active_unique",
+  }
+);
+
+employeeSchema.index(
+  { employeeId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { employeeId: { $type: "string" }, deletedAt: null },
+    name: "employeeId_active_unique",
+  }
+);
+
+employeeSchema.index(
+  { googleEmail: 1 },
+  {
+    sparse: true,
+    name: "googleEmail_sparse",
   }
 );
 

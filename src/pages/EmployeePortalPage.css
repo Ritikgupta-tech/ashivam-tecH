@@ -1,0 +1,361 @@
+/* Employee Portal Page Styles */
+.emp-portal {
+  min-height: 100vh;
+  background-color: var(--clr-bg-dark, #0B1120);
+  color: var(--clr-text-light, #F8FAFC);
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-portal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(197, 155, 39, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.emp-portal__user {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.emp-portal__user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.emp-portal__user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #F8FAFC;
+}
+
+.emp-portal__user-meta {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  font-family: var(--font-mono, monospace);
+}
+
+.emp-portal__container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  flex: 1;
+}
+
+.emp-portal__header {
+  margin-bottom: 2rem;
+}
+
+.emp-portal__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin-bottom: 0.5rem;
+}
+
+.emp-portal__subtitle {
+  color: #94A3B8;
+  font-size: 0.95rem;
+}
+
+/* Today's Meeting Card */
+.emp-today-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1px solid rgba(197, 155, 39, 0.25);
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.emp-today-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.emp-today-card__badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(197, 155, 39, 0.15);
+  color: #EAB308;
+  border: 1px solid rgba(197, 155, 39, 0.3);
+}
+
+.emp-today-card__title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #F8FAFC;
+  margin: 0.5rem 0;
+}
+
+.emp-today-card__time {
+  color: #94A3B8;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.emp-today-card__body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.emp-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.emp-status-pill--present {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.emp-status-pill--late {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.emp-status-pill--short {
+  background: rgba(249, 115, 22, 0.15);
+  color: #F97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.emp-status-pill--absent {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.emp-status-pill--pending {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818CF8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.emp-verification-note {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  max-width: 500px;
+  line-height: 1.4;
+}
+
+.emp-btn-join {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: #2563EB;
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.emp-btn-join:hover {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+}
+
+/* Metrics Grid */
+.emp-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.emp-metric-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.emp-metric-card__val {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.emp-metric-card__label {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* History Table */
+.emp-history {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.emp-history__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.emp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.emp-table th,
+.emp-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.emp-table th {
+  color: #94A3B8;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.emp-table td {
+  color: #E2E8F0;
+}
+
+.emp-btn-dispute {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #94A3B8;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.emp-btn-dispute:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #F8FAFC;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+/* Modal */
+.emp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.emp-modal {
+  background: #1E293B;
+  border: 1px solid rgba(197, 155, 39, 0.3);
+  border-radius: 12px;
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.emp-modal__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #F8FAFC;
+  margin-bottom: 1rem;
+}
+
+.emp-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.emp-form-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #94A3B8;
+  margin-bottom: 0.35rem;
+}
+
+.emp-form-input,
+.emp-form-textarea {
+  width: 100%;
+  background: #0F172A;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  color: #F8FAFC;
+  font-size: 0.9rem;
+}
+
+.emp-form-input:focus,
+.emp-form-textarea:focus {
+  outline: none;
+  border-color: #EAB308;
+}
+
+.emp-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.emp-btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #94A3B8;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.emp-btn-submit {
+  background: #EAB308;
+  color: #0F172A;
+  font-weight: 600;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+}

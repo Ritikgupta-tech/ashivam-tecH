@@ -277,6 +277,17 @@ const env = {
   // Service-to-Service Integration Configuration (Phase 6)
   internshipServiceUrl: (process.env.INTERNSHIP_SERVICE_URL || "http://localhost:5001").replace(/\/$/, ""),
   internshipServiceSecret: (process.env.INTERNSHIP_SERVICE_SECRET || "ashivam_sec_svc_internship_handover_2026_xyz987").trim(),
+
+  // Google Workspace & Meet Attendance Configuration
+  googleClientId: (process.env.GOOGLE_CLIENT_ID || "").trim(),
+  googleClientSecret: (process.env.GOOGLE_CLIENT_SECRET || "").trim(),
+  googleRedirectUri: (process.env.GOOGLE_REDIRECT_URI || (isProd ? "https://ashivam-tech.onrender.com/api/v1/google/oauth/callback" : "http://localhost:5000/api/v1/google/oauth/callback")).trim(),
+  googleOAuthScopes: (process.env.GOOGLE_OAUTH_SCOPES || "https://www.googleapis.com/auth/meetings.space.created https://www.googleapis.com/auth/meetings.space.readonly").split(/\s+/).filter(Boolean),
+  googleCloudProjectId: (process.env.GOOGLE_CLOUD_PROJECT_ID || "ashivam-meet-attendance").trim(),
+  googlePubSubTopic: (process.env.GOOGLE_PUBSUB_TOPIC || "projects/ashivam-meet-attendance/topics/ashivam-meet-events").trim(),
+  googlePubSubSubscription: (process.env.GOOGLE_PUBSUB_SUBSCRIPTION || "projects/ashivam-meet-attendance/subscriptions/ashivam-meet-events-sub").trim(),
+  googlePubSubSecret: (process.env.GOOGLE_PUBSUB_SECRET || process.env.PUBSUB_VERIFICATION_TOKEN || "ashivam_pubsub_sec_key_2026").trim(),
+  googleTokenEncryptionKey: (process.env.GOOGLE_TOKEN_ENCRYPTION_KEY || "ashivam_meet_token_encryption_key_32b!").trim(),
 };
 
 if (env.isProduction) {

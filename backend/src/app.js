@@ -24,6 +24,7 @@ import employeeRoutes from "./modules/employee/employee.routes.js";
 import employeeDocumentRoutes from "./modules/employee-document/employee-document.routes.js";
 import hrDocumentRoutes from "./modules/hr-document/hrDocument.routes.js";
 import integrationRoutes from "./modules/integration/integration.routes.js";
+import attendanceRoutes from "./modules/attendance/attendance.routes.js";
 
 import {
   notFoundHandler,
@@ -272,6 +273,7 @@ app.use("/api/v1/employees", employeeRoutes);
 app.use("/api/v1/employee-documents", employeeDocumentRoutes);
 app.use("/api/v1/hr-documents", hrDocumentRoutes);
 app.use("/api/v1/integrations", integrationRoutes);
+app.use(["/api/v1/attendance", "/api/v1/google"], attendanceRoutes);
 
 /*
  * 404 handler

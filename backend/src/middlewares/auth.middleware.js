@@ -1,5 +1,5 @@
 import { verifyAccessToken } from "../utils/jwt.js";
-import { getAdminById } from "../modules/auth/auth.service.js";
+import { getUserById } from "../modules/auth/auth.service.js";
 
 export const authenticate = async (req, res, next) => {
   try {
@@ -27,9 +27,9 @@ export const authenticate = async (req, res, next) => {
 
     const payload = verifyAccessToken(token);
 
-    const admin = await getAdminById(payload.sub);
+    const user = await getUserById(payload.sub);
 
-    if (!admin) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: "Account not found",
@@ -38,7 +38,7 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    if (!admin.isActive) {
+    if (!user.isActive) {
       return res.status(403).json({
         success: false,
         message: "Account is inactive",
@@ -47,9 +47,9 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    if (admin.passwordChangedAt) {
+    if (user.passwordChangedAt) {
       const changedTimestamp = Math.floor(
-        admin.passwordChangedAt.getTime() / 1000
+        user.passwordChangedAt.getTime() / 1000
       );
       if (payload.iat && payload.iat < changedTimestamp) {
         return res.status(401).json({
@@ -61,15 +61,27 @@ export const authenticate = async (req, res, next) => {
       }
     }
 
+    const isEmployee = user.role === "Employee";
+
     req.user = {
-      id: admin._id.toString(),
-      username: admin.username,
-      name: admin.name,
-      email: admin.email || null,
-      role: admin.role,
-      permissions: admin.permissions,
-      lastLoginAt: admin.lastLoginAt,
+      id: user._id.toString(),
+      name: isEmployee
+        ? user.fullName || `${user.firstName} ${user.lastName}`.trim()
+        : user.name,
+      email: user.email || null,
+      role: user.role || (isEmployee ? "Employee" : "Admin"),
+      permissions: user.permissions || [],
+      lastLoginAt: user.lastLoginAt,
     };
+
+    if (isEmployee) {
+      req.user.employeeId = user.employeeId || user._id.toString();
+      req.user.googleEmail = user.googleEmail || user.email;
+      req.user.department = user.department;
+      req.user.designation = user.designation;
+    } else {
+      req.user.username = user.username;
+    }
 
     next();
   } catch (error) {

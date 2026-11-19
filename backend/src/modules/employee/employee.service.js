@@ -1,9 +1,10 @@
+import bcrypt from "bcryptjs";
 import Employee from "./employee.model.js";
 import { escapeRegex } from "../../utils/query.js";
 import { toCsv } from "../../utils/csv.js";
 
 export const EMPLOYEE_PROJECTION =
-  "_id firstName lastName email phone profileImage designation department employmentType joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive createdAt updatedAt";
+  "_id firstName lastName email employeeId googleEmail role phone profileImage designation department employmentType joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive lastLoginAt createdAt updatedAt";
 
 export const PUBLIC_EMPLOYEE_PROJECTION =
   "_id firstName lastName designation department profileImage bio skills socialLinks displayOrder isFeatured workLocation";
@@ -205,11 +206,20 @@ export const createEmployee = async (
     throw error;
   }
 
+  let passwordHash = null;
+  if (data.password && typeof data.password === "string") {
+    passwordHash = await bcrypt.hash(data.password, 12);
+  }
+
   const employee =
     await Employee.create({
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
       email: normalizedEmail,
+      employeeId: data.employeeId ? String(data.employeeId).trim().toUpperCase() : null,
+      googleEmail: data.googleEmail ? String(data.googleEmail).trim().toLowerCase() : normalizedEmail,
+      passwordHash,
+      role: data.role || "Employee",
       phone: data.phone?.trim() || "",
       profileImage:
         data.profileImage?.trim() || null,
@@ -300,6 +310,19 @@ export const updateEmployee = async (
           ? ""
           : String(data[field]).trim();
     }
+  }
+
+  if (data.employeeId !== undefined) {
+    employee.employeeId = data.employeeId ? String(data.employeeId).trim().toUpperCase() : null;
+  }
+
+  if (data.googleEmail !== undefined) {
+    employee.googleEmail = data.googleEmail ? String(data.googleEmail).trim().toLowerCase() : null;
+  }
+
+  if (data.password && typeof data.password === "string") {
+    employee.passwordHash = await bcrypt.hash(data.password, 12);
+    employee.passwordChangedAt = new Date();
   }
 
   if (data.employmentType !== undefined) {

@@ -17,6 +17,7 @@ import RouteScrollWatcher from './components/RouteScrollWatcher';
 // These are fetched on-demand only when a user navigates to /admin/*.
 const AdminLogin = lazy(() => import('./components/Admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
+const EmployeePortalPage = lazy(() => import('./pages/EmployeePortalPage'));
 
 /** Minimal loading fallback — keeps the viewport stable during chunk fetch. */
 function AdminLoadingFallback() {
@@ -69,6 +70,18 @@ function App() {
           <Route path="/employee-login/admin" element={
             <Suspense fallback={<AdminLoadingFallback />}>
               <AdminLogin />
+            </Suspense>
+          } />
+
+          {/* Dedicated Employee Attendance Workspace & Portal */}
+          <Route path="/employee" element={
+            <Suspense fallback={<AdminLoadingFallback />}>
+              <EmployeePortalPage />
+            </Suspense>
+          } />
+          <Route path="/employee/*" element={
+            <Suspense fallback={<AdminLoadingFallback />}>
+              <EmployeePortalPage />
             </Suspense>
           } />
 

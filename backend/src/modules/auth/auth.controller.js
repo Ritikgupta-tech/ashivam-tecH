@@ -1,6 +1,7 @@
 import {
   loginAdmin,
   getAdminById,
+  getUserById,
   changeAdminPassword,
   rotateRefreshToken,
   revokeSession,
@@ -131,9 +132,9 @@ export const logout = async (req, res, next) => {
 
 export const getCurrentAdmin = async (req, res, next) => {
   try {
-    const admin = await getAdminById(req.user.id);
+    const user = await getUserById(req.user.id);
 
-    if (!admin || !admin.isActive) {
+    if (!user || !user.isActive) {
       return res.status(401).json({
         success: false,
         message: "Account is no longer available",
@@ -142,18 +143,32 @@ export const getCurrentAdmin = async (req, res, next) => {
       });
     }
 
+    const isEmployee = user.role === "Employee";
+    const userResponse = {
+      id: user._id,
+      name: isEmployee
+        ? user.fullName || `${user.firstName} ${user.lastName}`.trim()
+        : user.name,
+      email: user.email || null,
+      role: user.role || (isEmployee ? "Employee" : "Admin"),
+      lastLoginAt: user.lastLoginAt,
+    };
+
+    if (isEmployee) {
+      userResponse.employeeId = user.employeeId || user._id.toString();
+      userResponse.googleEmail = user.googleEmail || user.email;
+      userResponse.department = user.department;
+      userResponse.designation = user.designation;
+      userResponse.permissions = [];
+    } else {
+      userResponse.username = user.username;
+      userResponse.permissions = user.permissions;
+    }
+
     return res.status(200).json({
       success: true,
       data: {
-        user: {
-          id: admin._id,
-          username: admin.username,
-          name: admin.name,
-          email: admin.email || null,
-          role: admin.role,
-          permissions: admin.permissions,
-          lastLoginAt: admin.lastLoginAt,
-        },
+        user: userResponse,
       },
       requestId: req.id,
     });

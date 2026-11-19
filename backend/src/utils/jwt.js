@@ -2,19 +2,29 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
-export const generateAccessToken = (admin) => {
-  return jwt.sign(
-    {
-      sub: admin._id.toString(),
-      username: admin.username,
-      role: admin.role,
-    },
-    env.jwtSecret,
-    {
-      algorithm: "HS256",
-      expiresIn: env.jwtExpiresIn || "15m",
-    }
-  );
+export const generateAccessToken = (user) => {
+  const userId = user._id ? user._id.toString() : user.id;
+  const role = user.role || "Admin";
+  const payload = {
+    sub: userId,
+    role,
+  };
+
+  if (role === "Employee") {
+    payload.employeeId = user.employeeId || userId;
+    payload.name = user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.name;
+    payload.email = user.email;
+    payload.department = user.department;
+    payload.designation = user.designation;
+  } else {
+    payload.username = user.username;
+    if (user.email) payload.email = user.email;
+  }
+
+  return jwt.sign(payload, env.jwtSecret, {
+    algorithm: "HS256",
+    expiresIn: env.jwtExpiresIn || "15m",
+  });
 };
 
 export const verifyAccessToken = (token) => {

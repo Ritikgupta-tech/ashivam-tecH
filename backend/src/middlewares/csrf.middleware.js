@@ -16,6 +16,11 @@ export const csrfProtection = (req, res, next) => {
     return next();
   }
 
+  // Server-to-server webhooks (e.g. Google Cloud Pub/Sub) are exempt from browser CSRF
+  if (req.path.includes("/google/events/pubsub")) {
+    return next();
+  }
+
   const originHeader = req.headers.origin;
   const refererHeader = req.headers.referer;
   const secFetchSite = req.headers["sec-fetch-site"];

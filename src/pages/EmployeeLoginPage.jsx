@@ -13,7 +13,7 @@ export default function EmployeeLoginPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,12 +23,17 @@ export default function EmployeeLoginPage() {
   }, []);
 
   useEffect(() => {
-    // If already authenticated with active session, redirect to admin/workspace
+    // If already authenticated with active session, redirect to appropriate workspace
     if (!isLoading && isAuthenticated) {
-      const targetPath = location.state?.from?.pathname || '/admin';
-      navigate(targetPath, { replace: true });
+      if (user?.role === 'Employee') {
+        const targetPath = location.state?.from?.pathname || '/employee';
+        navigate(targetPath, { replace: true });
+      } else {
+        const targetPath = location.state?.from?.pathname || '/admin';
+        navigate(targetPath, { replace: true });
+      }
     }
-  }, [isAuthenticated, isLoading, navigate, location.state]);
+  }, [isAuthenticated, isLoading, user, navigate, location.state]);
 
   const validateForm = () => {
     const errors = {};
@@ -56,9 +61,15 @@ export default function EmployeeLoginPage() {
     setLoading(true);
 
     try {
-      await login(identifier.trim(), password);
-      const targetPath = location.state?.from?.pathname || '/admin';
-      navigate(targetPath, { replace: true });
+      const authResult = await login(identifier.trim(), password);
+      const authenticatedUser = authResult?.data?.user || authResult?.user;
+      if (authenticatedUser?.role === 'Employee') {
+        const targetPath = location.state?.from?.pathname || '/employee';
+        navigate(targetPath, { replace: true });
+      } else {
+        const targetPath = location.state?.from?.pathname || '/admin';
+        navigate(targetPath, { replace: true });
+      }
     } catch (err) {
       let friendlyMessage =
         'Authentication failed. Please verify your employee credentials with Ashivam IT Administration.';

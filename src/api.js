@@ -785,6 +785,96 @@ export const exportEmployeesCsv = (params) =>
 export const exportHrDocumentsCsv = (params) =>
   downloadAuthenticatedCsv(`/hr-documents/export${buildQuery(params)}`, 'ashivam_hr_documents_export.csv');
 
+// ==========================================
+// EMPLOYEE ATTENDANCE APIS
+// ==========================================
+export const getMyAttendance = (params) =>
+  request(`/attendance/my${buildQuery(params)}`);
+
+export const getMyAttendanceSummary = () =>
+  request('/attendance/my/summary');
+
+export const getMyAttendanceCalendar = (params) =>
+  request(`/attendance/my/calendar${buildQuery(params)}`);
+
+export const getUpcomingMeetings = () =>
+  request('/attendance/meetings/upcoming');
+
+export const getMeetingDetails = (id) =>
+  request(`/attendance/meetings/${id}`);
+
+export const submitAttendanceDispute = (data) =>
+  request('/attendance/corrections', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+// ==========================================
+// ADMIN ATTENDANCE & GOOGLE APIS
+// ==========================================
+export const getAdminAttendanceDashboard = () =>
+  request('/attendance/admin/dashboard');
+
+export const getAdminAttendanceRecords = (params) =>
+  request(`/attendance/admin/records${buildQuery(params)}`);
+
+export const updateAdminAttendanceCorrection = (id, data) =>
+  request(`/attendance/admin/records/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const getAdminCorrectionRequests = (params) =>
+  request(`/attendance/admin/corrections${buildQuery(params)}`);
+
+export const resolveAdminCorrectionRequest = (id, data) =>
+  request(`/attendance/admin/corrections/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const exportAttendanceReportCsv = (params) =>
+  downloadAuthenticatedCsv(
+    `/attendance/admin/export${buildQuery({ ...params, format: 'csv' })}`,
+    'ashivam_meeting_attendance_report.csv'
+  );
+
+export const listAdminMeetings = (params) =>
+  request(`/attendance/admin/meetings${buildQuery(params)}`);
+
+export const createAdminMeeting = (data) =>
+  request('/attendance/admin/meetings', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateAdminMeeting = (id, data) =>
+  request(`/attendance/admin/meetings/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const deleteAdminMeeting = (id) =>
+  request(`/attendance/admin/meetings/${id}`, {
+    method: 'DELETE',
+  });
+
+export const triggerMeetingReconciliation = (id) =>
+  request(`/attendance/admin/meetings/${id}/reconcile`, {
+    method: 'POST',
+  });
+
+export const getGoogleOAuthUrl = () =>
+  request('/google/oauth/authorize');
+
+export const getGoogleIntegrationStatus = () =>
+  request('/google/integration/status');
+
+export const triggerGlobalReconciliation = () =>
+  request('/google/events/reconcile', {
+    method: 'POST',
+  });
+
 if (typeof window !== 'undefined') {
   window.__ashivamApi = {
     request,

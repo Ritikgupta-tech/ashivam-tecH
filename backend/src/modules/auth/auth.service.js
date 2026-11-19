@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import Admin from "../../models/admin.model.js";
+import Employee from "../employee/employee.model.js";
 import RefreshToken from "../../models/refreshToken.model.js";
 import {
   generateAccessToken,
@@ -12,68 +13,140 @@ import {
 const DUMMY_HASH = "$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/bB8t6dJmD3kZcZ0nL5o2b3C4f9ye";
 const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-export const loginAdmin = async (username, password, clientMeta = {}) => {
-  const normalizedUsername = (username || "").trim().toLowerCase();
+export const loginAdmin = async (identifier, password, clientMeta = {}) => {
+  const normalizedIdentifier = (identifier || "").trim().toLowerCase();
 
+  // 1. Check Admin by username or email
   const admin = await Admin.findOne({
-    username: normalizedUsername,
+    $or: [{ username: normalizedIdentifier }, { email: normalizedIdentifier }],
   }).select("+passwordHash");
 
-  if (!admin || !admin.isActive) {
-    await bcrypt.compare(password || "", DUMMY_HASH);
-    return null;
+  if (admin) {
+    if (!admin.isActive) {
+      await bcrypt.compare(password || "", DUMMY_HASH);
+      return null;
+    }
+
+    const passwordValid = await bcrypt.compare(
+      password || "",
+      admin.passwordHash
+    );
+
+    if (!passwordValid) {
+      return null;
+    }
+
+    admin.lastLoginAt = new Date();
+    await admin.save();
+
+    const accessToken = generateAccessToken(admin);
+    const rawRefreshToken = generateRefreshToken();
+    const tokenHash = hashToken(rawRefreshToken);
+    const familyId = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+
+    await RefreshToken.create({
+      userId: admin._id,
+      familyId,
+      tokenHash,
+      isRevoked: false,
+      expiresAt,
+      createdByIp: clientMeta.ip || null,
+      userAgent: clientMeta.userAgent || null,
+    });
+
+    return {
+      accessToken,
+      refreshToken: rawRefreshToken,
+      familyId,
+      user: {
+        id: admin._id,
+        username: admin.username,
+        name: admin.name,
+        email: admin.email || null,
+        role: admin.role,
+        permissions: admin.permissions,
+        lastLoginAt: admin.lastLoginAt,
+      },
+    };
   }
 
-  const passwordValid = await bcrypt.compare(
-    password || "",
-    admin.passwordHash
-  );
+  // 2. Check Employee by email, employeeId, or googleEmail
+  const employee = await Employee.findOne({
+    $or: [
+      { email: normalizedIdentifier },
+      { employeeId: normalizedIdentifier.toUpperCase() },
+      { googleEmail: normalizedIdentifier },
+    ],
+    deletedAt: null,
+  }).select("+passwordHash");
 
-  if (!passwordValid) {
-    return null;
+  if (employee && employee.isActive && employee.passwordHash) {
+    const passwordValid = await bcrypt.compare(
+      password || "",
+      employee.passwordHash
+    );
+
+    if (!passwordValid) {
+      return null;
+    }
+
+    employee.lastLoginAt = new Date();
+    await employee.save();
+
+    const accessToken = generateAccessToken(employee);
+    const rawRefreshToken = generateRefreshToken();
+    const tokenHash = hashToken(rawRefreshToken);
+    const familyId = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+
+    await RefreshToken.create({
+      userId: employee._id,
+      familyId,
+      tokenHash,
+      isRevoked: false,
+      expiresAt,
+      createdByIp: clientMeta.ip || null,
+      userAgent: clientMeta.userAgent || null,
+    });
+
+    return {
+      accessToken,
+      refreshToken: rawRefreshToken,
+      familyId,
+      user: {
+        id: employee._id,
+        employeeId: employee.employeeId || employee._id.toString(),
+        name: employee.fullName || `${employee.firstName} ${employee.lastName}`.trim(),
+        email: employee.email,
+        googleEmail: employee.googleEmail || employee.email,
+        role: "Employee",
+        department: employee.department,
+        designation: employee.designation,
+        permissions: [],
+        lastLoginAt: employee.lastLoginAt,
+      },
+    };
   }
 
-  admin.lastLoginAt = new Date();
-  await admin.save();
-
-  // 1. Generate 15-minute Access Token
-  const accessToken = generateAccessToken(admin);
-
-  // 2. Generate 7-day Refresh Token with fresh lineage Family ID
-  const rawRefreshToken = generateRefreshToken();
-  const tokenHash = hashToken(rawRefreshToken);
-  const familyId = crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
-
-  await RefreshToken.create({
-    userId: admin._id,
-    familyId,
-    tokenHash,
-    isRevoked: false,
-    expiresAt,
-    createdByIp: clientMeta.ip || null,
-    userAgent: clientMeta.userAgent || null,
-  });
-
-  return {
-    accessToken,
-    refreshToken: rawRefreshToken,
-    familyId,
-    user: {
-      id: admin._id,
-      username: admin.username,
-      name: admin.name,
-      email: admin.email || null,
-      role: admin.role,
-      permissions: admin.permissions,
-      lastLoginAt: admin.lastLoginAt,
-    },
-  };
+  // 3. Fallback dummy hash comparison for timing attack defense
+  await bcrypt.compare(password || "", DUMMY_HASH);
+  return null;
 };
 
 export const getAdminById = async (adminId) => {
   return Admin.findById(adminId).select(
     "_id username name email role permissions isActive lastLoginAt passwordChangedAt"
+  );
+};
+
+export const getUserById = async (userId) => {
+  const admin = await Admin.findById(userId).select(
+    "_id username name email role permissions isActive lastLoginAt passwordChangedAt"
+  );
+  if (admin) return admin;
+  return Employee.findOne({ _id: userId, deletedAt: null }).select(
+    "_id firstName lastName email employeeId googleEmail department designation role isActive lastLoginAt passwordChangedAt"
   );
 };
 
@@ -122,13 +195,20 @@ export const rotateRefreshToken = async (rawRefreshToken, clientMeta = {}) => {
     throw error;
   }
 
-  // Validate that the underlying administrator is still active
-  const admin = await Admin.findById(tokenRecord.userId);
-  if (!admin || !admin.isActive) {
+  // Validate that the underlying user (Admin or Employee) is still active
+  let user = await Admin.findById(tokenRecord.userId);
+  let userType = "Admin";
+
+  if (!user) {
+    user = await Employee.findOne({ _id: tokenRecord.userId, deletedAt: null });
+    userType = "Employee";
+  }
+
+  if (!user || !user.isActive) {
     tokenRecord.isRevoked = true;
     await tokenRecord.save();
 
-    const error = new Error("Administrator account is inactive or no longer exists");
+    const error = new Error("Account is inactive or no longer exists");
     error.statusCode = 403;
     throw error;
   }
@@ -138,13 +218,13 @@ export const rotateRefreshToken = async (rawRefreshToken, clientMeta = {}) => {
   await tokenRecord.save();
 
   // Issue new access token (15m) and new refresh token (7d) within the SAME family
-  const newAccessToken = generateAccessToken(admin);
+  const newAccessToken = generateAccessToken(user);
   const newRawRefreshToken = generateRefreshToken();
   const newTokenHash = hashToken(newRawRefreshToken);
   const newExpiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
   await RefreshToken.create({
-    userId: admin._id,
+    userId: user._id,
     familyId: tokenRecord.familyId,
     tokenHash: newTokenHash,
     isRevoked: false,
@@ -153,18 +233,29 @@ export const rotateRefreshToken = async (rawRefreshToken, clientMeta = {}) => {
     userAgent: clientMeta.userAgent || null,
   });
 
+  const responseUser = {
+    id: user._id,
+    name: userType === "Employee" ? `${user.firstName} ${user.lastName}`.trim() : user.name,
+    email: user.email || null,
+    role: user.role || (userType === "Employee" ? "Employee" : "Admin"),
+    lastLoginAt: user.lastLoginAt,
+  };
+
+  if (userType === "Employee") {
+    responseUser.employeeId = user.employeeId || user._id.toString();
+    responseUser.googleEmail = user.googleEmail || user.email;
+    responseUser.department = user.department;
+    responseUser.designation = user.designation;
+    responseUser.permissions = [];
+  } else {
+    responseUser.username = user.username;
+    responseUser.permissions = user.permissions;
+  }
+
   return {
     accessToken: newAccessToken,
     refreshToken: newRawRefreshToken,
-    user: {
-      id: admin._id,
-      username: admin.username,
-      name: admin.name,
-      email: admin.email || null,
-      role: admin.role,
-      permissions: admin.permissions,
-      lastLoginAt: admin.lastLoginAt,
-    },
+    user: responseUser,
   };
 };
 

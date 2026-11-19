@@ -32,6 +32,8 @@ export const ADMIN_ICON_MAP = {
   audit: ShieldCheckIcon,
   settings: GearIcon,
   admins: CrownIcon,
+  attendance: UsersIcon,
+  google: ShieldCheckIcon,
 };
 
 export default function AdminShell({

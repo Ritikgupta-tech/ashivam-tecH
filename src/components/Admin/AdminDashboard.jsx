@@ -17,6 +17,8 @@ import MediaTab from './tabs/MediaTab';
 import AuditTab from './tabs/AuditTab';
 import SettingsTab from './tabs/SettingsTab';
 import AdminsTab from './tabs/AdminsTab';
+import AttendanceTab from './tabs/AttendanceTab';
+import GoogleIntegrationTab from './tabs/GoogleIntegrationTab';
 
 import './AdminDashboard.css';
 
@@ -38,6 +40,8 @@ export default function AdminDashboard() {
       { id: 'audit', label: 'Audit Logs', permission: 'audit' },
       { id: 'settings', label: 'Settings', permission: 'settings' },
       { id: 'admins', label: 'Admin Accounts', superadminOnly: true },
+      { id: 'attendance', label: 'Meet Attendance', permission: 'employees' },
+      { id: 'google', label: 'Google Integration', superadminOnly: true },
     ],
     []
   );
@@ -123,6 +127,8 @@ export default function AdminDashboard() {
         {activeTab === 'audit' && <AuditTab />}
         {activeTab === 'settings' && <SettingsTab />}
         {activeTab === 'admins' && <AdminsTab currentUser={user} />}
+        {activeTab === 'attendance' && <AttendanceTab />}
+        {activeTab === 'google' && <GoogleIntegrationTab />}
       </AdminShell>
     </AdminFeedbackProvider>
   );
