@@ -24,6 +24,7 @@ const attendanceRecordSchema = new mongoose.Schema(
         "EXEMPTED",
         "PENDING_VERIFICATION",
         "NEEDS_REVIEW",
+        "CANCELLED",
       ],
       default: "PENDING_VERIFICATION",
       required: true,

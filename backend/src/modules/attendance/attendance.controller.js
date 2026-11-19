@@ -680,6 +680,13 @@ export const updateMeeting = async (req, res, next) => {
       });
     }
 
+    if (updates.status === "CANCELLED") {
+      await AttendanceRecord.updateMany(
+        { meetingId: id },
+        { $set: { status: "CANCELLED", isProvisional: false } }
+      );
+    }
+
     return res.status(200).json({
       success: true,
       message: "Meeting updated successfully",
@@ -707,6 +714,12 @@ export const deleteMeeting = async (req, res, next) => {
         requestId: req.id,
       });
     }
+
+    // Cancel all attendance records for this meeting
+    await AttendanceRecord.updateMany(
+      { meetingId: id },
+      { $set: { status: "CANCELLED", isProvisional: false } }
+    );
 
     return res.status(200).json({
       success: true,
