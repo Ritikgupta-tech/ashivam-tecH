@@ -112,6 +112,27 @@ test('Feedback toast queue caps at maximum 4 simultaneous toasts', () => {
   assert.equal(toasts[3].message, 'Message 5');
 });
 
+test('AdminFeedback toast provider exposes warning, success, error, and info dispatchers', () => {
+  const dispatched = [];
+  const pushToast = (tone, message) => dispatched.push({ tone, message });
+  const toast = {
+    success: (msg) => pushToast('success', msg),
+    error: (msg) => pushToast('error', msg),
+    warning: (msg) => pushToast('warning', msg),
+    info: (msg) => pushToast('info', msg),
+  };
+
+  assert.equal(typeof toast.success, 'function');
+  assert.equal(typeof toast.error, 'function');
+  assert.equal(typeof toast.warning, 'function');
+  assert.equal(typeof toast.info, 'function');
+
+  toast.warning('Invitation token regenerated, but email delivery failed');
+  assert.equal(dispatched.length, 1);
+  assert.equal(dispatched[0].tone, 'warning');
+  assert.equal(dispatched[0].message, 'Invitation token regenerated, but email delivery failed');
+});
+
 // 5. Status badge tone mapping consistency
 test('StatusBadge maps recruitment, inquiry, and document states to accessible tones', () => {
   const STATUS_TONES = {

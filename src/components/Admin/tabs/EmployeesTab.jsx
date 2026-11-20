@@ -43,6 +43,7 @@ export default function EmployeesTab() {
   const [editingEmp, setEditingEmp] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [resendingId, setResendingId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
   const [form, setForm] = useState({
@@ -223,6 +224,8 @@ export default function EmployeesTab() {
   };
 
   const handleResendInvitation = async (emp) => {
+    if (resendingId === emp._id) return;
+    setResendingId(emp._id);
     try {
       const res = await resendEmployeeInvitation(emp._id);
       if (res?.data?.invitationStatus === 'FAILED') {
@@ -235,6 +238,8 @@ export default function EmployeesTab() {
       fetchEmployeesList();
     } catch (err) {
       toast.error(err.message || 'Failed to resend activation invitation');
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -489,10 +494,17 @@ export default function EmployeesTab() {
                         type="button"
                         className="admin-action-btn"
                         onClick={() => handleResendInvitation(emp)}
+                        disabled={resendingId === emp._id}
                         title="Resend Activation Invitation"
-                        style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.75rem' }}
+                        style={{
+                          color: '#2563eb',
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          opacity: resendingId === emp._id ? 0.6 : 1,
+                          cursor: resendingId === emp._id ? 'wait' : 'pointer',
+                        }}
                       >
-                        Resend Invite
+                        {resendingId === emp._id ? 'Sending...' : 'Resend Invite'}
                       </button>
                     )}
                     {/* Development-only activation link shortcut (strictly disabled in production) */}

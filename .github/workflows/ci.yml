@@ -48,6 +48,15 @@ jobs:
       JWT_SECRET: ashivam-ci-test-jwt-secret-key-32-chars-minimum!
       JWT_REFRESH_SECRET: ashivam-ci-test-jwt-refresh-secret-key-32-chars-minimum!
       COMPANY_NOTIFICATION_EMAIL: ritik95061@gmail.com
+      GOOGLE_CLIENT_ID: 950533040414-testci00000000000000000000000.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: test-ci-google-client-secret-mock-value
+      GOOGLE_REDIRECT_URI: https://ashivam-tech.onrender.com/api/v1/google/oauth/callback
+      TOKEN_ENCRYPTION_KEY: test-ci-encryption-key-32-chars-minimum!
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 465
+      SMTP_SECURE: "true"
+      SMTP_USER: ritik95061@gmail.com
+      SMTP_PASS: test_ci_smtp_app_password_mock
     steps:
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

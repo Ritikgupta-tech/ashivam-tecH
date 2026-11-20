@@ -83,42 +83,63 @@ test("Regression 1 & 2: Missing or empty GOOGLE_CLIENT_ID throws 503 GOOGLE_OAUT
 });
 
 test("Regression 3, 4, 5, 6: Correct client_id, redirect_uri, required scopes, and valid state in generated authorization URL", () => {
-  const { url, state } = generateOAuthAuthUrl();
+  const origClientId = process.env.GOOGLE_CLIENT_ID;
+  const origRedirectUri = process.env.GOOGLE_REDIRECT_URI;
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    process.env.GOOGLE_CLIENT_ID = "950533040414-testmockclientid123456789.apps.googleusercontent.com";
+  }
+  if (!process.env.GOOGLE_REDIRECT_URI) {
+    process.env.GOOGLE_REDIRECT_URI = "https://ashivam-tech.onrender.com/api/v1/google/oauth/callback";
+  }
+  try {
+    const { url, state } = generateOAuthAuthUrl();
 
-  assert.ok(url, "Authorization URL should be generated");
-  assert.ok(state, "CSRF state should be generated");
-  assert.equal(state.length, 48, "State must be 24-byte hex string (48 characters)");
+    assert.ok(url, "Authorization URL should be generated");
+    assert.ok(state, "CSRF state should be generated");
+    assert.equal(state.length, 48, "State must be 24-byte hex string (48 characters)");
 
-  const parsedUrl = new URL(url);
-  assert.equal(parsedUrl.hostname, "accounts.google.com");
-  assert.equal(parsedUrl.searchParams.get("client_id"), env.googleClientId);
-  assert.ok(parsedUrl.searchParams.get("client_id")?.length > 10, "client_id must be non-empty");
-  assert.equal(parsedUrl.searchParams.get("redirect_uri"), env.googleRedirectUri);
-  assert.equal(parsedUrl.searchParams.get("response_type"), "code");
-  assert.equal(parsedUrl.searchParams.get("access_type"), "offline");
-  assert.equal(parsedUrl.searchParams.get("prompt"), "consent");
+    const parsedUrl = new URL(url);
+    assert.equal(parsedUrl.hostname, "accounts.google.com");
+    assert.equal(parsedUrl.searchParams.get("client_id"), env.googleClientId);
+    assert.ok(parsedUrl.searchParams.get("client_id")?.length > 10, "client_id must be non-empty");
+    assert.equal(parsedUrl.searchParams.get("redirect_uri"), env.googleRedirectUri);
+    assert.equal(parsedUrl.searchParams.get("response_type"), "code");
+    assert.equal(parsedUrl.searchParams.get("access_type"), "offline");
+    assert.equal(parsedUrl.searchParams.get("prompt"), "consent");
 
-  const scopes = parsedUrl.searchParams.get("scope").split(" ");
-  assert.ok(scopes.includes("openid"), "Scope must include openid");
-  assert.ok(scopes.includes("email"), "Scope must include email");
-  assert.ok(
-    scopes.includes("https://www.googleapis.com/auth/meetings.space.created"),
-    "Scope must include meetings.space.created"
-  );
-  assert.ok(
-    scopes.includes("https://www.googleapis.com/auth/meetings.space.readonly"),
-    "Scope must include meetings.space.readonly"
-  );
+    const scopes = parsedUrl.searchParams.get("scope").split(" ");
+    assert.ok(scopes.includes("openid"), "Scope must include openid");
+    assert.ok(scopes.includes("email"), "Scope must include email");
+    assert.ok(
+      scopes.includes("https://www.googleapis.com/auth/meetings.space.created"),
+      "Scope must include meetings.space.created"
+    );
+    assert.ok(
+      scopes.includes("https://www.googleapis.com/auth/meetings.space.readonly"),
+      "Scope must include meetings.space.readonly"
+    );
 
-  // Validate state consumption (single-use CSRF)
-  const isValidFirst = validateOAuthState(state);
-  assert.equal(isValidFirst, true, "State should be valid upon first validation");
+    // Validate state consumption (single-use CSRF)
+    const isValidFirst = validateOAuthState(state);
+    assert.equal(isValidFirst, true, "State should be valid upon first validation");
 
-  const isValidSecond = validateOAuthState(state);
-  assert.equal(isValidSecond, false, "State should be invalidated after single use (anti-replay)");
+    const isValidSecond = validateOAuthState(state);
+    assert.equal(isValidSecond, false, "State should be invalidated after single use (anti-replay)");
 
-  const isValidBogus = validateOAuthState("bogus_state_123456");
-  assert.equal(isValidBogus, false, "Unknown state must be rejected");
+    const isValidBogus = validateOAuthState("bogus_state_123456");
+    assert.equal(isValidBogus, false, "Unknown state must be rejected");
+  } finally {
+    if (origClientId !== undefined) {
+      process.env.GOOGLE_CLIENT_ID = origClientId;
+    } else {
+      delete process.env.GOOGLE_CLIENT_ID;
+    }
+    if (origRedirectUri !== undefined) {
+      process.env.GOOGLE_REDIRECT_URI = origRedirectUri;
+    } else {
+      delete process.env.GOOGLE_REDIRECT_URI;
+    }
+  }
 });
 
 test("Regression 7: Invalid or missing redirect URI is rejected", () => {

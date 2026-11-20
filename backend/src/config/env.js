@@ -235,9 +235,9 @@ const env = {
   alertEmail: companyNotificationRecipient,
   notificationRecipient: companyNotificationRecipient,
 
-  smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 10000,
-  smtpGreetingTimeoutMs: Number(process.env.SMTP_GREETING_TIMEOUT_MS) || 10000,
-  smtpSocketTimeoutMs: Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 15000,
+  smtpConnectionTimeoutMs: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS) || 30000,
+  smtpGreetingTimeoutMs: Number(process.env.SMTP_GREETING_TIMEOUT_MS) || 30000,
+  smtpSocketTimeoutMs: Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 45000,
 
   isSmtpConfigured: Boolean(
     (process.env.SMTP_HOST || "smtp.gmail.com").trim() &&

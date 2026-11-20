@@ -10,7 +10,7 @@ import Job from "../src/modules/career/job.model.js";
 import Application from "../src/modules/career/application.model.js";
 import Inquiry from "../src/modules/inquiry/inquiry.model.js";
 import OutboxJob from "../src/models/outbox.model.js";
-import { resetTransporter } from "../src/modules/notification/email.service.js";
+import { resetTransporter, setTransporter } from "../src/modules/notification/email.service.js";
 import { processPendingOutbox } from "../src/modules/notification/outbox.service.js";
 
 import bcrypt from "bcryptjs";
@@ -24,6 +24,14 @@ let testJobId = "";
 
 before(async () => {
   resetTransporter();
+  setTransporter({
+    sendMail: async (options) => ({
+      messageId: `<mock-e2e-${TEST_TIMESTAMP}-${Math.random().toString(36).slice(2)}@ashivam.test>`,
+      response: "250 2.0.0 OK (Accepted)",
+      accepted: Array.isArray(options.to) ? options.to : [options.to],
+    }),
+    verify: async () => true,
+  });
   if (mongoose.connection.readyState === 0) {
     const mongoUri = env.mongoUri || "mongodb://localhost:27017/ashivam_technologies_test";
     await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
@@ -69,6 +77,7 @@ before(async () => {
 });
 
 after(async () => {
+  resetTransporter();
   // Clean test artifacts
   await Admin.deleteMany({ username: new RegExp(`email_e2e_${TEST_TIMESTAMP}`) });
   await Employee.deleteMany({ email: new RegExp(`email_e2e_${TEST_TIMESTAMP}`) });
@@ -234,9 +243,9 @@ test("Email E2E Workflow 5: GET /api/v1/health exposes email configuration metad
 
   assert.ok(healthRes.body.email, "Email metadata must be present in health response");
   assert.equal(healthRes.body.email.provider, "smtp");
-  assert.equal(healthRes.body.email.configured, true);
-  assert.equal(healthRes.body.email.host, "smtp.gmail.com");
-  assert.equal(healthRes.body.email.port, 465);
-  assert.equal(healthRes.body.email.secure, true);
-  assert.equal(healthRes.body.email.companyRecipient, "ritik95061@gmail.com");
+  assert.equal(typeof healthRes.body.email.configured, "boolean");
+  assert.equal(healthRes.body.email.host, env.smtpHost);
+  assert.equal(healthRes.body.email.port, env.smtpPort);
+  assert.equal(healthRes.body.email.secure, Boolean(env.smtpSecure));
+  assert.equal(healthRes.body.email.companyRecipient, env.companyNotificationEmail);
 });

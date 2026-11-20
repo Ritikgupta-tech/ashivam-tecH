@@ -1919,6 +1919,10 @@
   border-left: 4px solid #EF4444;
 }
 
+.admin-toast--warning {
+  border-left: 4px solid #F59E0B;
+}
+
 .admin-toast--info {
   border-left: 4px solid #3B82F6;
 }
@@ -1934,6 +1938,10 @@
 
 .admin-toast--error .admin-toast-icon {
   color: #EF4444;
+}
+
+.admin-toast--warning .admin-toast-icon {
+  color: #F59E0B;
 }
 
 .admin-toast--info .admin-toast-icon {

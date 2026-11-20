@@ -33,7 +33,7 @@ export function AdminFeedbackProvider({ children }) {
         ...prev.slice(-(MAX_TOASTS - 1)),
         { id, tone, message },
       ]);
-      const duration = tone === 'error' ? 8000 : 4500;
+      const duration = (tone === 'error' || tone === 'warning') ? 8000 : 4500;
       setTimeout(() => dismissToast(id), duration);
     },
     [dismissToast]
@@ -43,6 +43,7 @@ export function AdminFeedbackProvider({ children }) {
     () => ({
       success: (msg) => pushToast('success', msg),
       error: (msg) => pushToast('error', msg),
+      warning: (msg) => pushToast('warning', msg),
       info: (msg) => pushToast('info', msg),
     }),
     [pushToast]
@@ -104,17 +105,19 @@ export function AdminFeedbackProvider({ children }) {
       >
         {toasts.map((t) => {
           const isError = t.tone === 'error';
+          const isWarning = t.tone === 'warning';
           const isSuccess = t.tone === 'success';
           return (
             <div
               key={t.id}
               className={`admin-toast-item admin-toast--${t.tone}`}
-              role={isError ? 'alert' : 'status'}
+              role={isError || isWarning ? 'alert' : 'status'}
             >
               <span className="admin-toast-icon">
                 {isSuccess && <CheckCircleIcon size={18} />}
                 {isError && <ExclamationCircleIcon size={18} />}
-                {!isSuccess && !isError && <InformationCircleIcon size={18} />}
+                {isWarning && <ExclamationCircleIcon size={18} />}
+                {!isSuccess && !isError && !isWarning && <InformationCircleIcon size={18} />}
               </span>
               <p className="admin-toast-msg">{t.message}</p>
               <button
