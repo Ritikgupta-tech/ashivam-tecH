@@ -228,9 +228,17 @@ export default function EmployeesTab() {
     setResendingId(emp._id);
     try {
       const res = await resendEmployeeInvitation(emp._id);
+      const activationUrl = res?.data?.activationUrl;
       if (res?.data?.invitationStatus === 'FAILED') {
+        if (activationUrl && navigator.clipboard) {
+          try {
+            await navigator.clipboard.writeText(activationUrl);
+          } catch {
+            // Ignore clipboard errors
+          }
+        }
         toast.warning(
-          `Invitation token regenerated, but email delivery failed: ${res.data.invitationError || 'Email provider rejected'}.`
+          `Token generated, but email delivery failed (${res.data.invitationError || 'Email provider rejected'}).${activationUrl ? ' Activation link copied to clipboard!' : ''}`
         );
       } else {
         toast.success(`Activation invitation email dispatched to ${emp.email}.`);
@@ -507,8 +515,8 @@ export default function EmployeesTab() {
                         {resendingId === emp._id ? 'Sending...' : 'Resend Invite'}
                       </button>
                     )}
-                    {/* Development-only activation link shortcut (strictly disabled in production) */}
-                    {import.meta.env.DEV && (emp.accountStatus === 'INVITED' || emp.accountStatus === 'PENDING_ACTIVATION') && !emp.deletedAt && (
+                    {/* Direct activation link copy helper for Superadmins */}
+                    {(emp.accountStatus === 'INVITED' || emp.accountStatus === 'PENDING_ACTIVATION') && !emp.deletedAt && (
                       <button
                         type="button"
                         className="admin-action-btn"
@@ -517,16 +525,16 @@ export default function EmployeesTab() {
                             const res = await getDevActivationLink(emp.employeeId || emp._id);
                             if (res?.data?.activationUrl) {
                               await navigator.clipboard.writeText(res.data.activationUrl);
-                              toast.success("Development activation URL copied to clipboard!");
+                              toast.success(`Activation link for ${emp.firstName || 'employee'} copied to clipboard!`);
                             }
                           } catch (e) {
-                            toast.error("Dev Link Error: " + (e.message || "Failed to generate link"));
+                            toast.error("Link Error: " + (e.message || "Failed to generate link"));
                           }
                         }}
-                        title="Copy Development Activation Link to Clipboard (Dev Only)"
+                        title="Copy direct activation link to clipboard"
                         style={{ color: '#059669', fontWeight: 600, fontSize: '0.75rem' }}
                       >
-                        Dev Link
+                        Copy Link
                       </button>
                     )}
                     {/* Password reset for active accounts */}

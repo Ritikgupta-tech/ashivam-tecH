@@ -367,16 +367,12 @@ export const resetPassword = async (req, res, next) => {
 };
 
 /**
- * Development-only secure activation link helper for local testing when SMTP is not configured.
- * Strictly blocked in production environments and requires Superadmin authorization.
+ * Secure activation link helper for Superadmins to recover employee onboarding
+ * if automated email delivery is restricted or delayed.
  * Zero token logging in console or application logs.
  */
 export const getDevActivationLink = async (req, res, next) => {
   try {
-    if (env.isProduction) {
-      return res.status(404).json({ success: false, message: "Not found", requestId: req.id });
-    }
-
     const { employeeId } = req.params;
     const isId = mongoose.isValidObjectId(employeeId);
     const employee = await Employee.findOne({
@@ -396,14 +392,14 @@ export const getDevActivationLink = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Employee account is already active", requestId: req.id });
     }
 
-    // Generate fresh development activation token and update hash
+    // Generate fresh activation token and update hash
     const rawToken = crypto.randomBytes(32).toString("hex");
     employee.activationTokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
     employee.activationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     employee.accountStatus = "PENDING_ACTIVATION";
     await employee.save();
 
-    const clientBase = (env.clientUrl || "http://localhost:5173").split(",")[0].trim().replace(/\/+$/, "");
+    const clientBase = (env.clientUrl || "https://ashivam-tec-h.vercel.app").split(",")[0].trim().replace(/\/+$/, "");
     const activationUrl = `${clientBase}/activate-account?token=${rawToken}`;
 
     return res.status(200).json({
@@ -414,7 +410,7 @@ export const getDevActivationLink = async (req, res, next) => {
         activationUrl,
         expiresAt: employee.activationTokenExpiresAt,
       },
-      message: "Development-only activation link generated successfully. Disabled in production.",
+      message: "Activation link generated successfully.",
       requestId: req.id,
     });
   } catch (error) {

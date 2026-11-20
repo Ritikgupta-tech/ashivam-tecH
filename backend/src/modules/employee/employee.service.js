@@ -342,11 +342,15 @@ export const createEmployee = async (
     await employee.save();
   }
 
+  const clientBase = (env.clientUrl || "https://ashivam-tec-h.vercel.app").split(",")[0].trim().replace(/\/+$/, "");
+  const activationUrl = rawActivationToken ? `${clientBase}/activate-account?token=${rawActivationToken}` : null;
+
   const createdRecord = await getEmployeeById(employee._id);
   return {
     ...createdRecord,
     invitationStatus,
     invitationError,
+    activationUrl,
     ...(env.isTest && rawActivationToken ? { rawActivationToken } : {}),
   };
 };
@@ -643,11 +647,15 @@ export const resendEmployeeInvitation = async (employeeId, adminId) => {
   }
   await employee.save();
 
+  const clientBase = (env.clientUrl || "https://ashivam-tec-h.vercel.app").split(",")[0].trim().replace(/\/+$/, "");
+  const activationUrl = `${clientBase}/activate-account?token=${rawToken}`;
+
   const updatedRecord = await getEmployeeById(employee._id);
   return {
     employee: updatedRecord,
     invitationStatus,
     invitationError,
+    activationUrl,
     ...(env.isTest ? { rawToken } : {}),
   };
 };
