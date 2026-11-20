@@ -133,15 +133,19 @@ const withRetry = async (fn, maxRetries = env.isTest ? 0 : 2, baseDelayMs = 300)
       return await fn();
     } catch (err) {
       attempt++;
+      // Do not repeat slow connection timeouts (ETIMEDOUT, ENETUNREACH) to keep HTTP handlers responsive
+      const isConnectionTimeout =
+        err.code === "ETIMEDOUT" ||
+        err.code === "ENETUNREACH" ||
+        err.code === "ECONNREFUSED";
+
       const isTransient =
         err.name === "AbortError" ||
-        err.code === "ETIMEDOUT" ||
         err.code === "ECONNRESET" ||
-        err.code === "ENETUNREACH" ||
         err.code === "EAI_AGAIN" ||
         (err.status && [429, 500, 502, 503, 504].includes(err.status));
 
-      if (attempt > maxRetries || !isTransient) {
+      if (attempt > (isConnectionTimeout ? 0 : maxRetries) || (!isTransient && !isConnectionTimeout)) {
         throw err;
       }
       const backoff = baseDelayMs * Math.pow(2, attempt - 1);

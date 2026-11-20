@@ -25,7 +25,7 @@ const resolveApiBaseUrl = () => {
 
 export const API_BASE_URL = resolveApiBaseUrl();
 
-const DEFAULT_TIMEOUT_MS = 35000;
+const DEFAULT_TIMEOUT_MS = 50000;
 const TOKEN_KEY = 'ashivam_admin_session_token';
 export const SESSION_HINT_KEY = 'ashivam_auth_hint';
 

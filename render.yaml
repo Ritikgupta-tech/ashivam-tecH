@@ -65,6 +65,10 @@ services:
         value: Ashivam Technologies <ritik95061@gmail.com>
       - key: NOTIFICATION_RECIPIENT
         value: ritik95061@gmail.com
+      - key: RESEND_API_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
