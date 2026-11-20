@@ -605,3 +605,15 @@ test("Company Notification: sendCompanyNotification routes strictly to ritik9506
   }
 });
 
+test("Email Service - extractPlainText properly strips HTML and defends against missing textContent", async () => {
+  const { extractPlainText } = await import("../src/modules/notification/email.service.js");
+
+  assert.equal(extractPlainText("", "Direct plain text"), "Direct plain text");
+  assert.equal(
+    extractPlainText("<h1>Welcome</h1><p>Please click <a href='https://example.com'>here</a> &amp; proceed.</p>", ""),
+    "Welcome Please click here & proceed."
+  );
+  assert.equal(extractPlainText("<style>body { color: red; }</style><p>Hello</p>", ""), "Hello");
+  assert.equal(extractPlainText("", ""), "");
+});
+

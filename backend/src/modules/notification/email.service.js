@@ -169,18 +169,54 @@ export const resolveResendSender = (fromCandidate) => {
 };
 
 /**
+ * Extracts sanitized, readable plain text from HTML or explicit text.
+ * Defends against API parameter rejections (such as Brevo's 'textContent is missing').
+ */
+export const extractPlainText = (html = "", text = "") => {
+  if (text && typeof text === "string" && text.trim().length > 0) {
+    return text.trim();
+  }
+  if (html && typeof html === "string" && html.trim().length > 0) {
+    return html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  return "";
+};
+
+/**
  * Dispatches an email via Resend HTTPS API (Port 443).
  * Bypasses cloud container outbound SMTP port restrictions.
  */
 const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
   const effectiveSender = env.resendFrom || resolveResendSender(env.smtpFrom || env.emailFrom);
+  const plainText = extractPlainText(html, text);
+
   const payload = {
     from: effectiveSender,
     to: [to],
     subject,
-    html: html || text || "",
-    text: text || "",
   };
+
+  if (html && typeof html === "string" && html.trim().length > 0) {
+    payload.html = html;
+  }
+  if (plainText) {
+    payload.text = plainText;
+  }
+  if (!payload.html && !payload.text) {
+    payload.text = subject || "Notification from Ashivam Technologies";
+  }
+
   if (replyTo || env.companyNotificationEmail) {
     payload.reply_to = replyTo || env.companyNotificationEmail || "ritik95061@gmail.com";
   }
@@ -227,14 +263,25 @@ const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
 const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
   const fromRaw = env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>";
   const parsedSender = parseSender(fromRaw);
+  const plainText = extractPlainText(html, text);
 
   const payload = {
     sender: parsedSender,
     to: [{ email: to }],
     subject,
-    htmlContent: html || text || "",
-    textContent: text || "",
   };
+
+  if (html && typeof html === "string" && html.trim().length > 0) {
+    payload.htmlContent = html;
+  }
+  if (plainText) {
+    payload.textContent = plainText;
+  }
+  // Brevo API strictly requires at least one of htmlContent or non-empty textContent
+  if (!payload.htmlContent && !payload.textContent) {
+    payload.textContent = subject || "Notification from Ashivam Technologies";
+  }
+
   if (replyTo) {
     payload.replyTo = { email: replyTo };
   }
@@ -689,10 +736,21 @@ export const sendEmployeeInvitation = async ({
     expiresHours,
   });
 
+  const text = `Welcome to Ashivam Technologies, ${employeeName}!\n\n` +
+    `You have been invited to activate your official employee account.\n\n` +
+    `Employee ID: ${employee.employeeId || "N/A"}\n` +
+    `Department: ${employee.department || "N/A"}\n` +
+    `Designation: ${employee.designation || "N/A"}\n\n` +
+    `Please activate your account by visiting the link below (valid for ${expiresHours} hours):\n` +
+    `${url}\n\n` +
+    `If you did not expect this invitation, please contact your system administrator.\n\n` +
+    `Best regards,\nAshivam Technologies Team`;
+
   return sendEmail({
     to: employee.email,
     subject: "Welcome to Ashivam Technologies — Activate Your Employee Workspace",
     html,
+    text,
   });
 };
 
@@ -719,10 +777,18 @@ export const sendEmployeePasswordReset = async ({
     expiresHours,
   });
 
+  const text = `Hello ${employeeName},\n\n` +
+    `We received a request to reset your employee account password at Ashivam Technologies.\n\n` +
+    `Click the link below to set a new password (valid for ${expiresHours} hour):\n` +
+    `${url}\n\n` +
+    `If you did not request this password reset, please ignore this email or contact support immediately.\n\n` +
+    `Best regards,\nAshivam Technologies Team`;
+
   return sendEmail({
     to: employee.email,
     subject: "Password Reset Request — Ashivam Technologies",
     html,
+    text,
   });
 };
 
@@ -742,9 +808,15 @@ export const sendEmployeePasswordResetConfirmation = async ({
     employeeEmail: employee.email,
   });
 
+  const text = `Hello ${employeeName},\n\n` +
+    `Your Ashivam Technologies employee account password has been successfully updated.\n\n` +
+    `If you did not initiate this change, please contact your administrator immediately.\n\n` +
+    `Best regards,\nAshivam Technologies Team`;
+
   return sendEmail({
     to: employee.email,
     subject: "Password Changed Successfully — Ashivam Technologies",
     html,
+    text,
   });
 };
