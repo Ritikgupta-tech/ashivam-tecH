@@ -25,6 +25,14 @@ import {
   KeyIcon,
 } from '../../icons';
 
+const formatInvitationErrorMessage = (errorMsg) => {
+  if (!errorMsg) return 'Email delivery rejected';
+  if (/only send testing emails|resend\.com\/domains/i.test(errorMsg)) {
+    return 'Resend Sandbox Mode: External recipients require domain verification or Brevo provider';
+  }
+  return errorMsg;
+};
+
 export default function EmployeesTab() {
   const { toast, confirm } = useAdminFeedback();
 
@@ -205,9 +213,21 @@ export default function EmployeesTab() {
         toast.success(`Employee profile for ${payload.firstName} ${payload.lastName} updated.`);
       } else {
         const createRes = await createEmployee(payload);
-        if (createRes?.data?.invitationStatus === 'FAILED') {
+        const invitationStatus = createRes?.data?.invitationStatus || createRes?.data?.employee?.invitationStatus;
+        const invitationError = createRes?.data?.invitationError || createRes?.data?.employee?.invitationError;
+        const activationUrl = createRes?.data?.activationUrl || createRes?.data?.employee?.activationUrl;
+
+        if (invitationStatus === 'FAILED') {
+          if (activationUrl && navigator.clipboard) {
+            try {
+              await navigator.clipboard.writeText(activationUrl);
+            } catch {
+              // Ignore clipboard errors
+            }
+          }
+          const cleanError = formatInvitationErrorMessage(invitationError);
           toast.warning(
-            `Staff member ${payload.firstName} registered, but invitation email dispatch failed: ${createRes.data.invitationError || 'Email provider rejected'}. Use 'Resend Invite' once mailer credentials are confirmed.`
+            `Staff member ${payload.firstName} registered! Email delivery failed (${cleanError}).${activationUrl ? ' Direct activation link copied to clipboard!' : ''}`
           );
         } else {
           toast.success(`Employee ${payload.firstName} ${payload.lastName} registered and activation invitation sent.`);
@@ -228,7 +248,7 @@ export default function EmployeesTab() {
     setResendingId(emp._id);
     try {
       const res = await resendEmployeeInvitation(emp._id);
-      const activationUrl = res?.data?.activationUrl;
+      const activationUrl = res?.data?.activationUrl || res?.data?.employee?.activationUrl;
       if (res?.data?.invitationStatus === 'FAILED') {
         if (activationUrl && navigator.clipboard) {
           try {
@@ -237,8 +257,9 @@ export default function EmployeesTab() {
             // Ignore clipboard errors
           }
         }
+        const cleanError = formatInvitationErrorMessage(res?.data?.invitationError);
         toast.warning(
-          `Token generated, but email delivery failed (${res.data.invitationError || 'Email provider rejected'}).${activationUrl ? ' Activation link copied to clipboard!' : ''}`
+          `Token generated, but email delivery failed (${cleanError}).${activationUrl ? ' Activation link copied to clipboard!' : ''}`
         );
       } else {
         toast.success(`Activation invitation email dispatched to ${emp.email}.`);

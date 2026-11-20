@@ -152,6 +152,9 @@ export const create = async (
       message: "Employee created successfully",
       data: {
         employee: safeEmployee,
+        invitationStatus: employee.invitationStatus,
+        invitationError: employee.invitationError,
+        activationUrl: employee.activationUrl,
         ...(env.isTest && testToken ? { rawActivationToken: testToken } : {}),
       },
     });
