@@ -74,6 +74,7 @@ export function useScrollReveal(options = {}) {
       clearTimeout(fallbackTimer);
       observer.disconnect();
       mutationObserver.disconnect();
+      document.documentElement.classList.remove('has-scroll-reveal');
     };
   }, [threshold, rootMargin]);
 }

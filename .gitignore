@@ -39,3 +39,7 @@ Thumbs.db
 
 .vercel
 .env*
+
+# Local test utility scripts (not for staging or commit)
+backend/src/scripts/reset-admin-password.js
+backend/src/scripts/seed-test-employee.js

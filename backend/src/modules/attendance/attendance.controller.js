@@ -186,6 +186,20 @@ export const getUpcomingMeetings = async (req, res, next) => {
 
 export const getMeetingById = async (req, res, next) => {
   try {
+    // Role-based scope protection: Validate employee profile before meeting lookup
+    let employee = null;
+    if (req.user && req.user.role === "Employee") {
+      const employeeId = req.user.id || req.user.employeeId;
+      employee = await Employee.findById(employeeId);
+      if (!employee) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. Employee profile not found or inactive.",
+          requestId: req.id,
+        });
+      }
+    }
+
     const meeting = await Meeting.findById(req.params.id)
       .populate("assignedEmployees", "firstName lastName email department employeeId")
       .lean();
@@ -196,6 +210,25 @@ export const getMeetingById = async (req, res, next) => {
         message: "Meeting not found",
         requestId: req.id,
       });
+    }
+
+    // Departmental and assignment scoping for employees
+    if (employee) {
+      const isAssigned = meeting.assignedEmployees?.some(
+        (e) => String(e._id || e) === String(employee._id)
+      );
+      const isDept = meeting.assignedDepartments?.includes(employee.department);
+      const isCompanyWide =
+        (!meeting.assignedEmployees || meeting.assignedEmployees.length === 0) &&
+        (!meeting.assignedDepartments || meeting.assignedDepartments.length === 0);
+
+      if (!isAssigned && !isDept && !isCompanyWide) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You are not authorized to view this meeting.",
+          requestId: req.id,
+        });
+      }
     }
 
     return res.status(200).json({
@@ -614,6 +647,23 @@ export const createMeeting = async (req, res, next) => {
       });
     }
 
+    const start = new Date(scheduledStartTime);
+    const end = new Date(scheduledEndTime);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid start time or end time format",
+        requestId: req.id,
+      });
+    }
+    if (end <= start) {
+      return res.status(400).json({
+        success: false,
+        message: "Scheduled end time must be after scheduled start time",
+        requestId: req.id,
+      });
+    }
+
     let spaceName = null;
     let meetingUri = googleMeetingUri?.trim() || null;
     let meetingCode = null;
@@ -671,14 +721,35 @@ export const updateMeeting = async (req, res, next) => {
     const updates = req.body || {};
     updates.updatedBy = req.user.id;
 
-    const meeting = await Meeting.findByIdAndUpdate(id, { $set: updates }, { returnDocument: "after" });
-    if (!meeting) {
+    const existing = await Meeting.findById(id);
+    if (!existing) {
       return res.status(404).json({
         success: false,
         message: "Meeting not found",
         requestId: req.id,
       });
     }
+
+    if (updates.scheduledStartTime || updates.scheduledEndTime) {
+      const start = updates.scheduledStartTime ? new Date(updates.scheduledStartTime) : existing.scheduledStartTime;
+      const end = updates.scheduledEndTime ? new Date(updates.scheduledEndTime) : existing.scheduledEndTime;
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid start time or end time format",
+          requestId: req.id,
+        });
+      }
+      if (end <= start) {
+        return res.status(400).json({
+          success: false,
+          message: "Scheduled end time must be after scheduled start time",
+          requestId: req.id,
+        });
+      }
+    }
+
+    const meeting = await Meeting.findByIdAndUpdate(id, { $set: updates }, { returnDocument: "after" });
 
     if (updates.status === "CANCELLED") {
       await AttendanceRecord.updateMany(

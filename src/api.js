@@ -924,6 +924,25 @@ export const triggerGlobalReconciliation = () =>
     method: 'POST',
   });
 
+// ==========================================
+// NOTIFICATIONS APIS
+// ==========================================
+export const getNotifications = (params) =>
+  request(`/notifications${buildQuery(params)}`);
+
+export const getUnreadNotificationCount = () =>
+  request('/notifications/unread-count');
+
+export const markNotificationRead = (id) =>
+  request(`/notifications/${id}/read`, {
+    method: 'PATCH',
+  });
+
+export const markAllNotificationsRead = () =>
+  request('/notifications/read-all', {
+    method: 'PATCH',
+  });
+
 if (typeof window !== 'undefined') {
   window.__ashivamApi = {
     request,

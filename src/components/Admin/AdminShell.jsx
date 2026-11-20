@@ -98,6 +98,10 @@ export default function AdminShell({
 
   // Close menus on outside click
   useEffect(() => {
+    document.documentElement.classList.remove('has-scroll-reveal');
+  }, []);
+
+  useEffect(() => {
     function handleClickOutside(e) {
       if (
         accountMenuRef.current &&

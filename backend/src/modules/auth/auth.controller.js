@@ -22,7 +22,9 @@ import {
 
 export const login = async (req, res, next) => {
   try {
-    const { username, password } = req.body || {};
+    const rawUsername = req.body?.username || req.body?.identifier;
+    const password = req.body?.password;
+    const username = typeof rawUsername === "string" ? rawUsername : undefined;
 
     if (typeof username !== "string" || typeof password !== "string") {
       return res.status(400).json({

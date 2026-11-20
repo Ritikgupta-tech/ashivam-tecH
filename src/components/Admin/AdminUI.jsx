@@ -324,7 +324,11 @@ export function DataTable({
           ) : data.length === 0 ? (
             <tr>
               <td colSpan={columns.length}>
-                <EmptyState description={emptyMessage} />
+                {typeof emptyMessage === 'string' ? (
+                  <EmptyState description={emptyMessage} />
+                ) : (
+                  emptyMessage
+                )}
               </td>
             </tr>
           ) : (

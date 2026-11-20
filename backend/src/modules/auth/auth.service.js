@@ -351,14 +351,20 @@ export const changeAdminPassword = async (
     throw error;
   }
 
-  const admin = await Admin.findById(adminId).select("+passwordHash");
-  if (!admin || !admin.isActive) {
-    const error = new Error("Admin account not found or inactive");
+  let account = await Admin.findById(adminId).select("+passwordHash");
+  let isEmployee = false;
+  if (!account) {
+    account = await Employee.findById(adminId).select("+passwordHash");
+    isEmployee = Boolean(account);
+  }
+
+  if (!account || !account.isActive || (isEmployee && account.accountStatus !== "ACTIVE")) {
+    const error = new Error("Account not found, inactive, or not activated");
     error.statusCode = 401;
     throw error;
   }
 
-  const isCurrentValid = await bcrypt.compare(currentPassword, admin.passwordHash);
+  const isCurrentValid = await bcrypt.compare(currentPassword, account.passwordHash);
   if (!isCurrentValid) {
     const error = new Error("Current password is incorrect");
     error.statusCode = 401;
@@ -366,25 +372,25 @@ export const changeAdminPassword = async (
   }
 
   const salt = await bcrypt.genSalt(10);
-  admin.passwordHash = await bcrypt.hash(newPassword, salt);
-  admin.passwordChangedAt = new Date();
-  await admin.save();
+  account.passwordHash = await bcrypt.hash(newPassword, salt);
+  account.passwordChangedAt = new Date();
+  await account.save();
 
   // Invalidate ALL existing refresh tokens for this user across all families
   await RefreshToken.updateMany(
-    { userId: admin._id },
+    { userId: account._id },
     { $set: { isRevoked: true } }
   );
 
   // Issue new access token and fresh refresh token family
-  const accessToken = generateAccessToken(admin);
+  const accessToken = generateAccessToken(account);
   const rawRefreshToken = generateRefreshToken();
   const tokenHash = hashToken(rawRefreshToken);
   const familyId = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
   await RefreshToken.create({
-    userId: admin._id,
+    userId: account._id,
     familyId,
     tokenHash,
     isRevoked: false,
@@ -397,7 +403,7 @@ export const changeAdminPassword = async (
     message: "Password changed successfully",
     accessToken,
     refreshToken: rawRefreshToken,
-    passwordChangedAt: admin.passwordChangedAt,
+    passwordChangedAt: account.passwordChangedAt,
   };
 };
 

@@ -12,6 +12,7 @@ import AttendanceRecord from "../src/modules/attendance/models/attendanceRecord.
 import AttendanceCorrectionRequest from "../src/modules/attendance/models/attendanceCorrectionRequest.model.js";
 import GoogleEventInbox from "../src/modules/attendance/models/googleEventInbox.model.js";
 import { generateAccessToken } from "../src/utils/jwt.js";
+import { getMeetingById } from "../src/modules/attendance/attendance.controller.js";
 
 const TIMESTAMP = Date.now();
 let testSuperadmin = null;
@@ -252,4 +253,85 @@ test("Attendance API: Admin exports attendance report CSV via GET /api/v1/attend
   assert.equal(res.headers["content-type"], "text/csv; charset=utf-8");
   assert.ok(res.text.includes("Employee ID"), "CSV must contain header 'Employee ID'");
   assert.ok(res.text.includes("Meeting Title"), "CSV must contain header 'Meeting Title'");
+});
+
+// ============================================================
+// PHASE 9.1 SCOPING REGRESSION TESTS
+// ============================================================
+
+test("Attendance API Scoping: 1. Valid authorized employee retains access to assigned meeting", async () => {
+  const res = await request(app)
+    .get(`/api/v1/attendance/meetings/${testMeeting._id}`)
+    .set("Authorization", `Bearer ${testEmployeeToken}`);
+
+  assert.equal(res.statusCode, 200, "Authorized employee must receive HTTP 200");
+  assert.equal(res.body.success, true);
+  assert.equal(res.body.data._id, testMeeting._id.toString());
+});
+
+test("Attendance API Scoping: 2. Wrong department employee is blocked with HTTP 403", async () => {
+  const marketingMeeting = await Meeting.create({
+    title: `Marketing Exclusive Sync ${TIMESTAMP}`,
+    meetingType: "Department Meeting",
+    scheduledStartTime: new Date(Date.now() + 30 * 60 * 1000),
+    scheduledEndTime: new Date(Date.now() + 60 * 60 * 1000),
+    assignedDepartments: ["Marketing"],
+    assignedEmployees: [],
+    status: "SCHEDULED",
+    createdBy: testSuperadmin._id,
+  });
+
+  try {
+    const res = await request(app)
+      .get(`/api/v1/attendance/meetings/${marketingMeeting._id}`)
+      .set("Authorization", `Bearer ${testEmployeeToken}`); // Engineering employee
+
+    assert.equal(res.statusCode, 403, "Cross-department access must return HTTP 403");
+    assert.equal(res.body.success, false);
+    assert.match(res.body.message, /Access denied/i);
+  } finally {
+    await Meeting.deleteOne({ _id: marketingMeeting._id });
+  }
+});
+
+test("Attendance API Scoping: 3. Missing Employee record returns HTTP 403", async () => {
+  let statusCode = null;
+  let responseData = null;
+  const ghostId = new mongoose.Types.ObjectId();
+
+  const mockReq = {
+    params: { id: testMeeting._id.toString() },
+    user: {
+      id: ghostId.toString(),
+      role: "Employee",
+    },
+    id: "req_test_scoping_3",
+  };
+
+  const mockRes = {
+    status(code) {
+      statusCode = code;
+      return this;
+    },
+    json(data) {
+      responseData = data;
+      return this;
+    },
+  };
+
+  await getMeetingById(mockReq, mockRes, () => {});
+
+  assert.equal(statusCode, 403, "Non-existent employee record in getMeetingById must return HTTP 403");
+  assert.equal(responseData.success, false);
+  assert.match(responseData.message, /Access denied/i);
+});
+
+test("Attendance API Scoping: 4. Admin access remains unchanged (HTTP 200)", async () => {
+  const res = await request(app)
+    .get(`/api/v1/attendance/meetings/${testMeeting._id}`)
+    .set("Authorization", `Bearer ${testAdminToken}`);
+
+  assert.equal(res.statusCode, 200, "Admin must retain unconditional access with HTTP 200");
+  assert.equal(res.body.success, true);
+  assert.equal(res.body.data._id, testMeeting._id.toString());
 });
