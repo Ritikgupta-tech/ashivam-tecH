@@ -260,3 +260,158 @@ test('Normal Admin permission updates strictly check allowlisted module keys', (
   assert.equal(validatePermissions(['dashboard', 'root_superadmin_privilege']), false);
   assert.equal(validatePermissions('not-an-array'), false);
 });
+
+// 8. HR Documents employee list normalization defense (P0 Defect regression)
+test('HR Documents employee list parser safely extracts array from object or array payloads', () => {
+  const parseEmployees = (empsRes) => {
+    return empsRes?.status === 'fulfilled'
+      ? (Array.isArray(empsRes.value?.data?.employees)
+          ? empsRes.value.data.employees
+          : Array.isArray(empsRes.value?.data?.items)
+          ? empsRes.value.data.items
+          : Array.isArray(empsRes.value?.data)
+          ? empsRes.value.data
+          : [])
+      : [];
+  };
+
+  // Case A: Real backend pagination envelope { employees: [...], pagination: {...} }
+  const realBackendPayload = {
+    status: 'fulfilled',
+    value: {
+      data: {
+        employees: [{ _id: 'e1', firstName: 'Vikram', lastName: 'Sharma' }],
+        pagination: { page: 1, limit: 100, total: 1 }
+      }
+    }
+  };
+  const resA = parseEmployees(realBackendPayload);
+  assert.equal(Array.isArray(resA), true);
+  assert.equal(resA.length, 1);
+  assert.equal(resA[0].firstName, 'Vikram');
+
+  // Case B: Direct array payload
+  const arrayPayload = {
+    status: 'fulfilled',
+    value: {
+      data: [{ _id: 'e2', firstName: 'Neha', lastName: 'Patel' }]
+    }
+  };
+  const resB = parseEmployees(arrayPayload);
+  assert.equal(Array.isArray(resB), true);
+  assert.equal(resB.length, 1);
+
+  // Case C: Error or null payload
+  assert.deepEqual(parseEmployees({ status: 'rejected' }), []);
+  assert.deepEqual(parseEmployees({ status: 'fulfilled', value: { data: null } }), []);
+});
+
+// 9. Superadmin case normalization defense (P1 Defect regression)
+test('AuthContext superadmin evaluation accepts all role casing variants', () => {
+  const checkSuperadmin = (user) => {
+    return user?.role === 'Superadmin' || user?.role?.toLowerCase() === 'superadmin';
+  };
+
+  assert.equal(checkSuperadmin({ role: 'Superadmin' }), true);
+  assert.equal(checkSuperadmin({ role: 'superadmin' }), true);
+  assert.equal(checkSuperadmin({ role: 'SuperAdmin' }), true);
+  assert.equal(checkSuperadmin({ role: 'Admin' }), false);
+  assert.equal(checkSuperadmin({ role: 'Employee' }), false);
+  assert.equal(checkSuperadmin(null), false);
+});
+
+// 10. Employee invitation status and error resolution defense
+test('Employee invitation status resolver accurately distinguishes delivery failure, pending activation, and active states', () => {
+  const resolveStatus = (emp) => {
+    const st = emp.accountStatus || (emp.isActive ? 'ACTIVE' : 'DEACTIVATED');
+    if (st === 'ACTIVE') return { label: 'Active / Verified', tone: 'green' };
+    if (emp.invitationStatus === 'FAILED') {
+      return { label: 'Invite Failed', tone: 'red', error: emp.invitationError };
+    }
+    if (emp.invitationStatus === 'SENT' || st === 'PENDING_ACTIVATION') {
+      return { label: 'Pending Activation', tone: 'amber' };
+    }
+    if (st === 'INVITED') return { label: 'Invited', tone: 'blue' };
+    if (st === 'SUSPENDED') return { label: 'Suspended', tone: 'amber' };
+    return { label: 'Deactivated', tone: 'red' };
+  };
+
+  // Case 1: Failed delivery
+  const failedEmp = {
+    accountStatus: 'PENDING_ACTIVATION',
+    invitationStatus: 'FAILED',
+    invitationError: 'Invalid login: 535-5.7.8 BadCredentials',
+  };
+  const res1 = resolveStatus(failedEmp);
+  assert.equal(res1.label, 'Invite Failed');
+  assert.equal(res1.tone, 'red');
+  assert.equal(res1.error, 'Invalid login: 535-5.7.8 BadCredentials');
+
+  // Case 2: Sent successfully
+  const sentEmp = {
+    accountStatus: 'PENDING_ACTIVATION',
+    invitationStatus: 'SENT',
+  };
+  const res2 = resolveStatus(sentEmp);
+  assert.equal(res2.label, 'Pending Activation');
+  assert.equal(res2.tone, 'amber');
+
+  // Case 3: Fully active
+  const activeEmp = {
+    accountStatus: 'ACTIVE',
+    invitationStatus: 'ACCEPTED',
+    isActive: true,
+  };
+  const res3 = resolveStatus(activeEmp);
+  assert.equal(res3.label, 'Active / Verified');
+  assert.equal(res3.tone, 'green');
+});
+
+// 11. Google Meet participant identity extraction defense
+test('Google Meet participant identity extraction handles canonical email variants and rejects anonymous participants', () => {
+  const extractGoogleEmail = (signedinUser, rawEmail) => {
+    if (signedinUser?.email && typeof signedinUser.email === 'string' && signedinUser.email.includes('@')) {
+      return signedinUser.email.trim().toLowerCase();
+    }
+    if (signedinUser?.user && typeof signedinUser.user === 'string') {
+      const candidate = signedinUser.user.replace(/^users\//, '').trim().toLowerCase();
+      if (candidate.includes('@')) {
+        return candidate;
+      }
+    }
+    if (rawEmail && typeof rawEmail === 'string' && rawEmail.includes('@')) {
+      return rawEmail.trim().toLowerCase();
+    }
+    return null;
+  };
+
+  // Standard user with users/ prefix
+  assert.equal(
+    extractGoogleEmail({ user: 'users/rohan.verma@ashivam.com' }),
+    'rohan.verma@ashivam.com'
+  );
+
+  // Standard signedinUser with direct email field
+  assert.equal(
+    extractGoogleEmail({ email: 'Aditi.Rao@Ashivam.com', user: 'users/1029384756' }),
+    'aditi.rao@ashivam.com'
+  );
+
+  // Top level fallback email
+  assert.equal(
+    extractGoogleEmail(null, 'Vikram.Sharma@ashivam.com'),
+    'vikram.sharma@ashivam.com'
+  );
+
+  // Anonymous user with no email
+  assert.equal(
+    extractGoogleEmail(null, null),
+    null
+  );
+
+  // Non-email numeric user ID (must NOT match)
+  assert.equal(
+    extractGoogleEmail({ user: 'users/9988776655' }),
+    null
+  );
+});

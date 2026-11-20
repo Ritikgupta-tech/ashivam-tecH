@@ -997,10 +997,11 @@ export default function EmployeePortalPage() {
                   <div className="emp-guideline-item">
                     <div className="emp-guideline-num">1</div>
                     <div>
-                      <strong>Authoritative Telemetry:</strong>
+                      <strong>Authoritative Telemetry & Verified Google Identity:</strong>
                       <p>
-                        Attendance is determined automatically via participant join/leave timestamps from the Google Meet REST API v2.
-                        No frontend button clicks can fabricate attendance.
+                        Attendance is verified exclusively via participant telemetry from the Google Meet REST API v2.
+                        You must join Google Meet using the verified Google account matching your registered corporate email (<strong>{user?.email}</strong>).
+                        Joining anonymously or with an unregistered personal Google account will fail identity matching and will not record attendance.
                       </p>
                     </div>
                   </div>

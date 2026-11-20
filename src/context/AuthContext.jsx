@@ -161,7 +161,7 @@ export function AuthProvider({ children }) {
   const hasPermission = useCallback(
     (permission) => {
       if (!user) return false;
-      if (user.role === 'Superadmin') return true;
+      if (user.role === 'Superadmin' || user.role?.toLowerCase() === 'superadmin') return true;
       return Array.isArray(user.permissions) && user.permissions.includes(permission);
     },
     [user]
@@ -176,7 +176,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     hasPermission,
-    isSuperadmin: user?.role === 'Superadmin',
+    isSuperadmin: user?.role === 'Superadmin' || user?.role?.toLowerCase() === 'superadmin',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

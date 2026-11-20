@@ -80,6 +80,28 @@ const employeeSchema = new mongoose.Schema(
       default: null,
     },
 
+    invitationStatus: {
+      type: String,
+      enum: ["PENDING", "SENDING", "SENT", "DELIVERED", "FAILED", "EXPIRED", "ACCEPTED"],
+      default: "PENDING",
+      index: true,
+    },
+
+    invitationError: {
+      type: String,
+      default: null,
+    },
+
+    invitationProvider: {
+      type: String,
+      default: null,
+    },
+
+    activationCompletedAt: {
+      type: Date,
+      default: null,
+    },
+
     activationResendCount: {
       type: Number,
       default: 0,

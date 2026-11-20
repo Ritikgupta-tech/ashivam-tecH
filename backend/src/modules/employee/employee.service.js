@@ -12,7 +12,7 @@ import {
 } from "../notification/email.service.js";
 
 export const EMPLOYEE_PROJECTION =
-  "_id firstName lastName email employeeId googleEmail role phone profileImage designation department employmentType employmentStatus accountStatus joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive isEmailVerified activationSentAt activationResendCount lastLoginAt createdAt updatedAt";
+  "_id firstName lastName email employeeId googleEmail role phone profileImage designation department employmentType employmentStatus accountStatus invitationStatus invitationError invitationProvider activationCompletedAt joiningDate workLocation bio skills socialLinks displayOrder isFeatured isActive isEmailVerified activationSentAt activationResendCount lastLoginAt createdAt updatedAt";
 
 export const PUBLIC_EMPLOYEE_PROJECTION =
   "_id firstName lastName designation department profileImage bio skills socialLinks displayOrder isFeatured workLocation";
@@ -302,22 +302,44 @@ export const createEmployee = async (
   let invitationError = null;
 
   if (rawActivationToken && accountStatus !== "ACTIVE") {
+    employee.accountStatus = "PENDING_ACTIVATION";
     try {
-      await sendEmployeeInvitation({
+      const dispatchResult = await sendEmployeeInvitation({
         employee,
         rawToken: rawActivationToken,
       });
-      employee.accountStatus = "PENDING_ACTIVATION";
-      employee.activationSentAt = new Date();
-      await employee.save();
-      invitationStatus = "SENT";
+
+      if (dispatchResult && (dispatchResult.accepted || dispatchResult.delivered)) {
+        employee.invitationStatus = "SENT";
+        employee.invitationError = null;
+        employee.invitationProvider = dispatchResult.provider || "smtp";
+        employee.activationSentAt = new Date();
+        invitationStatus = "SENT";
+      } else {
+        const failureReason =
+          dispatchResult?.error ||
+          (dispatchResult?.simulated
+            ? "Email provider unconfigured"
+            : "Email delivery rejected by mailer transport");
+        employee.invitationStatus = "FAILED";
+        employee.invitationError = failureReason;
+        employee.invitationProvider = dispatchResult?.provider || "smtp";
+        invitationStatus = "FAILED";
+        invitationError = failureReason;
+        if (!env.isTest) {
+          console.warn(`[Employee Service] Invitation email delivery failed for ${employee.email}:`, failureReason);
+        }
+      }
     } catch (err) {
       invitationStatus = "FAILED";
       invitationError = err.message;
+      employee.invitationStatus = "FAILED";
+      employee.invitationError = err.message;
       if (!env.isTest) {
         console.warn(`[Employee Service] Invitation email delivery failed for ${employee.email}:`, err.message);
       }
     }
+    await employee.save();
   }
 
   const createdRecord = await getEmployeeById(employee._id);
@@ -579,21 +601,47 @@ export const resendEmployeeInvitation = async (employeeId, adminId) => {
   employee.updatedBy = adminId;
   await employee.save();
 
-  let invitationStatus = "SENT";
+  let invitationStatus = "FAILED";
   let invitationError = null;
 
   try {
-    await sendEmployeeInvitation({
+    const dispatchResult = await sendEmployeeInvitation({
       employee,
       rawToken,
     });
+
+    if (dispatchResult && (dispatchResult.accepted || dispatchResult.delivered)) {
+      employee.accountStatus = "PENDING_ACTIVATION";
+      employee.invitationStatus = "SENT";
+      employee.invitationError = null;
+      employee.invitationProvider = dispatchResult.provider || "smtp";
+      employee.activationSentAt = new Date();
+      invitationStatus = "SENT";
+    } else {
+      const failureReason =
+        dispatchResult?.error ||
+        (dispatchResult?.simulated
+          ? "Email provider unconfigured"
+          : "Email delivery rejected by mailer transport");
+      employee.invitationStatus = "FAILED";
+      employee.invitationError = failureReason;
+      employee.invitationProvider = dispatchResult?.provider || "smtp";
+      invitationStatus = "FAILED";
+      invitationError = failureReason;
+      if (!env.isTest) {
+        console.warn(`[Employee Service] Resend invitation failed for ${employee.email}:`, failureReason);
+      }
+    }
   } catch (err) {
     invitationStatus = "FAILED";
     invitationError = err.message;
+    employee.invitationStatus = "FAILED";
+    employee.invitationError = err.message;
     if (!env.isTest) {
       console.warn(`[Employee Service] Resend invitation failed for ${employee.email}:`, err.message);
     }
   }
+  await employee.save();
 
   const updatedRecord = await getEmployeeById(employee._id);
   return {
@@ -715,14 +763,27 @@ export const initiateAdminPasswordReset = async (employeeId, adminId) => {
   employee.updatedBy = adminId;
   await employee.save();
 
-  let dispatchStatus = "SENT";
+  let dispatchStatus = "FAILED";
   let dispatchError = null;
 
   try {
-    await sendEmployeePasswordReset({
+    const dispatchResult = await sendEmployeePasswordReset({
       employee,
       rawToken,
     });
+
+    if (dispatchResult && (dispatchResult.accepted || dispatchResult.delivered)) {
+      dispatchStatus = "SENT";
+      employee.resetPasswordSentAt = new Date();
+      await employee.save();
+    } else {
+      dispatchStatus = "FAILED";
+      dispatchError =
+        dispatchResult?.error ||
+        (dispatchResult?.simulated
+          ? "Email provider unconfigured"
+          : "Email delivery rejected by mailer transport");
+    }
   } catch (err) {
     dispatchStatus = "FAILED";
     dispatchError = err.message;

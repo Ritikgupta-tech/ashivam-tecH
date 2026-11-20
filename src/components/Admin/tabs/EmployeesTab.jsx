@@ -206,7 +206,7 @@ export default function EmployeesTab() {
         const createRes = await createEmployee(payload);
         if (createRes?.data?.invitationStatus === 'FAILED') {
           toast.warning(
-            `Staff member ${payload.firstName} registered, but invitation email dispatch failed (${createRes.data.invitationError || 'Check SMTP'}). You can use 'Resend Invite' anytime.`
+            `Staff member ${payload.firstName} registered, but invitation email dispatch failed: ${createRes.data.invitationError || 'Email provider rejected'}. Use 'Resend Invite' once mailer credentials are confirmed.`
           );
         } else {
           toast.success(`Employee ${payload.firstName} ${payload.lastName} registered and activation invitation sent.`);
@@ -227,7 +227,7 @@ export default function EmployeesTab() {
       const res = await resendEmployeeInvitation(emp._id);
       if (res?.data?.invitationStatus === 'FAILED') {
         toast.warning(
-          `Invitation token generated, but email delivery failed (${res.data.invitationError || 'Check SMTP'}).`
+          `Invitation token regenerated, but email delivery failed: ${res.data.invitationError || 'Email provider rejected'}.`
         );
       } else {
         toast.success(`Activation invitation email dispatched to ${emp.email}.`);
@@ -444,7 +444,32 @@ export default function EmployeesTab() {
                   {(() => {
                     const st = emp.accountStatus || (emp.isActive ? 'ACTIVE' : 'DEACTIVATED');
                     if (st === 'ACTIVE') return <StatusBadge label="Active / Verified" tone="green" />;
-                    if (st === 'PENDING_ACTIVATION') return <StatusBadge label="Pending Activation" tone="amber" />;
+                    if (emp.invitationStatus === 'FAILED') {
+                      return (
+                        <div>
+                          <StatusBadge label="Invite Failed" tone="red" />
+                          {emp.invitationError && (
+                            <div
+                              style={{
+                                fontSize: '0.68rem',
+                                color: '#ef4444',
+                                marginTop: '3px',
+                                maxWidth: '140px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                              title={emp.invitationError}
+                            >
+                              {emp.invitationError}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    if (emp.invitationStatus === 'SENT' || st === 'PENDING_ACTIVATION') {
+                      return <StatusBadge label="Pending Activation" tone="amber" />;
+                    }
                     if (st === 'INVITED') return <StatusBadge label="Invited" tone="blue" />;
                     if (st === 'SUSPENDED') return <StatusBadge label="Suspended" tone="amber" />;
                     return <StatusBadge label="Deactivated" tone="red" />;

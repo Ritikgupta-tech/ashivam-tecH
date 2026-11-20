@@ -15,6 +15,30 @@ import {
 import { evaluateAttendanceStatus } from "./attendanceEngine.service.js";
 
 /**
+ * Robust Google Meet participant email extractor.
+ * Handles:
+ *   1. Explicit signedinUser.email (e.g. employee@ashivam.test)
+ *   2. signedinUser.user format (e.g. users/employee@ashivam.test)
+ *   3. Top-level email or participant.email
+ *   4. Normalizes to lowercase and ignores non-email identifier strings
+ */
+export const extractGoogleEmail = (signedinUser, rawEmail) => {
+  if (signedinUser?.email && typeof signedinUser.email === "string" && signedinUser.email.includes("@")) {
+    return signedinUser.email.trim().toLowerCase();
+  }
+  if (signedinUser?.user && typeof signedinUser.user === "string") {
+    const candidate = signedinUser.user.replace(/^users\//, "").trim().toLowerCase();
+    if (candidate.includes("@")) {
+      return candidate;
+    }
+  }
+  if (rawEmail && typeof rawEmail === "string" && rawEmail.includes("@")) {
+    return rawEmail.trim().toLowerCase();
+  }
+  return null;
+};
+
+/**
  * Ingests a Google Cloud Pub/Sub message safely and idempotently.
  */
 export const ingestPubSubMessage = async ({ message, subscription }) => {
@@ -140,12 +164,10 @@ export const processParticipantJoinedEvent = async (eventData) => {
 
   // Extract participant identity
   const userType = eventData.signedinUser ? "SIGNED_IN" : eventData.phoneUser ? "PHONE" : "ANONYMOUS";
-  const googleEmail = eventData.signedinUser?.user
-    ? eventData.signedinUser.user.replace(/^users\//, "").toLowerCase()
-    : null;
+  const googleEmail = extractGoogleEmail(eventData.signedinUser, eventData.email);
   const displayName = eventData.signedinUser?.displayName || eventData.displayName || "";
 
-  // Match with employee
+  // Match with employee (strict canonical email or registered googleEmail)
   let matchedEmployee = null;
   if (googleEmail) {
     matchedEmployee = await Employee.findOne({
@@ -332,9 +354,7 @@ export const reconcileMeetingAttendance = async (meetingId) => {
           // Fetch all participants
           const participants = await listConferenceParticipants(conf.name);
           for (const p of participants) {
-            const googleEmail = p.signedinUser?.user
-              ? p.signedinUser.user.replace(/^users\//, "").toLowerCase()
-              : null;
+            const googleEmail = extractGoogleEmail(p.signedinUser, p.email);
             const displayName = p.signedinUser?.displayName || p.displayName || "";
             const userType = p.signedinUser ? "SIGNED_IN" : p.phoneUser ? "PHONE" : "ANONYMOUS";
 

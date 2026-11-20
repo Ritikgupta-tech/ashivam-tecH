@@ -510,6 +510,8 @@ export const activateEmployeeAccount = async (rawToken, password, clientMeta = {
   employee.passwordHash = await bcrypt.hash(password, salt);
   employee.accountStatus = "ACTIVE";
   employee.employmentStatus = "ACTIVE";
+  employee.invitationStatus = "ACCEPTED";
+  employee.activationCompletedAt = new Date();
   employee.isActive = true;
   employee.isEmailVerified = true;
   employee.activationTokenHash = null;

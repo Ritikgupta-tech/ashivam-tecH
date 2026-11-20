@@ -80,7 +80,13 @@ export default function DocumentsTab() {
 
       const empItems =
         empsRes.status === 'fulfilled'
-          ? empsRes.value?.data?.items || empsRes.value?.data || []
+          ? (Array.isArray(empsRes.value?.data?.employees)
+              ? empsRes.value.data.employees
+              : Array.isArray(empsRes.value?.data?.items)
+              ? empsRes.value.data.items
+              : Array.isArray(empsRes.value?.data)
+              ? empsRes.value.data
+              : [])
           : [];
 
       setDocuments(docItems);
@@ -456,7 +462,7 @@ export default function DocumentsTab() {
                     required
                   >
                     <option value="">Select an employee...</option>
-                    {employees.map((e) => (
+                    {(Array.isArray(employees) ? employees : []).map((e) => (
                       <option key={e._id} value={e._id}>
                         {e.firstName} {e.lastName} ({e.email})
                       </option>

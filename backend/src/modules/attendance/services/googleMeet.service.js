@@ -21,12 +21,13 @@ export const generateOAuthAuthUrl = () => {
     if (exp < Date.now()) oauthStateCache.delete(s);
   }
 
-  const scopes = env.googleOAuthScopes.join(" ");
+  const baseScopes = Array.isArray(env.googleOAuthScopes) ? env.googleOAuthScopes : [env.googleOAuthScopes];
+  const combinedScopes = Array.from(new Set([...baseScopes, "openid", "email"])).filter(Boolean).join(" ");
   const params = new URLSearchParams({
     client_id: env.googleClientId,
     redirect_uri: env.googleRedirectUri,
     response_type: "code",
-    scope: scopes,
+    scope: combinedScopes,
     access_type: "offline",
     prompt: "consent",
     state,
@@ -72,6 +73,19 @@ export const exchangeCodeForTokens = async (code) => {
   const { encryptedText, iv, authTag } = encryptSecret(tokenData.refresh_token);
   const tokenExpiresAt = new Date(Date.now() + (tokenData.expires_in || 3600) * 1000);
 
+  let connectedAccountEmail = undefined;
+  if (tokenData.id_token) {
+    try {
+      const payloadPart = tokenData.id_token.split(".")[1];
+      const decoded = JSON.parse(Buffer.from(payloadPart, "base64").toString("utf8"));
+      if (decoded.email) {
+        connectedAccountEmail = String(decoded.email).toLowerCase().trim();
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
   // Save to GoogleIntegration record
   const integration = await GoogleIntegration.findOneAndUpdate(
     { serviceName: "google_meet" },
@@ -82,6 +96,7 @@ export const exchangeCodeForTokens = async (code) => {
       accessToken: tokenData.access_token,
       tokenExpiresAt,
       scopes: tokenData.scope ? tokenData.scope.split(" ") : env.googleOAuthScopes,
+      connectedAccountEmail: connectedAccountEmail || undefined,
       status: "CONNECTED",
       lastSyncAt: new Date(),
       lastError: null,
