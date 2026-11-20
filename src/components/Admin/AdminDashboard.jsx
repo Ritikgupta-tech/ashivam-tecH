@@ -54,8 +54,26 @@ export default function AdminDashboard() {
     });
   }, [navItems, isSuperadmin, hasPermission]);
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const getInitialTab = () => {
+    if (typeof window !== 'undefined') {
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam) return tabParam;
+    }
+    return 'overview';
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [badgeCounts, setBadgeCounts] = useState({});
+
+  // Sync tab with URL search parameter once permissions are loaded
+  useEffect(() => {
+    if (!isLoading && typeof window !== 'undefined') {
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam && allowedTabs.some((t) => t.id === tabParam)) {
+        setActiveTab(tabParam);
+      }
+    }
+  }, [isLoading, allowedTabs]);
 
   // Redirect to login if unauthenticated once auth check finishes
   useEffect(() => {
@@ -66,10 +84,10 @@ export default function AdminDashboard() {
 
   // Adjust active tab if current tab is not permitted
   useEffect(() => {
-    if (allowedTabs.length > 0 && !allowedTabs.some((t) => t.id === activeTab)) {
+    if (!isLoading && allowedTabs.length > 0 && !allowedTabs.some((t) => t.id === activeTab)) {
       setActiveTab(allowedTabs[0].id);
     }
-  }, [allowedTabs, activeTab]);
+  }, [isLoading, allowedTabs, activeTab]);
 
   // Fetch light overview count for attention badges in navigation
   const fetchBadgeCounts = useCallback(async () => {
