@@ -18,20 +18,10 @@ const run = async () => {
   const emailStatus = getSafeSmtpStatus();
 
   console.log(`Environment:           ${env.nodeEnv}`);
-  console.log(`Active Provider:       ${emailStatus.provider.toUpperCase()}`);
-  console.log(`Email Configured:      ${emailStatus.configured}`);
+  console.log(`Email Provider:        ${emailStatus.provider.toUpperCase()} (SMTP Exclusive)`);
+  console.log(`SMTP Configured:       ${emailStatus.configured}`);
   console.log(`Trust Proxy:           ${env.trustProxy}`);
   console.log("--------------------------------------------------");
-  console.log(
-    `Resend API Key:        ${
-      env.resendApiKey ? `[CONFIGURED: ${env.resendApiKey.substring(0, 5)}***]` : "(not set)"
-    }`
-  );
-  console.log(
-    `Brevo API Key:         ${
-      env.brevoApiKey ? `[CONFIGURED: ${env.brevoApiKey.substring(0, 5)}***]` : "(not set)"
-    }`
-  );
   console.log(`SMTP Host:             ${env.smtpHost || "(not set)"}`);
   console.log(`SMTP Port:             ${env.smtpPort || "(not set)"}`);
   console.log(`SMTP Secure:           ${env.smtpSecure}`);
@@ -53,16 +43,14 @@ const run = async () => {
   console.log("--------------------------------------------------");
 
   if (!emailStatus.configured) {
-    console.log("[Status] No email provider is fully configured in the current environment.");
-    console.log("\nOption 1: Recommended for Render Cloud Containers (Bypasses SMTP port blocks):");
-    console.log("  - RESEND_API_KEY              (e.g., re_xxxxxxxxxxxxxxxxxxxxxxxxx)");
-    console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <ritik95061@gmail.com> or your verified domain)");
-    console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., ritik95061@gmail.com)");
-    console.log("\nOption 2: Direct SMTP (May time out on Render free tier if outbound ports 465/587 blocked):");
-    console.log("  - SMTP_HOST                   (e.g., smtp.gmail.com or smtp.sendgrid.net)");
-    console.log("  - SMTP_PORT                   (e.g., 587 or 465)");
-    console.log("  - SMTP_USER                   (e.g., your email or apikey)");
-    console.log("  - SMTP_PASSWORD               (SMTP password or app password)");
+    console.log("[Status] SMTP transport is not fully configured in the current environment.");
+    console.log("\nRequired Environment Variables for SMTP:");
+    console.log("  - EMAIL_PROVIDER=smtp");
+    console.log("  - SMTP_HOST                   (e.g., smtp.gmail.com)");
+    console.log("  - SMTP_PORT                   (e.g., 465)");
+    console.log("  - SMTP_SECURE                 (e.g., true)");
+    console.log("  - SMTP_USER                   (e.g., ritik95061@gmail.com)");
+    console.log("  - SMTP_PASS / SMTP_PASSWORD   (16-char Google App Password)");
     console.log("  - SMTP_FROM                   (e.g., Ashivam Technologies <ritik95061@gmail.com>)");
     console.log("  - COMPANY_NOTIFICATION_EMAIL  (e.g., ritik95061@gmail.com)");
     console.log("\n[Notice] The application operates safely in SIMULATED mode until configured.");

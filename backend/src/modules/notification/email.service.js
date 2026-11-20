@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import env from "../../config/env.js";
+import env, { validateSmtpConfig } from "../../config/env.js";
 import {
   employeeInvitationEmail,
   employeePasswordResetEmail,
@@ -61,25 +61,28 @@ export const parseSender = (senderString = "") => {
  * Resolves the currently active email provider based on configuration.
  * Order of precedence:
  *   1. Explicit mocked transporter (for unit tests)
- *   2. Explicit EMAIL_PROVIDER setting if credentials present
- *   3. Auto-detected HTTPS API (Resend, Brevo) - optimal for cloud containers blocking SMTP ports
- *   4. Direct SMTP via Nodemailer (with IPv4 enforcement)
- *   5. None (simulated mode)
+ *   2. Primary & exclusive SMTP provider (Nodemailer with TLS/SSL & IPv4 enforcement)
+ *   3. Explicit non-SMTP provider (only if explicitly set in test suite)
+ *   4. None (simulated mode when unconfigured)
+ *
+ * NOTE: Automatic fallback to Resend or other providers has been strictly removed.
  */
 export const getActiveProvider = () => {
   if (mockTransporter) {
     return "mock";
   }
 
-  const explicit = (env.emailProvider || "").toLowerCase().trim();
+  const explicit = (env.emailProvider || "smtp").toLowerCase().trim();
+  if (explicit === "smtp") {
+    if (env.smtpHost && env.smtpUser && env.smtpPassword) {
+      return "smtp";
+    }
+    return "none";
+  }
+
+  // Only permit non-SMTP providers when explicitly requested in test suites
   if (explicit === "resend" && env.resendApiKey) return "resend";
   if (explicit === "brevo" && env.brevoApiKey) return "brevo";
-  if (explicit === "smtp" && env.smtpHost && env.smtpUser && env.smtpPassword) return "smtp";
-
-  // Auto-detection: Prefer HTTPS APIs over raw SMTP on cloud containers
-  if (env.resendApiKey) return "resend";
-  if (env.brevoApiKey) return "brevo";
-  if (env.smtpHost && env.smtpUser && env.smtpPassword) return "smtp";
 
   return "none";
 };
@@ -100,13 +103,13 @@ export const getTransporter = () => {
   if (!smtpTransporter) {
     smtpTransporter = nodemailer.createTransport({
       host: env.smtpHost,
-      port: Number(env.smtpPort),
+      port: Number(env.smtpPort) || 465,
       secure: Boolean(env.smtpSecure),
       auth: {
         user: env.smtpUser,
         pass: env.smtpPassword,
       },
-      family: 4, // CRITICAL: Force IPv4 to prevent ENETUNREACH 2607:f8b0:400e:c0d::6d
+      family: 4, // CRITICAL: Force IPv4 to prevent ENETUNREACH on cloud containers
       connectionTimeout: env.smtpConnectionTimeoutMs || 10000,
       greetingTimeout: env.smtpGreetingTimeoutMs || 10000,
       socketTimeout: env.smtpSocketTimeoutMs || 15000,
@@ -298,6 +301,7 @@ export const getSafeSmtpStatus = () => {
     companyNotificationEmail: getCompanyNotificationEmail(),
     alertEmail: getCompanyNotificationEmail(),
     simulated: provider === "none",
+    smtpConfigured: Boolean(env.smtpHost && env.smtpUser && env.smtpPassword),
     resendConfigured: Boolean(env.resendApiKey),
     brevoConfigured: Boolean(env.brevoApiKey),
   };
@@ -436,6 +440,24 @@ export const sendEmail = async ({
 
     const result = await withRetry(() => mailer.sendMail(mailOptions));
 
+    const isRejected = Array.isArray(result.rejected) && result.rejected.length > 0;
+    const isExplicitlyEmpty = Array.isArray(result.accepted) && result.accepted.length === 0;
+
+    if (isRejected || isExplicitlyEmpty) {
+      const rejectedList = (result.rejected || []).join(", ");
+      console.warn(`[Email Service] SMTP recipient rejected for ${cleanTo}:`, rejectedList || cleanTo);
+      return {
+        accepted: false,
+        delivered: false,
+        simulated: false,
+        messageId: result.messageId || null,
+        response: result.response,
+        error: `SMTP recipient rejected: ${rejectedList || cleanTo}`,
+        code: "ERECIPIENTREJECTED",
+        provider: "smtp",
+      };
+    }
+
     return {
       accepted: true,
       delivered: true,
@@ -445,17 +467,21 @@ export const sendEmail = async ({
       provider: "smtp",
     };
   } catch (error) {
+    const sanitizedError = (error.message || "")
+      .replace(/pass(word)?\s*[:=]\s*\S+/gi, "password: [REDACTED]")
+      .replace(/bearer\s+\S+/gi, "Bearer [REDACTED]");
+
     console.error(
       `[Email Service] Dispatch failure to ${cleanTo}:`,
-      error.message
+      sanitizedError
     );
     return {
       accepted: false,
       delivered: false,
       simulated: false,
       messageId: null,
-      error: error.message,
-      code: error.code || (error.status ? `HTTP_${error.status}` : null),
+      error: sanitizedError,
+      code: error.code || (error.responseCode ? `SMTP_${error.responseCode}` : (error.status ? `HTTP_${error.status}` : null)),
       provider: provider === "mock" ? "smtp" : provider,
     };
   }
@@ -611,15 +637,26 @@ export const verifyEmailTransport = async () => {
       message: "SMTP connection and authentication verified successfully.",
     };
   } catch (err) {
+    const sanitizedError = (err.message || "")
+      .replace(/pass(word)?\s*[:=]\s*\S+/gi, "password: [REDACTED]")
+      .replace(/bearer\s+\S+/gi, "Bearer [REDACTED]");
+
     return {
       configured: true,
       verified: false,
       simulated: false,
       provider: "smtp",
-      message: err.message,
-      code: err.code || null,
+      message: sanitizedError,
+      code: err.code || (err.responseCode ? `SMTP_${err.responseCode}` : "EAUTH"),
     };
   }
+};
+
+/**
+ * Validates the SMTP configuration against environment variables.
+ */
+export const validateSmtpEnvironment = (customEnv = env) => {
+  return validateSmtpConfig(customEnv);
 };
 
 /**

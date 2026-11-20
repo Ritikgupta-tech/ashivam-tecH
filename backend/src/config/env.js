@@ -205,24 +205,21 @@ const env = {
               : process.env.TRUST_PROXY)
       : (isProd ? 1 : false),
 
-  // Email Delivery Configuration (Supports Resend HTTPS API, Brevo HTTPS API, or SMTP)
-  emailProvider: (
-    process.env.EMAIL_PROVIDER ||
-    (process.env.RESEND_API_KEY ? "resend" : process.env.BREVO_API_KEY ? "brevo" : "smtp")
-  ).toLowerCase(),
+  // Email Delivery Configuration — Primary & Exclusive Transport: SMTP (Nodemailer)
+  emailProvider: (process.env.EMAIL_PROVIDER || "smtp").toLowerCase().trim(),
   resendApiKey: (process.env.RESEND_API_KEY || "").trim(),
   resendFrom: (process.env.RESEND_FROM || "").trim(),
   brevoApiKey: (process.env.BREVO_API_KEY || "").trim(),
 
   // SMTP Settings
-  smtpHost: (process.env.SMTP_HOST || "").trim(),
-  smtpPort: Number(process.env.SMTP_PORT) || 587,
+  smtpHost: (process.env.SMTP_HOST || "smtp.gmail.com").trim(),
+  smtpPort: Number(process.env.SMTP_PORT) || 465,
   smtpSecure:
     process.env.SMTP_SECURE !== undefined
       ? String(process.env.SMTP_SECURE).toLowerCase() === "true"
-      : Number(process.env.SMTP_PORT) === 465,
+      : (Number(process.env.SMTP_PORT) === 465 || !process.env.SMTP_PORT),
   smtpUser: (process.env.SMTP_USER || "").trim(),
-  smtpPassword: process.env.SMTP_PASSWORD || "",
+  smtpPassword: (process.env.SMTP_PASS || process.env.SMTP_PASSWORD || "").trim(),
   smtpFrom:
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
@@ -243,20 +240,14 @@ const env = {
   smtpSocketTimeoutMs: Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 15000,
 
   isSmtpConfigured: Boolean(
-    (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) ||
-    (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) ||
-    ((process.env.SMTP_HOST || "").trim() &&
-      process.env.SMTP_PORT &&
-      (process.env.SMTP_USER || "").trim() &&
-      process.env.SMTP_PASSWORD)
+    (process.env.SMTP_HOST || "smtp.gmail.com").trim() &&
+    (process.env.SMTP_USER || "").trim() &&
+    (process.env.SMTP_PASS || process.env.SMTP_PASSWORD || "").trim()
   ),
   isEmailConfigured: Boolean(
-    (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) ||
-    (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) ||
-    ((process.env.SMTP_HOST || "").trim() &&
-      process.env.SMTP_PORT &&
-      (process.env.SMTP_USER || "").trim() &&
-      process.env.SMTP_PASSWORD)
+    (process.env.SMTP_HOST || "smtp.gmail.com").trim() &&
+    (process.env.SMTP_USER || "").trim() &&
+    (process.env.SMTP_PASS || process.env.SMTP_PASSWORD || "").trim()
   ),
 
   // Persistent Object Storage Configuration
@@ -346,5 +337,42 @@ if (env.isProduction) {
     }
   }
 }
+
+/**
+ * Validates required SMTP environment configuration.
+ * Returns structured validation result without throwing, defending against boot crashes.
+ */
+export const validateSmtpConfig = (customEnv = env) => {
+  const errors = [];
+  const missing = [];
+
+  const host = (customEnv.smtpHost || "").trim();
+  const port = Number(customEnv.smtpPort);
+  const user = (customEnv.smtpUser || "").trim();
+  const pass = (customEnv.smtpPassword || "").trim();
+
+  if (!host) {
+    missing.push("SMTP_HOST");
+    errors.push("SMTP_HOST is required (e.g. smtp.gmail.com)");
+  }
+  if (!port || isNaN(port) || port <= 0 || port > 65535) {
+    missing.push("SMTP_PORT");
+    errors.push("SMTP_PORT must be a valid port number (e.g. 465 or 587)");
+  }
+  if (!user) {
+    missing.push("SMTP_USER");
+    errors.push("SMTP_USER is required");
+  }
+  if (!pass) {
+    missing.push("SMTP_PASS / SMTP_PASSWORD");
+    errors.push("SMTP_PASS or SMTP_PASSWORD is required");
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    missing,
+  };
+};
 
 export default env;

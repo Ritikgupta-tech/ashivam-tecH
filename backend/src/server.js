@@ -17,6 +17,7 @@ import {
 import {
   getSafeSmtpStatus,
   verifyEmailTransport,
+  validateSmtpEnvironment,
 } from "./modules/notification/email.service.js";
 import {
   startOutboxWorker,
@@ -48,9 +49,17 @@ const startServer = async () => {
     console.log(
       `[Email Service] Company Notification Recipient: ${emailStatus.companyNotificationEmail}`
     );
+
+    const smtpValidation = validateSmtpEnvironment(env);
+    if (!smtpValidation.valid && !env.isTest) {
+      console.warn(
+        `[Email Service] SMTP configuration incomplete. Missing: ${smtpValidation.missing.join(", ")}`
+      );
+    }
+
     if (emailStatus.configured) {
       console.log(
-        `[Email Service] Provider: ${emailStatus.provider.toUpperCase()} | Configured (from: ${emailStatus.from})`
+        `[Email Service] Provider: ${emailStatus.provider.toUpperCase()} | Host: ${emailStatus.host}:${emailStatus.port} (from: ${emailStatus.from})`
       );
       if (!env.isTest) {
         verifyEmailTransport()
