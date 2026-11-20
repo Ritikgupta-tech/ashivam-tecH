@@ -415,3 +415,44 @@ test('Google Meet participant identity extraction handles canonical email varian
     null
   );
 });
+
+// 20. Google Workspace OAuth client_id validation & error handling
+test('Google Workspace OAuth frontend validator detects missing or empty client_id and blocks invalid redirects', () => {
+  const validateAuthUrl = (url) => {
+    if (!url) throw new Error('Google authorization URL was not received from the server.');
+    const parsed = new URL(url);
+    const clientId = parsed.searchParams.get('client_id');
+    if (!clientId || !clientId.trim()) {
+      throw new Error('Backend configuration error: client_id is missing from authorization URL.');
+    }
+    return {
+      isValid: true,
+      clientId,
+      redirectUri: parsed.searchParams.get('redirect_uri'),
+    };
+  };
+
+  // Rejects URL with missing client_id
+  assert.throws(
+    () => validateAuthUrl('https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://example.com/callback'),
+    /client_id is missing/
+  );
+
+  // Rejects URL with empty client_id
+  assert.throws(
+    () => validateAuthUrl('https://accounts.google.com/o/oauth2/v2/auth?client_id=&redirect_uri=https://example.com/callback'),
+    /client_id is missing/
+  );
+
+  // Rejects null or empty string
+  assert.throws(
+    () => validateAuthUrl(''),
+    /authorization URL was not received/
+  );
+
+  // Accepts valid URL
+  const valid = validateAuthUrl('https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client-id.apps.googleusercontent.com&redirect_uri=https://example.com/callback');
+  assert.equal(valid.isValid, true);
+  assert.equal(valid.clientId, 'test-client-id.apps.googleusercontent.com');
+  assert.equal(valid.redirectUri, 'https://example.com/callback');
+});

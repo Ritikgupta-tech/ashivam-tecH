@@ -42,20 +42,18 @@ services:
       - key: GLOBAL_RATE_LIMIT
         value: 100
       - key: EMAIL_PROVIDER
-        sync: false
-      - key: RESEND_API_KEY
-        sync: false
-      - key: BREVO_API_KEY
-        sync: false
+        value: smtp
       - key: SMTP_HOST
-        sync: false
+        value: smtp.gmail.com
       - key: SMTP_PORT
-        value: 587
+        value: 465
       - key: SMTP_SECURE
-        value: false
+        value: "true"
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_PASS
         sync: false
       - key: SMTP_FROM
         value: Ashivam Technologies <ritik95061@gmail.com>
@@ -67,3 +65,19 @@ services:
         value: Ashivam Technologies <ritik95061@gmail.com>
       - key: NOTIFICATION_RECIPIENT
         value: ritik95061@gmail.com
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        value: https://ashivam-tech.onrender.com/api/v1/google/oauth/callback
+      - key: GOOGLE_OAUTH_SCOPES
+        value: https://www.googleapis.com/auth/meetings.space.created https://www.googleapis.com/auth/meetings.space.readonly openid email
+      - key: GOOGLE_CLOUD_PROJECT_ID
+        value: ashivam-meet-attendance
+      - key: GOOGLE_PUBSUB_TOPIC
+        value: projects/ashivam-meet-attendance/topics/ashivam-meet-events
+      - key: GOOGLE_PUBSUB_SUBSCRIPTION
+        value: projects/ashivam-meet-attendance/subscriptions/ashivam-meet-events-sub
+      - key: GOOGLE_TOKEN_ENCRYPTION_KEY
+        sync: false

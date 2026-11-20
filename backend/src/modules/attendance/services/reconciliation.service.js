@@ -14,26 +14,27 @@ import {
 } from "./googleMeet.service.js";
 import { evaluateAttendanceStatus } from "./attendanceEngine.service.js";
 
+const CANONICAL_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
 /**
  * Robust Google Meet participant email extractor.
- * Handles:
- *   1. Explicit signedinUser.email (e.g. employee@ashivam.test)
- *   2. signedinUser.user format (e.g. users/employee@ashivam.test)
- *   3. Top-level email or participant.email
- *   4. Normalizes to lowercase and ignores non-email identifier strings
+ * Strictly validates email format and rejects:
+ *   - Numeric Google IDs (e.g. users/102938475619)
+ *   - Phone users or anonymous callers
+ *   - Non-canonical email strings or display names
  */
 export const extractGoogleEmail = (signedinUser, rawEmail) => {
-  if (signedinUser?.email && typeof signedinUser.email === "string" && signedinUser.email.includes("@")) {
-    return signedinUser.email.trim().toLowerCase();
+  if (signedinUser?.email && typeof signedinUser.email === "string") {
+    const clean = signedinUser.email.trim().toLowerCase();
+    if (CANONICAL_EMAIL_REGEX.test(clean)) return clean;
   }
   if (signedinUser?.user && typeof signedinUser.user === "string") {
     const candidate = signedinUser.user.replace(/^users\//, "").trim().toLowerCase();
-    if (candidate.includes("@")) {
-      return candidate;
-    }
+    if (CANONICAL_EMAIL_REGEX.test(candidate)) return candidate;
   }
-  if (rawEmail && typeof rawEmail === "string" && rawEmail.includes("@")) {
-    return rawEmail.trim().toLowerCase();
+  if (rawEmail && typeof rawEmail === "string") {
+    const clean = rawEmail.trim().toLowerCase();
+    if (CANONICAL_EMAIL_REGEX.test(clean)) return clean;
   }
   return null;
 };
@@ -184,10 +185,28 @@ export const processParticipantJoinedEvent = async (eventData) => {
     ? new Date(eventData.startTime)
     : new Date();
 
-  // Create or update participant session
-  const session = await ParticipantSession.findOneAndUpdate(
-    { sessionName },
-    {
+  // Create or update participant session (resilient to out-of-order leave events)
+  let session = await ParticipantSession.findOne({ sessionName });
+  if (session) {
+    session.meetingId = session.meetingId || meeting._id;
+    session.conferenceRecordId = session.conferenceRecordId || conferenceRecordId;
+    session.participantName = session.participantName || participantName;
+    session.googleEmail = googleEmail || session.googleEmail;
+    session.displayName = displayName || session.displayName;
+    session.userType = userType;
+    session.matchedEmployeeId = matchedEmployee ? matchedEmployee._id : session.matchedEmployeeId;
+    session.startTime = startTime;
+    session.deviceType = eventData.deviceType || session.deviceType || "UNKNOWN";
+
+    if (session.endTime) {
+      session.durationSeconds = Math.max(
+        0,
+        Math.round((new Date(session.endTime).getTime() - startTime.getTime()) / 1000)
+      );
+    }
+    await session.save();
+  } else {
+    session = await ParticipantSession.create({
       meetingId: meeting._id,
       conferenceRecordId,
       participantName,
@@ -198,10 +217,10 @@ export const processParticipantJoinedEvent = async (eventData) => {
       matchedEmployeeId: matchedEmployee ? matchedEmployee._id : null,
       startTime,
       endTime: null,
+      durationSeconds: 0,
       deviceType: eventData.deviceType || "UNKNOWN",
-    },
-    { upsert: true, returnDocument: "after" }
-  );
+    });
+  }
 
   // Update meeting status to IN_PROGRESS
   if (meeting.status === "SCHEDULED") {
@@ -247,21 +266,102 @@ const handleParticipantJoinedEvent = async (eventData) => {
   }
 };
 
-const handleParticipantLeftEvent = async (eventData) => {
-  const sessionName = eventData.name;
+export const handleParticipantLeftEvent = async (eventData) => {
+  const sessionName = eventData.session?.sessionName || eventData.participantSession || eventData.name;
   if (!sessionName) return;
 
-  const endTime = eventData.endTime ? new Date(eventData.endTime) : new Date();
+  const endTime = eventData.session?.endTime
+    ? new Date(eventData.session.endTime)
+    : eventData.endTime
+    ? new Date(eventData.endTime)
+    : new Date();
 
-  const session = await ParticipantSession.findOne({ sessionName });
-  if (!session) return;
+  let session = await ParticipantSession.findOne({ sessionName });
 
-  session.endTime = endTime;
-  session.durationSeconds = Math.max(
-    0,
-    Math.round((endTime.getTime() - new Date(session.startTime).getTime()) / 1000)
-  );
-  await session.save();
+  if (!session) {
+    // Out-of-order handling: leave event arrived before joined event
+    const parts = sessionName.split("/");
+    let conferenceRecordId = "";
+    const confIdx = parts.indexOf("conferenceRecords");
+    if (confIdx !== -1 && parts.length > confIdx + 1) {
+      conferenceRecordId = parts.slice(confIdx, confIdx + 2).join("/");
+    } else {
+      conferenceRecordId = parts.slice(0, 2).join("/");
+    }
+
+    let participantName = "";
+    const partIdx = parts.indexOf("participants");
+    if (partIdx !== -1 && parts.length > partIdx + 1) {
+      participantName = parts.slice(0, partIdx + 2).join("/");
+    } else {
+      participantName = parts.slice(0, 4).join("/");
+    }
+
+    let conference = await MeetingConference.findOne({ googleConferenceRecordId: conferenceRecordId });
+    let meeting = conference ? await Meeting.findById(conference.meetingId) : null;
+
+    if (!meeting && (eventData.space || eventData.conferenceRecord)) {
+      const spaceQuery = eventData.space || (eventData.conferenceRecord ? eventData.conferenceRecord.split("/conferenceRecords")[0] : null);
+      if (spaceQuery) {
+        meeting = await Meeting.findOne({
+          googleMeetingSpaceName: spaceQuery,
+          status: { $in: ["SCHEDULED", "IN_PROGRESS"] },
+        }).sort({ scheduledStartTime: -1 });
+      }
+    }
+
+    if (!meeting) {
+      meeting = await Meeting.findOne({ status: "IN_PROGRESS" }).sort({ updatedAt: -1 });
+    }
+
+    const userType = eventData.signedinUser ? "SIGNED_IN" : eventData.phoneUser ? "PHONE" : "ANONYMOUS";
+    const googleEmail = extractGoogleEmail(eventData.signedinUser, eventData.email);
+    const displayName = eventData.signedinUser?.displayName || eventData.displayName || "";
+
+    let matchedEmployee = null;
+    if (googleEmail) {
+      matchedEmployee = await Employee.findOne({
+        $or: [{ googleEmail }, { email: googleEmail }],
+        deletedAt: null,
+        isActive: true,
+        accountStatus: "ACTIVE",
+      });
+    }
+
+    const startTime = eventData.session?.startTime
+      ? new Date(eventData.session.startTime)
+      : eventData.startTime
+      ? new Date(eventData.startTime)
+      : null;
+
+    const durationSeconds = startTime
+      ? Math.max(0, Math.round((endTime.getTime() - startTime.getTime()) / 1000))
+      : 0;
+
+    session = await ParticipantSession.create({
+      meetingId: meeting ? meeting._id : undefined,
+      conferenceRecordId,
+      participantName,
+      sessionName,
+      googleEmail,
+      displayName,
+      userType,
+      matchedEmployeeId: matchedEmployee ? matchedEmployee._id : null,
+      startTime: startTime || endTime,
+      endTime,
+      durationSeconds,
+      deviceType: eventData.deviceType || "UNKNOWN",
+    });
+  } else {
+    session.endTime = endTime;
+    if (session.startTime) {
+      session.durationSeconds = Math.max(
+        0,
+        Math.round((endTime.getTime() - new Date(session.startTime).getTime()) / 1000)
+      );
+    }
+    await session.save();
+  }
 
   // Update provisional attendance calculation for matched employee
   if (session.matchedEmployeeId) {

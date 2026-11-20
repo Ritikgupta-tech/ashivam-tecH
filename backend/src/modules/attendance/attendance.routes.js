@@ -24,6 +24,7 @@ import {
   getGoogleIntegrationStatus,
   handlePubSubWebhook,
   triggerGlobalReconciliation,
+  disconnectGoogleIntegrationController,
 } from "./attendance.controller.js";
 
 const router = Router();
@@ -124,6 +125,12 @@ router.get(
   authenticate,
   requireRole("Superadmin", "Admin"),
   getGoogleIntegrationStatus
+);
+router.post(
+  ["/integration/disconnect", "/google/integration/disconnect"],
+  authenticate,
+  requireRole("Superadmin"),
+  disconnectGoogleIntegrationController
 );
 router.post(["/events/pubsub", "/google/events/pubsub"], handlePubSubWebhook);
 router.post(

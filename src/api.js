@@ -919,6 +919,11 @@ export const getGoogleOAuthUrl = () =>
 export const getGoogleIntegrationStatus = () =>
   request('/google/integration/status');
 
+export const disconnectGoogleIntegration = () =>
+  request('/google/integration/disconnect', {
+    method: 'POST',
+  });
+
 export const triggerGlobalReconciliation = () =>
   request('/google/events/reconcile', {
     method: 'POST',

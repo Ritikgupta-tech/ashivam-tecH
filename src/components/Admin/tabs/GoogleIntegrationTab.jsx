@@ -3,6 +3,7 @@ import {
   getGoogleIntegrationStatus,
   getGoogleOAuthUrl,
   triggerGlobalReconciliation,
+  disconnectGoogleIntegration,
 } from '../../../api';
 import { Panel, StatCard, StatusBadge } from '../AdminUI';
 import { ShieldCheckIcon, RefreshIcon, ArrowRightIcon } from '../../icons';
@@ -10,6 +11,7 @@ import { ShieldCheckIcon, RefreshIcon, ArrowRightIcon } from '../../icons';
 export default function GoogleIntegrationTab() {
   const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState(false);
   const [reconciling, setReconciling] = useState(false);
   const [reconcileResult, setReconcileResult] = useState(null);
 
@@ -31,14 +33,54 @@ export default function GoogleIntegrationTab() {
     loadIntegrationStatus();
   }, [loadIntegrationStatus]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const message = params.get('message');
+
+    if (status === 'connected') {
+      setReconcileResult({
+        type: 'success',
+        text: 'Google Workspace successfully authorized and connected!',
+      });
+      window.history.replaceState({}, document.title, window.location.pathname + '?tab=google');
+    } else if (status === 'error') {
+      setReconcileResult({
+        type: 'error',
+        text: message ? decodeURIComponent(message) : 'Google Workspace OAuth authorization was canceled or failed.',
+      });
+      window.history.replaceState({}, document.title, window.location.pathname + '?tab=google');
+    }
+  }, []);
+
   const handleConnectOAuth = async () => {
+    if (connecting) return;
+    setConnecting(true);
+    setReconcileResult(null);
+
     try {
       const res = await getGoogleOAuthUrl();
-      if (res?.data?.url) {
-        window.location.href = res.data.url;
+      const authUrl = res?.data?.url;
+
+      if (!authUrl) {
+        throw new Error(res?.message || 'Google authorization URL was not received from the server.');
       }
+
+      // Verify that client_id parameter is present and non-empty
+      const parsedUrl = new URL(authUrl);
+      const clientId = parsedUrl.searchParams.get('client_id');
+      if (!clientId || !clientId.trim()) {
+        throw new Error('Backend configuration error: client_id is missing from authorization URL.');
+      }
+
+      window.location.href = authUrl;
     } catch (err) {
-      alert(`OAuth initialization error: ${err.message}`);
+      setReconcileResult({
+        type: 'error',
+        text: `OAuth initialization failed: ${err.message}`,
+      });
+      setConnecting(false);
     }
   };
 
@@ -59,6 +101,30 @@ export default function GoogleIntegrationTab() {
       });
     } finally {
       setReconciling(false);
+    }
+  };
+
+  const [disconnecting, setDisconnecting] = useState(false);
+
+  const handleDisconnect = async () => {
+    if (!window.confirm("Are you sure you want to disconnect Google Workspace and revoke access tokens?")) {
+      return;
+    }
+    setDisconnecting(true);
+    try {
+      await disconnectGoogleIntegration();
+      setReconcileResult({
+        type: 'success',
+        text: 'Google Workspace disconnected and tokens successfully revoked.',
+      });
+      loadIntegrationStatus();
+    } catch (err) {
+      setReconcileResult({
+        type: 'error',
+        text: `Failed to disconnect: ${err.message}`,
+      });
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -85,16 +151,46 @@ export default function GoogleIntegrationTab() {
             <RefreshIcon size={16} />
             <span>{reconciling ? 'Reconciling...' : 'Run Global Reconciliation'}</span>
           </button>
+          {isConnected && (
+            <button
+              type="button"
+              onClick={handleDisconnect}
+              className="admin-btn admin-btn--danger"
+              disabled={disconnecting}
+            >
+              <span>{disconnecting ? 'Disconnecting...' : 'Disconnect Google'}</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={handleConnectOAuth}
             className="admin-btn admin-btn--primary"
+            disabled={connecting || loading || (health && health.clientIdConfigured === false)}
+            title={health && health.clientIdConfigured === false ? 'Google Workspace OAuth is not configured on the backend' : ''}
           >
             <ShieldCheckIcon size={16} />
-            <span>Connect / Reauthorize Google</span>
+            <span>
+              {connecting
+                ? 'Initializing...'
+                : (health && health.clientIdConfigured === false)
+                ? 'OAuth Unconfigured'
+                : (isConnected ? 'Reauthorize Google' : 'Connect Google Workspace')}
+            </span>
           </button>
         </div>
       </div>
+
+      {health && health.clientIdConfigured === false && !reconcileResult && (
+        <div
+          className="admin-alert admin-alert--warning"
+          role="alert"
+          style={{ marginBottom: '1.5rem' }}
+        >
+          <span>
+            <strong>Configuration Notice:</strong> Google Workspace OAuth client ID is not configured on the backend. Please add <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> to your backend environment settings before connecting.
+          </span>
+        </div>
+      )}
 
       {reconcileResult && (
         <div

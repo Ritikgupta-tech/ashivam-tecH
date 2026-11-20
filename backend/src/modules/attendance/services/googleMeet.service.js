@@ -5,7 +5,9 @@ import { encryptSecret, decryptSecret } from "./crypto.service.js";
 
 const GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
+const GOOGLE_REVOKE_ENDPOINT = "https://oauth2.googleapis.com/revoke";
 const GOOGLE_MEET_API_BASE = "https://meet.googleapis.com/v2";
+const WORKSPACE_EVENTS_API_BASE = "https://workspaceevents.googleapis.com/v1";
 
 /**
  * In-memory state cache for OAuth CSRF validation with 10-minute TTL.
@@ -13,6 +15,34 @@ const GOOGLE_MEET_API_BASE = "https://meet.googleapis.com/v2";
 const oauthStateCache = new Map();
 
 export const generateOAuthAuthUrl = () => {
+  const clientId = (env.googleClientId || "").trim();
+  if (!clientId) {
+    const error = new Error("Google Workspace OAuth client ID is not configured (missing GOOGLE_CLIENT_ID)");
+    error.statusCode = 503;
+    error.code = "GOOGLE_OAUTH_NOT_CONFIGURED";
+    throw error;
+  }
+
+  const redirectUri = (env.googleRedirectUri || "").trim();
+  if (!redirectUri) {
+    const error = new Error("Google Workspace OAuth redirect URI is not configured (missing GOOGLE_REDIRECT_URI)");
+    error.statusCode = 503;
+    error.code = "GOOGLE_REDIRECT_URI_NOT_CONFIGURED";
+    throw error;
+  }
+
+  try {
+    const parsedUri = new URL(redirectUri);
+    if (!["http:", "https:"].includes(parsedUri.protocol)) {
+      throw new Error("Invalid protocol");
+    }
+  } catch {
+    const error = new Error("Google Workspace OAuth redirect URI is invalid. Must be an http or https URL.");
+    error.statusCode = 503;
+    error.code = "INVALID_GOOGLE_REDIRECT_URI";
+    throw error;
+  }
+
   const state = crypto.randomBytes(24).toString("hex");
   oauthStateCache.set(state, Date.now() + 10 * 60 * 1000);
 
@@ -22,10 +52,17 @@ export const generateOAuthAuthUrl = () => {
   }
 
   const baseScopes = Array.isArray(env.googleOAuthScopes) ? env.googleOAuthScopes : [env.googleOAuthScopes];
-  const combinedScopes = Array.from(new Set([...baseScopes, "openid", "email"])).filter(Boolean).join(" ");
+  const combinedScopes = Array.from(new Set([
+    ...baseScopes,
+    "https://www.googleapis.com/auth/meetings.space.created",
+    "https://www.googleapis.com/auth/meetings.space.readonly",
+    "openid",
+    "email",
+  ])).filter(Boolean).join(" ");
+
   const params = new URLSearchParams({
-    client_id: env.googleClientId,
-    redirect_uri: env.googleRedirectUri,
+    client_id: clientId,
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: combinedScopes,
     access_type: "offline",
@@ -80,6 +117,23 @@ export const exchangeCodeForTokens = async (code) => {
       const decoded = JSON.parse(Buffer.from(payloadPart, "base64").toString("utf8"));
       if (decoded.email) {
         connectedAccountEmail = String(decoded.email).toLowerCase().trim();
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // Fallback to Google OpenID UserInfo if id_token did not yield email
+  if (!connectedAccountEmail && tokenData.access_token) {
+    try {
+      const userinfoRes = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      });
+      if (userinfoRes.ok) {
+        const userInfo = await userinfoRes.json();
+        if (userInfo.email) {
+          connectedAccountEmail = String(userInfo.email).toLowerCase().trim();
+        }
       }
     } catch {
       // non-fatal
@@ -327,11 +381,16 @@ export const listParticipantSessions = async (participantName) => {
  * Inspects integration connection health
  */
 export const getIntegrationHealth = async () => {
+  const isConfigured = Boolean(env.isGoogleOAuthConfigured);
+  const clientIdConfigured = Boolean(env.googleClientId);
+
   const integration = await GoogleIntegration.findOne({ serviceName: "google_meet" });
   if (!integration) {
     return {
       status: "DISCONNECTED",
       isConnected: false,
+      isConfigured,
+      clientIdConfigured,
       connectedAccountEmail: null,
       lastSyncAt: null,
       scopes: [],
@@ -344,10 +403,174 @@ export const getIntegrationHealth = async () => {
   return {
     status: integration.status,
     isConnected: integration.status === "CONNECTED",
+    isConfigured,
+    clientIdConfigured,
     tokenExpired: Boolean(isExpired),
     connectedAccountEmail: integration.connectedAccountEmail,
     lastSyncAt: integration.lastSyncAt,
     scopes: integration.scopes,
     lastError: integration.lastError,
   };
+};
+
+/**
+ * Disconnects the Google Meet integration, revokes credentials with Google,
+ * and resets integration status to DISCONNECTED.
+ */
+export const disconnectGoogleIntegration = async () => {
+  const integration = await GoogleIntegration.findOne({ serviceName: "google_meet" });
+  if (!integration) {
+    return { success: true, status: "DISCONNECTED", message: "No active Google integration found" };
+  }
+
+  let tokenToRevoke = integration.accessToken;
+  if (!tokenToRevoke && integration.encryptedRefreshToken) {
+    try {
+      tokenToRevoke = decryptSecret({
+        encryptedText: integration.encryptedRefreshToken,
+        iv: integration.iv,
+        authTag: integration.authTag,
+      });
+    } catch {
+      // non-fatal decryption issue during revocation
+    }
+  }
+
+  if (tokenToRevoke) {
+    try {
+      await fetch(GOOGLE_REVOKE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ token: tokenToRevoke }).toString(),
+      });
+    } catch (revokeErr) {
+      console.warn(`[Google OAuth Revocation Notice]: ${revokeErr.message}`);
+    }
+  }
+
+  integration.status = "DISCONNECTED";
+  integration.accessToken = null;
+  integration.encryptedRefreshToken = null;
+  integration.iv = null;
+  integration.authTag = null;
+  integration.tokenExpiresAt = null;
+  integration.lastSyncAt = new Date();
+  integration.lastError = null;
+  await integration.save();
+
+  return { success: true, status: "DISCONNECTED" };
+};
+
+/**
+ * Creates a Workspace Events API subscription for a Google Meet space or conference record.
+ */
+export const createWorkspaceEventsSubscription = async ({ targetResource, eventTypes }) => {
+  const token = await getValidAccessToken();
+  const cleanTarget = targetResource.startsWith("//")
+    ? targetResource
+    : `//meet.googleapis.com/${targetResource.replace(/^\//, "")}`;
+
+  const defaultEvents = [
+    "google.workspace.meet.participant.v2.joined",
+    "google.workspace.meet.participant.v2.left",
+    "google.workspace.meet.conferenceRecord.v2.ended",
+  ];
+
+  const payload = {
+    targetResource: cleanTarget,
+    eventTypes: eventTypes || defaultEvents,
+    notificationEndpoint: {
+      pubsubTopic: env.googlePubSubTopic,
+    },
+    payloadOptions: {
+      includeResource: true,
+    },
+  };
+
+  const response = await fetch(`${WORKSPACE_EVENTS_API_BASE}/subscriptions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || "Failed to create Workspace Events subscription");
+  }
+
+  return data;
+};
+
+/**
+ * Retrieves a Workspace Events subscription status.
+ */
+export const getWorkspaceEventsSubscription = async (subscriptionName) => {
+  const token = await getValidAccessToken();
+  const cleanName = subscriptionName.startsWith("subscriptions/")
+    ? subscriptionName
+    : `subscriptions/${subscriptionName}`;
+
+  const response = await fetch(`${WORKSPACE_EVENTS_API_BASE}/${cleanName}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || `Failed to fetch subscription: ${cleanName}`);
+  }
+
+  return data;
+};
+
+/**
+ * Renews a Workspace Events subscription TTL.
+ */
+export const renewWorkspaceEventsSubscription = async (subscriptionName, ttlSeconds = 604800) => {
+  const token = await getValidAccessToken();
+  const cleanName = subscriptionName.startsWith("subscriptions/")
+    ? subscriptionName
+    : `subscriptions/${subscriptionName}`;
+
+  const response = await fetch(`${WORKSPACE_EVENTS_API_BASE}/${cleanName}?updateMask=ttl`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ttl: `${ttlSeconds}s`,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || `Failed to renew subscription: ${cleanName}`);
+  }
+
+  return data;
+};
+
+/**
+ * Deletes a Workspace Events subscription.
+ */
+export const deleteWorkspaceEventsSubscription = async (subscriptionName) => {
+  const token = await getValidAccessToken();
+  const cleanName = subscriptionName.startsWith("subscriptions/")
+    ? subscriptionName
+    : `subscriptions/${subscriptionName}`;
+
+  const response = await fetch(`${WORKSPACE_EVENTS_API_BASE}/${cleanName}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error?.message || `Failed to delete subscription: ${cleanName}`);
+  }
+
+  return { success: true };
 };

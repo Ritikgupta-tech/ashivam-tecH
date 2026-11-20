@@ -11,6 +11,7 @@ import {
   exchangeCodeForTokens,
   createMeetSpace,
   getIntegrationHealth,
+  disconnectGoogleIntegration,
 } from "./services/googleMeet.service.js";
 import {
   ingestPubSubMessage,
@@ -823,20 +824,36 @@ export const triggerReconciliation = async (req, res, next) => {
 // GOOGLE INTEGRATION & PUBSUB CONTROLLERS
 // ==========================================
 
-export const getGoogleOAuthAuthorizeUrl = (req, res) => {
-  const { url, state } = generateOAuthAuthUrl();
-  return res.status(200).json({
-    success: true,
-    data: { url, state },
-    requestId: req.id,
-  });
+export const getGoogleOAuthAuthorizeUrl = (req, res, next) => {
+  try {
+    const { url, state } = generateOAuthAuthUrl();
+    return res.status(200).json({
+      success: true,
+      data: { url, state },
+      requestId: req.id,
+    });
+  } catch (error) {
+    const statusCode = error.statusCode || 503;
+    return res.status(statusCode).json({
+      success: false,
+      code: error.code || "GOOGLE_OAUTH_CONFIG_ERROR",
+      message: error.message || "Failed to initialize Google OAuth authorization",
+      requestId: req.id,
+    });
+  }
 };
 
 export const handleGoogleOAuthCallback = async (req, res, next) => {
+  const clientUrl = env.clientUrl || "https://ashivam-tec-h.vercel.app";
+  const acceptsHtml = req.headers.accept?.includes("text/html");
+
   try {
     const { code, state, error } = req.query;
 
     if (error) {
+      if (acceptsHtml) {
+        return res.redirect(`${clientUrl}/admin?tab=google&status=error&message=${encodeURIComponent(`Google OAuth authorization denied: ${error}`)}`);
+      }
       return res.status(400).json({
         success: false,
         message: `Google OAuth authorization denied: ${error}`,
@@ -845,6 +862,9 @@ export const handleGoogleOAuthCallback = async (req, res, next) => {
     }
 
     if (!state || !validateOAuthState(state)) {
+      if (acceptsHtml) {
+        return res.redirect(`${clientUrl}/admin?tab=google&status=error&message=${encodeURIComponent("Invalid or expired OAuth state parameter (CSRF protection)")}`);
+      }
       return res.status(400).json({
         success: false,
         message: "Invalid or expired OAuth state parameter (CSRF protection)",
@@ -854,10 +874,23 @@ export const handleGoogleOAuthCallback = async (req, res, next) => {
 
     const integration = await exchangeCodeForTokens(code);
 
-    // Redirect to admin dashboard Google tab if from browser
-    const clientUrl = env.clientUrl || "https://ashivam-tec-h.vercel.app";
-    return res.redirect(`${clientUrl}/admin?tab=google&status=connected`);
+    if (acceptsHtml) {
+      return res.redirect(`${clientUrl}/admin?tab=google&status=connected`);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Google Workspace successfully authorized",
+      data: {
+        status: integration.status,
+        connectedAccountEmail: integration.connectedAccountEmail,
+      },
+      requestId: req.id,
+    });
   } catch (error) {
+    if (acceptsHtml) {
+      return res.redirect(`${clientUrl}/admin?tab=google&status=error&message=${encodeURIComponent(error.message || "Failed to exchange authorization code for tokens")}`);
+    }
     next(error);
   }
 };
@@ -875,16 +908,66 @@ export const getGoogleIntegrationStatus = async (req, res, next) => {
   }
 };
 
+export const disconnectGoogleIntegrationController = async (req, res, next) => {
+  try {
+    const result = await disconnectGoogleIntegration();
+    return res.status(200).json({
+      success: true,
+      message: "Google Workspace integration disconnected and tokens revoked",
+      data: result,
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const handlePubSubWebhook = async (req, res, next) => {
   try {
     // Secret or query token verification
-    const secret = req.query.secret || req.headers["x-pubsub-secret"];
-    if (env.googlePubSubSecret && secret && secret !== env.googlePubSubSecret) {
+    const secret = req.query.secret || req.headers["x-pubsub-secret"] || req.headers["x-goog-channel-token"];
+    const authHeader = req.headers.authorization;
+
+    if (secret && env.googlePubSubSecret && secret !== env.googlePubSubSecret) {
       return res.status(403).json({
         success: false,
-        message: "Unauthorized Pub/Sub webhook sender",
+        message: "Unauthorized Pub/Sub webhook sender: invalid secret",
         requestId: req.id,
       });
+    }
+
+    if (env.isProduction && !secret && !authHeader) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized Pub/Sub webhook sender: authentication required in production",
+        requestId: req.id,
+      });
+    }
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.slice(7);
+        const parts = token.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+          if (
+            (payload.iss !== "https://accounts.google.com" && payload.iss !== "accounts.google.com") ||
+            (payload.exp && payload.exp * 1000 <= Date.now())
+          ) {
+            return res.status(403).json({
+              success: false,
+              message: "Unauthorized Pub/Sub webhook sender: invalid Google service account token",
+              requestId: req.id,
+            });
+          }
+        }
+      } catch {
+        return res.status(403).json({
+          success: false,
+          message: "Unauthorized Pub/Sub webhook sender: malformed authorization token",
+          requestId: req.id,
+        });
+      }
     }
 
     const { message, subscription } = req.body || {};

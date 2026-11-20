@@ -271,15 +271,42 @@ const env = {
   internshipServiceSecret: (process.env.INTERNSHIP_SERVICE_SECRET || "ashivam_sec_svc_internship_handover_2026_xyz987").trim(),
 
   // Google Workspace & Meet Attendance Configuration
-  googleClientId: (process.env.GOOGLE_CLIENT_ID || "").trim(),
-  googleClientSecret: (process.env.GOOGLE_CLIENT_SECRET || "").trim(),
-  googleRedirectUri: (process.env.GOOGLE_REDIRECT_URI || (isProd ? "https://ashivam-tech.onrender.com/api/v1/google/oauth/callback" : "http://localhost:5000/api/v1/google/oauth/callback")).trim(),
-  googleOAuthScopes: (process.env.GOOGLE_OAUTH_SCOPES || "https://www.googleapis.com/auth/meetings.space.created https://www.googleapis.com/auth/meetings.space.readonly").split(/\s+/).filter(Boolean),
-  googleCloudProjectId: (process.env.GOOGLE_CLOUD_PROJECT_ID || "ashivam-meet-attendance").trim(),
-  googlePubSubTopic: (process.env.GOOGLE_PUBSUB_TOPIC || "projects/ashivam-meet-attendance/topics/ashivam-meet-events").trim(),
-  googlePubSubSubscription: (process.env.GOOGLE_PUBSUB_SUBSCRIPTION || "projects/ashivam-meet-attendance/subscriptions/ashivam-meet-events-sub").trim(),
-  googlePubSubSecret: (process.env.GOOGLE_PUBSUB_SECRET || process.env.PUBSUB_VERIFICATION_TOKEN || "ashivam_pubsub_sec_key_2026").trim(),
-  googleTokenEncryptionKey: (process.env.GOOGLE_TOKEN_ENCRYPTION_KEY || "ashivam_meet_token_encryption_key_32b!").trim(),
+  get googleClientId() {
+    return (process.env.GOOGLE_CLIENT_ID || "").trim();
+  },
+  get googleClientSecret() {
+    return (process.env.GOOGLE_CLIENT_SECRET || "").trim();
+  },
+  get googleRedirectUri() {
+    const raw = (process.env.GOOGLE_REDIRECT_URI || "").trim();
+    if (raw) return raw;
+    return this.isProduction
+      ? "https://ashivam-tech.onrender.com/api/v1/google/oauth/callback"
+      : "http://localhost:5000/api/v1/google/oauth/callback";
+  },
+  get googleOAuthScopes() {
+    const defaultScopes = "https://www.googleapis.com/auth/meetings.space.created https://www.googleapis.com/auth/meetings.space.readonly openid email";
+    const raw = (process.env.GOOGLE_OAUTH_SCOPES || defaultScopes).trim();
+    return raw.split(/\s+/).filter(Boolean);
+  },
+  get isGoogleOAuthConfigured() {
+    return Boolean(this.googleClientId && this.googleClientSecret && this.googleRedirectUri);
+  },
+  get googleCloudProjectId() {
+    return (process.env.GOOGLE_CLOUD_PROJECT_ID || "ashivam-meet-attendance").trim();
+  },
+  get googlePubSubTopic() {
+    return (process.env.GOOGLE_PUBSUB_TOPIC || "projects/ashivam-meet-attendance/topics/ashivam-meet-events").trim();
+  },
+  get googlePubSubSubscription() {
+    return (process.env.GOOGLE_PUBSUB_SUBSCRIPTION || "projects/ashivam-meet-attendance/subscriptions/ashivam-meet-events-sub").trim();
+  },
+  get googlePubSubSecret() {
+    return (process.env.GOOGLE_PUBSUB_SECRET || process.env.PUBSUB_VERIFICATION_TOKEN || "ashivam_pubsub_sec_key_2026").trim();
+  },
+  get googleTokenEncryptionKey() {
+    return (process.env.GOOGLE_TOKEN_ENCRYPTION_KEY || "ashivam_meet_token_encryption_key_32b!").trim();
+  },
 };
 
 if (env.isProduction) {
