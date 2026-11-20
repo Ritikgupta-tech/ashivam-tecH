@@ -148,19 +148,34 @@ const withRetry = async (fn, maxRetries = env.isTest ? 0 : 2, baseDelayMs = 300)
 };
 
 /**
+ * Resolves a valid sender address for Resend.
+ * Public webmail domains (@gmail.com, @yahoo.com, etc.) cannot be used on Resend
+ * without verified domain ownership and are rejected with HTTP 403.
+ * Defaults to Resend's authorized testing sender 'Ashivam Technologies <onboarding@resend.dev>'.
+ */
+export const resolveResendSender = (fromCandidate) => {
+  const candidate = (fromCandidate || "").trim();
+  if (candidate && !/@(gmail|yahoo|hotmail|outlook)\.com/i.test(candidate)) {
+    return candidate;
+  }
+  return "Ashivam Technologies <onboarding@resend.dev>";
+};
+
+/**
  * Dispatches an email via Resend HTTPS API (Port 443).
  * Bypasses cloud container outbound SMTP port restrictions.
  */
 const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
+  const effectiveSender = env.resendFrom || resolveResendSender(env.smtpFrom || env.emailFrom);
   const payload = {
-    from: env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>",
+    from: effectiveSender,
     to: [to],
     subject,
     html: html || text || "",
     text: text || "",
   };
-  if (replyTo) {
-    payload.reply_to = replyTo;
+  if (replyTo || env.companyNotificationEmail) {
+    payload.reply_to = replyTo || env.companyNotificationEmail || "ritik95061@gmail.com";
   }
 
   const controller = new AbortController();

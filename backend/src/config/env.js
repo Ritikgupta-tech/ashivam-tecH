@@ -211,6 +211,7 @@ const env = {
     (process.env.RESEND_API_KEY ? "resend" : process.env.BREVO_API_KEY ? "brevo" : "smtp")
   ).toLowerCase(),
   resendApiKey: (process.env.RESEND_API_KEY || "").trim(),
+  resendFrom: (process.env.RESEND_FROM || "").trim(),
   brevoApiKey: (process.env.BREVO_API_KEY || "").trim(),
 
   // SMTP Settings
