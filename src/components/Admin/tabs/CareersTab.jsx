@@ -8,6 +8,7 @@ import {
   updateApplicationStatus,
   downloadApplicationResume,
   exportCareerApplicationsCsv,
+  hireApplication,
 } from '../../../api';
 import { Panel, DataTable, FilterBar, PaginationBar, StatusBadge, EmptyState } from '../AdminUI';
 import { useAdminFeedback } from '../AdminFeedback';
@@ -20,7 +21,24 @@ import {
   RefreshIcon,
   XMarkIcon,
   PencilSquareIcon,
+  CheckCircleIcon,
+  UsersIcon,
+  KeyIcon,
 } from '../../icons';
+
+const STANDARD_DEPARTMENTS = [
+  'Software Engineering',
+  'Cloud Infrastructure',
+  'AI & Machine Learning',
+  'UI/UX & Product Design',
+  'Operations & Quality',
+  'Product',
+  'Design',
+  'Engineering',
+  'Marketing',
+  'Sales',
+  'HR',
+];
 
 const APP_STATUS_TONE_MAP = {
   applied: 'blue',
@@ -71,6 +89,29 @@ export default function CareersTab() {
   const [appPagination, setAppPagination] = useState({ total: 0, totalPages: 1 });
   const [downloadingResumeId, setDownloadingResumeId] = useState(null);
   const [selectedApp, setSelectedApp] = useState(null);
+
+  // Hiring & Employee Provisioning Modal State
+  const [hiringApp, setHiringApp] = useState(null);
+  const [hireSubmitting, setHireSubmitting] = useState(false);
+  const [hireError, setHireError] = useState('');
+  const [hireForm, setHireForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    department: 'Software Engineering',
+    designation: 'Software Engineer',
+    employmentType: 'Full-time',
+    workLocation: 'Hybrid',
+    joiningDate: '',
+    employeeId: '',
+    googleEmail: '',
+    adminNote: '',
+  });
+
+  // Post-Onboarding Success Dialog
+  const [onboardSuccessData, setOnboardSuccessData] = useState(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Fetch jobs
   const fetchJobsList = useCallback(async () => {
@@ -297,6 +338,73 @@ export default function CareersTab() {
       }
     } catch (err) {
       toast.error(err.message || 'Failed to update application status');
+    }
+  };
+
+  // Open Hire & Onboard Modal with prefilled candidate data
+  const handleOpenHireModal = (app) => {
+    setHiringApp(app);
+    setHireError('');
+    setHireForm({
+      firstName: app.firstName || '',
+      lastName: app.lastName || '',
+      email: app.email || '',
+      phone: app.phone || '',
+      department: app.job?.department || 'Software Engineering',
+      designation: app.job?.title || app.jobTitle || 'Software Engineer',
+      employmentType: app.job?.employmentType || 'Full-time',
+      workLocation: String(app.job?.location || '').toLowerCase().includes('remote')
+        ? 'Remote'
+        : String(app.job?.location || '').toLowerCase().includes('hybrid')
+        ? 'Hybrid'
+        : 'Office',
+      joiningDate: new Date().toISOString().split('T')[0],
+      employeeId: '',
+      googleEmail: app.email || '',
+      adminNote: app.adminNote || '',
+    });
+  };
+
+  // Confirm Hire & Provision Employee
+  const handleHireSubmit = async (e) => {
+    e.preventDefault();
+    if (!hiringApp) return;
+    setHireSubmitting(true);
+    setHireError('');
+
+    try {
+      const res = await hireApplication(hiringApp._id, hireForm);
+      const activationUrl = res?.data?.activationUrl;
+
+      if (activationUrl && navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(activationUrl);
+        } catch {
+          // Ignore clipboard errors
+        }
+      }
+
+      toast.success(
+        `Candidate ${hireForm.firstName} successfully hired and provisioned as Corporate Employee!`
+      );
+
+      setOnboardSuccessData({
+        ...res?.data,
+        candidateName: `${hireForm.firstName} ${hireForm.lastName}`.trim(),
+        employee: res?.data?.employee,
+        activationUrl,
+        invitationStatus: res?.data?.invitationStatus,
+      });
+
+      setHiringApp(null);
+      if (selectedApp?._id === hiringApp._id) {
+        setSelectedApp((prev) => ({ ...prev, status: 'hired', hiredEmployee: res?.data?.employee }));
+      }
+      fetchAppsList();
+    } catch (err) {
+      setHireError(err.message || 'Failed to hire and provision employee');
+    } finally {
+      setHireSubmitting(false);
     }
   };
 
@@ -536,6 +644,45 @@ export default function CareersTab() {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div className="admin-table-actions">
+                        {app.status === 'hired' ? (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              color: '#059669',
+                              background: '#ecfdf5',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              border: '1px solid #a7f3d0',
+                            }}
+                            title={`Hired as Corporate Employee ${app.hiredEmployee?.employeeId || ''}`}
+                          >
+                            ✓ Onboarded {app.hiredEmployee?.employeeId ? `(${app.hiredEmployee.employeeId})` : ''}
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="admin-action-btn"
+                            onClick={() => handleOpenHireModal(app)}
+                            title="Hire Candidate & Provision Corporate Employee"
+                            style={{
+                              color: '#059669',
+                              fontWeight: 600,
+                              fontSize: '0.75rem',
+                              border: '1px solid #059669',
+                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              background: '#f0fdf4',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Hire & Onboard
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           className="admin-action-btn"
@@ -876,13 +1023,378 @@ export default function CareersTab() {
               </div>
             </div>
 
-            <div className="admin-modal-footer">
+            <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                {selectedApp.status !== 'hired' ? (
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--primary"
+                    style={{ background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                    onClick={() => {
+                      const appToHire = selectedApp;
+                      setSelectedApp(null);
+                      handleOpenHireModal(appToHire);
+                    }}
+                  >
+                    <CheckCircleIcon size={16} />
+                    <span>Hire & Onboard as Employee</span>
+                  </button>
+                ) : (
+                  <span style={{ color: '#059669', fontWeight: 600, fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CheckCircleIcon size={16} />
+                    <span>Candidate Already Hired {selectedApp.hiredEmployee?.employeeId ? `(${selectedApp.hiredEmployee.employeeId})` : ''}</span>
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 className="admin-btn admin-btn--secondary"
                 onClick={() => setSelectedApp(null)}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HIRE & ONBOARD EMPLOYEE MODAL */}
+      {hiringApp && (
+        <div className="admin-modal-overlay" onClick={() => setHiringApp(null)}>
+          <div
+            className="admin-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hire-modal-title"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '680px' }}
+          >
+            <div className="admin-modal-header">
+              <div>
+                <h3 id="hire-modal-title" className="admin-modal-title">
+                  Hire Candidate & Provision Employee Profile
+                </h3>
+                <p className="admin-modal-subtitle">
+                  {hiringApp.firstName} {hiringApp.lastName} • {hiringApp.email}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="admin-modal-close"
+                onClick={() => setHiringApp(null)}
+              >
+                <XMarkIcon size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleHireSubmit}>
+              <div className="admin-modal-body">
+                {hireError && (
+                  <div className="admin-form-error-banner" role="alert" style={{ marginBottom: '1rem' }}>
+                    {hireError}
+                  </div>
+                )}
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-fname">
+                      First Name *
+                    </label>
+                    <input
+                      id="hire-fname"
+                      type="text"
+                      className="admin-form-input"
+                      value={hireForm.firstName}
+                      onChange={(e) => setHireForm({ ...hireForm, firstName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-lname">
+                      Last Name *
+                    </label>
+                    <input
+                      id="hire-lname"
+                      type="text"
+                      className="admin-form-input"
+                      value={hireForm.lastName}
+                      onChange={(e) => setHireForm({ ...hireForm, lastName: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-email">
+                      Corporate Work Email *
+                    </label>
+                    <input
+                      id="hire-email"
+                      type="email"
+                      className="admin-form-input"
+                      value={hireForm.email}
+                      disabled
+                      style={{ background: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-phone">
+                      Contact Phone Number
+                    </label>
+                    <input
+                      id="hire-phone"
+                      type="text"
+                      className="admin-form-input"
+                      value={hireForm.phone}
+                      onChange={(e) => setHireForm({ ...hireForm, phone: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-dept">
+                      Assigned Department *
+                    </label>
+                    <select
+                      id="hire-dept"
+                      className="admin-form-input"
+                      value={hireForm.department}
+                      onChange={(e) => setHireForm({ ...hireForm, department: e.target.value })}
+                    >
+                      {STANDARD_DEPARTMENTS.map((dept) => (
+                        <option key={dept} value={dept}>
+                          {dept}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-desig">
+                      Official Designation / Title *
+                    </label>
+                    <input
+                      id="hire-desig"
+                      type="text"
+                      className="admin-form-input"
+                      value={hireForm.designation}
+                      onChange={(e) => setHireForm({ ...hireForm, designation: e.target.value })}
+                      placeholder="e.g. Senior Software Engineer"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-type">
+                      Employment Type *
+                    </label>
+                    <select
+                      id="hire-type"
+                      className="admin-form-input"
+                      value={hireForm.employmentType}
+                      onChange={(e) => setHireForm({ ...hireForm, employmentType: e.target.value })}
+                    >
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Intern">Intern</option>
+                    </select>
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-location">
+                      Work Location *
+                    </label>
+                    <select
+                      id="hire-location"
+                      className="admin-form-input"
+                      value={hireForm.workLocation}
+                      onChange={(e) => setHireForm({ ...hireForm, workLocation: e.target.value })}
+                    >
+                      <option value="Office">Office</option>
+                      <option value="Hybrid">Hybrid</option>
+                      <option value="Remote">Remote</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-joining">
+                      Joining Date *
+                    </label>
+                    <input
+                      id="hire-joining"
+                      type="date"
+                      className="admin-form-input"
+                      value={hireForm.joiningDate}
+                      onChange={(e) => setHireForm({ ...hireForm, joiningDate: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label" htmlFor="hire-custom-id">
+                      Custom Corporate ID (Optional)
+                    </label>
+                    <input
+                      id="hire-custom-id"
+                      type="text"
+                      className="admin-form-input"
+                      value={hireForm.employeeId}
+                      onChange={(e) => setHireForm({ ...hireForm, employeeId: e.target.value.toUpperCase() })}
+                      placeholder="Leave blank for auto ASH-EMP-XXXX"
+                    />
+                  </div>
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label" htmlFor="hire-google-email">
+                    Google Meet Email (for Automated Attendance)
+                  </label>
+                  <input
+                    id="hire-google-email"
+                    type="email"
+                    className="admin-form-input"
+                    value={hireForm.googleEmail}
+                    onChange={(e) => setHireForm({ ...hireForm, googleEmail: e.target.value })}
+                    placeholder="Candidate's Google Workspace / Gmail account"
+                  />
+                  <span className="admin-field-hint" style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem', display: 'block' }}>
+                    When the employee joins Google Meet conferences with this email, the attendance engine will automatically credit them.
+                  </span>
+                </div>
+              </div>
+
+              <div className="admin-modal-footer">
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--secondary"
+                  onClick={() => setHiringApp(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="admin-btn admin-btn--primary"
+                  disabled={hireSubmitting}
+                  style={{ background: '#059669', borderColor: '#059669' }}
+                >
+                  {hireSubmitting ? 'Provisioning Employee...' : 'Confirm Hire & Onboard'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* POST-ONBOARDING SUCCESS MODAL */}
+      {onboardSuccessData && (
+        <div className="admin-modal-overlay" onClick={() => setOnboardSuccessData(null)}>
+          <div
+            className="admin-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="success-modal-title"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '580px' }}
+          >
+            <div className="admin-modal-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+                  <CheckCircleIcon size={24} />
+                </div>
+                <div>
+                  <h3 id="success-modal-title" className="admin-modal-title" style={{ color: '#15803d' }}>
+                    Candidate Successfully Hired & Onboarded!
+                  </h3>
+                  <p className="admin-modal-subtitle">
+                    Corporate employee record provisioned in official directory.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="admin-modal-close"
+                onClick={() => setOnboardSuccessData(null)}
+              >
+                <XMarkIcon size={18} />
+              </button>
+            </div>
+
+            <div className="admin-modal-body" style={{ paddingTop: '1.25rem' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Employee Name</span>
+                    <p style={{ margin: 0, fontWeight: 700, color: '#1e293b' }}>{onboardSuccessData.candidateName}</p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Corporate ID</span>
+                    <p style={{ margin: 0, fontWeight: 700, color: '#2563eb' }}>{onboardSuccessData.employee?.employeeId || 'Assigned'}</p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Department</span>
+                    <p style={{ margin: 0, fontWeight: 600, color: '#334155' }}>{onboardSuccessData.employee?.department}</p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Designation</span>
+                    <p style={{ margin: 0, fontWeight: 600, color: '#334155' }}>{onboardSuccessData.employee?.designation}</p>
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Registered Work Email</span>
+                    <p style={{ margin: 0, fontWeight: 600, color: '#334155' }}>{onboardSuccessData.employee?.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              {onboardSuccessData.activationUrl && (
+                <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '8px', padding: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ fontWeight: 700, color: '#166534', fontSize: '0.85rem' }}>
+                      Direct Employee Activation Link:
+                    </span>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--sm"
+                      style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '4px 12px', fontSize: '0.75rem' }}
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(onboardSuccessData.activationUrl);
+                          setCopiedLink(true);
+                          toast.success('Activation link copied to clipboard!');
+                          setTimeout(() => setCopiedLink(false), 3000);
+                        } catch {
+                          toast.error('Failed to copy to clipboard');
+                        }
+                      }}
+                    >
+                      {copiedLink ? '✓ Copied!' : 'Copy Link'}
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    className="admin-form-input"
+                    value={onboardSuccessData.activationUrl}
+                    style={{ background: '#fff', fontSize: '0.8rem', color: '#334155', cursor: 'text' }}
+                    onClick={(e) => e.target.select()}
+                  />
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: '#15803d', lineHeight: 1.4 }}>
+                    Link has also been copied to your clipboard. Send this link directly to the candidate via WhatsApp, Slack, or direct message so they can set their password and join Google Meet conferences.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="admin-modal-footer">
+              <button
+                type="button"
+                className="admin-btn admin-btn--primary"
+                onClick={() => setOnboardSuccessData(null)}
+              >
+                Done
               </button>
             </div>
           </div>

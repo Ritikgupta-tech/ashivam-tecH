@@ -130,6 +130,23 @@ const applicationSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    hiredEmployee: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+      default: null,
+    },
+
+    hiredAt: {
+      type: Date,
+      default: null,
+    },
+
+    hiredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      default: null,
+    },
   },
   {
     timestamps: true,

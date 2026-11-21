@@ -14,7 +14,10 @@ import {
   deleteApplication,
   getApplicationResumeFile,
   exportApplicationsCsv,
+  hireApplicationAsEmployee,
 } from "./career.service.js";
+
+import { createAuditLog } from "../audit/audit.service.js";
 
 import {
   validateJob,
@@ -424,6 +427,37 @@ export const exportApplicationsCsvHandler = async (req, res, next) => {
       'attachment; filename="job_applications_export.csv"'
     );
     return res.status(200).send(csv);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const hireApplicationHandler = async (req, res, next) => {
+  try {
+    const adminId = req.user?.id || req.user?._id;
+    const result = await hireApplicationAsEmployee(req.params.id, req.body || {}, adminId);
+
+    await createAuditLog({
+      req,
+      action: "HIRE_APPLICATION",
+      module: "career",
+      entity: "Application",
+      entityId: req.params.id,
+      description: `Hired candidate ${result.application?.firstName} ${result.application?.lastName} as Employee (${result.employee?.employeeId || result.employee?._id})`,
+      metadata: {
+        applicationId: req.params.id,
+        employeeId: result.employee?._id,
+        corporateId: result.employee?.employeeId,
+        invitationStatus: result.invitationStatus,
+      },
+    }).catch(() => {});
+
+    return res.status(200).json({
+      success: true,
+      message: `Candidate ${result.application?.firstName} ${result.application?.lastName} successfully hired and onboarded as Employee.`,
+      data: result,
+      requestId: req.id,
+    });
   } catch (error) {
     next(error);
   }

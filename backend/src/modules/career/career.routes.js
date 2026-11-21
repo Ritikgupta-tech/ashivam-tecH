@@ -25,6 +25,7 @@ import {
   deleteApplicationHandler,
   downloadApplicationResumeHandler,
   exportApplicationsCsvHandler,
+  hireApplicationHandler,
 } from "./career.controller.js";
 
 const router = Router();
@@ -155,6 +156,14 @@ router.patch(
   requireRole("Superadmin", "Admin"),
   requirePermission("careers"),
   updateApplicationHandler
+);
+
+router.post(
+  "/admin/applications/:id/hire",
+  authenticate,
+  requireRole("Superadmin", "Admin"),
+  requirePermission("careers"),
+  hireApplicationHandler
 );
 
 router.delete(

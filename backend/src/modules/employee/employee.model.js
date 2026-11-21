@@ -261,6 +261,12 @@ const employeeSchema = new mongoose.Schema(
       ref: "Admin",
       default: null,
     },
+
+    sourceApplication: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Application",
+      default: null,
+    },
   },
   {
     timestamps: true,

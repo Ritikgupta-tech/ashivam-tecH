@@ -408,4 +408,43 @@ test("Career API - Full application lifecycle: submit with valid PDF, inspect de
     aliasRes.body.toString("utf8"),
     VALID_PDF_BUFFER.toString("utf8")
   );
+
+  // 7. Unauthenticated request to hire endpoint is rejected with 401
+  const unauthHireRes = await request(app)
+    .post(`/api/v1/career/admin/applications/${testApplicationId}/hire`)
+    .send({ department: "Software Engineering" });
+  assert.equal(unauthHireRes.status, 401);
+
+  // 8. Authorized Superadmin hires candidate and provisions employee
+  const hireRes = await request(app)
+    .post(`/api/v1/career/admin/applications/${testApplicationId}/hire`)
+    .set("Authorization", `Bearer ${superadminToken}`)
+    .send({
+      department: "Software Engineering",
+      designation: "Full Stack Engineer",
+      employmentType: "Full-time",
+      workLocation: "Hybrid",
+    });
+
+  assert.equal(hireRes.status, 200);
+  assert.equal(hireRes.body.success, true);
+  assert.ok(hireRes.body.data.employee, "Must return employee profile");
+  assert.equal(hireRes.body.data.application.status, "hired");
+  assert.ok(hireRes.body.data.employee.employeeId, "Must generate corporate ID");
+  assert.ok(hireRes.body.data.activationUrl, "Must generate secure activation URL");
+  assert.ok(hireRes.body.data.activationUrl.includes("/activate-account?token="));
+
+  // 9. Repeated hire request safely returns existing employee record without duplicating
+  const repeatHireRes = await request(app)
+    .post(`/api/v1/career/admin/applications/${testApplicationId}/hire`)
+    .set("Authorization", `Bearer ${superadminToken}`)
+    .send({ department: "Software Engineering" });
+
+  assert.equal(repeatHireRes.status, 200);
+  assert.equal(repeatHireRes.body.data.application.status, "hired");
+  assert.equal(
+    repeatHireRes.body.data.employee._id.toString(),
+    hireRes.body.data.employee._id.toString(),
+    "Must preserve single employee record"
+  );
 });

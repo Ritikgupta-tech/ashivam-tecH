@@ -434,6 +434,12 @@ export const updateApplicationStatus = (id, data) =>
     body: JSON.stringify(data),
   });
 
+export const hireApplication = (id, data = {}) =>
+  request(`/career/admin/applications/${encodeURIComponent(id)}/hire`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
 export const deleteApplication = (id) =>
   request(`/career/admin/applications/${encodeURIComponent(id)}`, {
     method: 'DELETE',

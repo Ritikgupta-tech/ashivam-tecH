@@ -49,12 +49,16 @@ const MEETING_TYPES = [
 ];
 
 const STANDARD_DEPARTMENTS = [
-  'Engineering',
+  'Software Engineering',
+  'Cloud Infrastructure',
+  'AI & Machine Learning',
+  'UI/UX & Product Design',
+  'Operations & Quality',
   'Product',
   'Design',
+  'Engineering',
   'Marketing',
   'Sales',
-  'Operations',
   'HR',
 ];
 

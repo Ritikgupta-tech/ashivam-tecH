@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 import Job from "./job.model.js";
 import Application from "./application.model.js";
+import Employee from "../employee/employee.model.js";
+import { createEmployee, resendEmployeeInvitation } from "../employee/employee.service.js";
 import env from "../../config/env.js";
 import {
   sendEmail,
@@ -463,6 +465,7 @@ export const listApplications = async ({
     Application.find(filter)
       .populate("job", "title department location")
       .populate("reviewedBy", "username name role")
+      .populate("hiredEmployee", "employeeId email fullName designation department accountStatus isActive")
       .select("-resume.path -resume.storageKey")
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -489,6 +492,7 @@ export const getApplicationById = async (id) => {
   const application = await Application.findById(id)
     .populate("job", "title department location")
     .populate("reviewedBy", "username name role")
+    .populate("hiredEmployee", "employeeId email fullName designation department accountStatus isActive")
     .select("-resume.path -resume.storageKey")
     .lean();
 
@@ -653,4 +657,121 @@ export const exportApplicationsCsv = async ({ status, job, search } = {}) => {
   ];
 
   return toCsv(items, columns);
+};
+
+/**
+ * Converts a candidate job application into an official corporate Employee record,
+ * auto-provisions their authentication credentials, and triggers the activation pipeline.
+ */
+export const hireApplicationAsEmployee = async (applicationId, onboardData = {}, adminId) => {
+  validateObjectId(applicationId, "Invalid application ID");
+
+  const application = await Application.findById(applicationId).populate("job");
+  if (!application) {
+    const error = new Error("Application not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const normalizedEmail = (application.email || "").toLowerCase().trim();
+
+  // Check if an employee already exists with this email
+  const existingEmployee = await Employee.findOne({
+    email: normalizedEmail,
+    deletedAt: null,
+  });
+
+  let employeeRecord;
+  let activationUrl = null;
+  let invitationStatus = "SENT";
+  let invitationError = null;
+
+  if (existingEmployee) {
+    employeeRecord = existingEmployee;
+
+    // If existing employee is pending activation, generate fresh activation link
+    if (existingEmployee.accountStatus !== "ACTIVE" && existingEmployee.accountStatus !== "DEACTIVATED") {
+      try {
+        const resendResult = await resendEmployeeInvitation(existingEmployee._id, adminId);
+        activationUrl = resendResult?.activationUrl || null;
+        invitationStatus = resendResult?.invitationStatus || "SENT";
+        invitationError = resendResult?.invitationError || null;
+      } catch (err) {
+        invitationStatus = "FAILED";
+        invitationError = err.message;
+      }
+    }
+  } else {
+    // Determine Department & Designation from Job or Overrides
+    const job = application.job || {};
+    const department = (onboardData.department || job.department || "Software Engineering").trim();
+    const designation = (onboardData.designation || job.title || "Software Engineer").trim();
+    const employmentType = onboardData.employmentType || job.employmentType || "Full-time";
+    const rawLoc = String(onboardData.workLocation || job.location || "Office").toLowerCase();
+    const workLocation = rawLoc.includes("remote") ? "Remote" : rawLoc.includes("hybrid") ? "Hybrid" : "Office";
+    const joiningDate = onboardData.joiningDate ? new Date(onboardData.joiningDate) : new Date();
+
+    const employeePayload = {
+      firstName: (onboardData.firstName || application.firstName).trim(),
+      lastName: (onboardData.lastName || application.lastName).trim(),
+      email: normalizedEmail,
+      phone: (onboardData.phone || application.phone || "").trim(),
+      department,
+      designation,
+      employmentType,
+      workLocation,
+      joiningDate,
+      employeeId: onboardData.employeeId ? String(onboardData.employeeId).trim().toUpperCase() : undefined,
+      googleEmail: onboardData.googleEmail ? String(onboardData.googleEmail).trim().toLowerCase() : normalizedEmail,
+      role: "Employee",
+      accountStatus: "PENDING_ACTIVATION",
+      employmentStatus: "ACTIVE",
+      isActive: true,
+      skills: Array.isArray(onboardData.skills)
+        ? onboardData.skills
+        : Array.isArray(job.skills)
+        ? job.skills
+        : [],
+      bio: onboardData.bio || `Hired via Career Application for ${designation}.`,
+    };
+
+    const created = await createEmployee(employeePayload, adminId);
+    employeeRecord = created.employee || created;
+    activationUrl = created.activationUrl || null;
+    invitationStatus = created.invitationStatus || "SENT";
+    invitationError = created.invitationError || null;
+
+    // Link application to employee
+    if (employeeRecord?._id) {
+      await Employee.findByIdAndUpdate(employeeRecord._id, {
+        sourceApplication: application._id,
+      });
+    }
+  }
+
+  // Update application status to "hired" and link to employee
+  application.status = "hired";
+  application.hiredEmployee = employeeRecord._id;
+  application.hiredAt = new Date();
+  application.hiredBy = adminId;
+  if (onboardData.adminNote) {
+    application.adminNote = onboardData.adminNote;
+  }
+  await application.save();
+
+  // If activationUrl is not yet built (e.g. employee was already existing and pending), construct fallback
+  if (!activationUrl && employeeRecord.accountStatus !== "ACTIVE") {
+    const clientBase = (env.clientUrl || "https://ashivam-tec-h.vercel.app").split(",")[0].trim().replace(/\/+$/, "");
+    if (employeeRecord.rawActivationToken) {
+      activationUrl = `${clientBase}/activate-account?token=${employeeRecord.rawActivationToken}`;
+    }
+  }
+
+  return {
+    application: formatApplicationResponse(application),
+    employee: employeeRecord,
+    activationUrl,
+    invitationStatus,
+    invitationError,
+  };
 };
