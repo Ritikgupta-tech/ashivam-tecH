@@ -72,9 +72,7 @@ router.post("/forgot-password", authActionLimiter, forgotPassword);
 router.get("/verify-reset-token", authActionLimiter, verifyResetToken);
 router.post("/reset-password", authActionLimiter, resetPassword);
 
-// Secure development-only activation link helper (Strictly Superadmin authenticated, blocked in production)
-if (!env.isProduction) {
-  router.get("/dev/activation-link/:employeeId", authenticate, requireRole("Superadmin"), getDevActivationLink);
-}
+// Secure activation link recovery helper (Strictly Superadmin authenticated)
+router.get("/dev/activation-link/:employeeId", authenticate, requireRole("Superadmin"), getDevActivationLink);
 
 export default router;
