@@ -3,6 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { ShieldIcon, ArrowRightIcon, CheckCircleIcon } from '../components/icons';
 import Logo from '../components/ui/Logo';
 import { verifyActivationToken, activateEmployeeAccount, setToken, setSessionHint } from '../api';
+import '../components/Admin/AdminLogin.css';
 import './ActivateAccountPage.css';
 
 export default function ActivateAccountPage() {

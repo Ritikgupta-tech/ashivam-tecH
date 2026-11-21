@@ -31,7 +31,7 @@
 
 .employee-login-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 450px;
   background: #ffffff;
   border: 1px solid var(--clr-border, #E2E8F0);
   border-radius: 1.25rem;
@@ -42,15 +42,20 @@
   box-sizing: border-box;
 }
 
+.employee-login-form .admin-login-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 .employee-login-card__support {
-  margin-top: 1.35rem;
-  padding: 0.85rem 1rem;
-  background: var(--clr-soft, #F4F8FC);
-  border: 1px solid var(--clr-border, #E2E8F0);
-  border-radius: 0.625rem;
-  font-size: 0.8rem;
-  color: var(--clr-text-muted, #64748B);
-  line-height: 1.45;
+  margin-top: 1.5rem;
+  padding: 1rem 1.15rem;
+  background: #f0f7ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.75rem;
+  font-size: 0.825rem;
+  color: var(--clr-text-muted, #475569);
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -59,14 +64,20 @@
 }
 
 .employee-login-card__support a {
-  color: var(--clr-navy, #0B1F3A);
+  color: #0284c7;
   font-weight: 600;
   text-decoration: underline;
   transition: color 0.2s ease;
 }
 
 .employee-login-card__support a:hover {
-  color: var(--clr-gold-dark, #b8860b);
+  color: #0369a1;
+}
+
+.employee-login-card__footer {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--clr-border, #E2E8F0);
 }
 
 @media (max-width: 480px) {

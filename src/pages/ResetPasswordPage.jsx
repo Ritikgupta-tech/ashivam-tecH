@@ -3,6 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon } from '../components/icons';
 import Logo from '../components/ui/Logo';
 import { verifyResetPasswordToken, resetEmployeePassword } from '../api';
+import '../components/Admin/AdminLogin.css';
 import './ResetPasswordPage.css';
 
 export default function ResetPasswordPage() {

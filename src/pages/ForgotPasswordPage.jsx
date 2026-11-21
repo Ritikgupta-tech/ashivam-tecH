@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon } from '../components/icons';
 import Logo from '../components/ui/Logo';
 import { requestForgotPassword } from '../api';
+import '../components/Admin/AdminLogin.css';
 import './ForgotPasswordPage.css';
 
 export default function ForgotPasswordPage() {
