@@ -70,6 +70,12 @@ const employeeSchema = new mongoose.Schema(
       default: null,
     },
 
+    previousActivationTokenHashes: {
+      type: [String],
+      select: false,
+      default: [],
+    },
+
     activationTokenExpiresAt: {
       type: Date,
       default: null,
@@ -335,6 +341,14 @@ employeeSchema.index(
   {
     sparse: true,
     name: "activationTokenHash_sparse",
+  }
+);
+
+employeeSchema.index(
+  { previousActivationTokenHashes: 1 },
+  {
+    sparse: true,
+    name: "previousActivationTokenHashes_sparse",
   }
 );
 

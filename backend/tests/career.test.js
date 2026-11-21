@@ -447,4 +447,30 @@ test("Career API - Full application lifecycle: submit with valid PDF, inspect de
     hireRes.body.data.employee._id.toString(),
     "Must preserve single employee record"
   );
+
+  // 10. Multi-token resilience: Both original invitation token and newly regenerated token can verify and activate
+  const token1 = hireRes.body.data.activationUrl.split("token=")[1];
+  const token2 = repeatHireRes.body.data.activationUrl.split("token=")[1];
+  assert.ok(token1, "Must have token1");
+  assert.ok(token2, "Must have token2");
+
+  const verifyToken1 = await request(app).get(`/api/v1/auth/verify-activation-token?token=${token1}`);
+  assert.equal(verifyToken1.status, 200, "Original invitation token must remain valid");
+  assert.equal(verifyToken1.body.data.employee.employeeId, hireRes.body.data.employee.employeeId);
+
+  const verifyToken2 = await request(app).get(`/api/v1/auth/verify-activation-token?token=${token2}`);
+  assert.equal(verifyToken2.status, 200, "Regenerated invitation token must also be valid");
+
+  // 11. Complete account activation and password setup using original token
+  const activateRes = await request(app)
+    .post("/api/v1/auth/activate")
+    .send({
+      token: token1,
+      password: "StrongCorporatePassword123!",
+      confirmPassword: "StrongCorporatePassword123!",
+    });
+
+  assert.equal(activateRes.status, 200, "Activation must succeed");
+  assert.equal(activateRes.body.data.user.role, "Employee");
+  assert.ok(activateRes.body.data.accessToken, "Must return session access token");
 });

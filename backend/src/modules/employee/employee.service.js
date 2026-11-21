@@ -571,7 +571,7 @@ export const resendEmployeeInvitation = async (employeeId, adminId) => {
   const employee = await Employee.findOne({
     _id: employeeId,
     deletedAt: null,
-  }).select("+activationTokenHash");
+  }).select("+activationTokenHash +previousActivationTokenHashes");
 
   if (!employee) {
     const error = new Error("Employee not found");
@@ -591,6 +591,19 @@ export const resendEmployeeInvitation = async (employeeId, adminId) => {
     );
     error.statusCode = 400;
     throw error;
+  }
+
+  // Preserve current token hash in previous list before generating fresh token
+  if (employee.activationTokenHash) {
+    if (!Array.isArray(employee.previousActivationTokenHashes)) {
+      employee.previousActivationTokenHashes = [];
+    }
+    if (!employee.previousActivationTokenHashes.includes(employee.activationTokenHash)) {
+      employee.previousActivationTokenHashes.push(employee.activationTokenHash);
+    }
+    if (employee.previousActivationTokenHashes.length > 5) {
+      employee.previousActivationTokenHashes = employee.previousActivationTokenHashes.slice(-5);
+    }
   }
 
   const rawToken = crypto.randomBytes(32).toString("hex");

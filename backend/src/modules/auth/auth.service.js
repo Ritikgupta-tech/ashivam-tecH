@@ -419,9 +419,12 @@ export const verifyActivationToken = async (rawToken) => {
 
   const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
   const employee = await Employee.findOne({
-    activationTokenHash: tokenHash,
+    $or: [
+      { activationTokenHash: tokenHash },
+      { previousActivationTokenHashes: tokenHash },
+    ],
     deletedAt: null,
-  }).select("+activationTokenHash");
+  }).select("+activationTokenHash +previousActivationTokenHashes");
 
   if (!employee) {
     const error = new Error("Invalid or unverified activation link");
@@ -478,9 +481,12 @@ export const activateEmployeeAccount = async (rawToken, password, clientMeta = {
 
   const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
   const employee = await Employee.findOne({
-    activationTokenHash: tokenHash,
+    $or: [
+      { activationTokenHash: tokenHash },
+      { previousActivationTokenHashes: tokenHash },
+    ],
     deletedAt: null,
-  }).select("+activationTokenHash");
+  }).select("+activationTokenHash +previousActivationTokenHashes");
 
   if (!employee) {
     const error = new Error("Invalid or unverified activation link");
@@ -515,6 +521,7 @@ export const activateEmployeeAccount = async (rawToken, password, clientMeta = {
   employee.isActive = true;
   employee.isEmailVerified = true;
   employee.activationTokenHash = null;
+  employee.previousActivationTokenHashes = [];
   employee.activationTokenExpiresAt = null;
   employee.passwordChangedAt = new Date();
   employee.lastLoginAt = new Date();
