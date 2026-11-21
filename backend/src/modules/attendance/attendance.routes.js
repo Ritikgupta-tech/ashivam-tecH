@@ -19,6 +19,8 @@ import {
   updateMeeting,
   deleteMeeting,
   triggerReconciliation,
+  joinMeeting,
+  markAttendanceManual,
   getGoogleOAuthAuthorizeUrl,
   handleGoogleOAuthCallback,
   getGoogleIntegrationStatus,
@@ -38,6 +40,7 @@ router.get("/my/calendar", authenticate, getMyCalendar);
 router.get("/meetings/upcoming", authenticate, getUpcomingMeetings);
 router.get("/my/upcoming-meetings", authenticate, getUpcomingMeetings);
 router.get("/meetings/:id", authenticate, getMeetingById);
+router.post("/meetings/:id/join", authenticate, joinMeeting);
 router.post("/corrections", authenticate, submitCorrectionRequest);
 
 // ==========================================
@@ -108,6 +111,12 @@ router.post(
   authenticate,
   requireRole("Superadmin", "Admin"),
   triggerReconciliation
+);
+router.post(
+  "/admin/meetings/:id/mark-attendance",
+  authenticate,
+  requireRole("Superadmin", "Admin"),
+  markAttendanceManual
 );
 
 // ==========================================

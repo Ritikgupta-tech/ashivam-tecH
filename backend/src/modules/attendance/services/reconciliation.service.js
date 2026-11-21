@@ -530,6 +530,25 @@ export const reconcileMeetingAttendance = async (meetingId) => {
 
     // 3. Calculate finalized attendance for every employee
     for (const emp of targetEmployees) {
+      const existingRecord = await AttendanceRecord.findOne({
+        meetingId: meeting._id,
+        employeeId: emp._id,
+      });
+
+      // Preserve existing manual or portal-verified attendance if already marked PRESENT or LATE
+      if (
+        existingRecord &&
+        (existingRecord.verifiedVia === "MANUAL_CORRECTION" ||
+          existingRecord.verifiedVia === "PORTAL_JOIN" ||
+          existingRecord.status === "PRESENT" ||
+          existingRecord.status === "LATE")
+      ) {
+        existingRecord.isProvisional = false;
+        await existingRecord.save();
+        recordsUpdated++;
+        continue;
+      }
+
       const empSessions = await ParticipantSession.find({
         meetingId: meeting._id,
         matchedEmployeeId: emp._id,

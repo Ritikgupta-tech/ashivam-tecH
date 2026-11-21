@@ -8,6 +8,7 @@ import env from "../src/config/env.js";
 import Admin from "../src/models/admin.model.js";
 import Job from "../src/modules/career/job.model.js";
 import Application from "../src/modules/career/application.model.js";
+import Employee from "../src/modules/employee/employee.model.js";
 import { generateAccessToken } from "../src/utils/jwt.js";
 import {
   validateFileSignature,
@@ -313,6 +314,7 @@ test("Career API - Full application lifecycle: submit with valid PDF, inspect de
 
   await Application.deleteMany({ job: testJobId });
   const candidateEmail = "ritik95061@gmail.com";
+  await Employee.deleteMany({ email: candidateEmail });
 
   // 1. Submit valid job application
   const applyRes = await request(app)

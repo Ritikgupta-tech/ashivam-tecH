@@ -81,6 +81,7 @@ const attendanceRecordSchema = new mongoose.Schema(
         "MEET_REST_API",
         "MANUAL_CORRECTION",
         "SYSTEM_DEFAULT",
+        "PORTAL_JOIN",
       ],
       default: "SYSTEM_DEFAULT",
     },

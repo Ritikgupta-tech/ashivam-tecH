@@ -10,6 +10,7 @@ import {
   getAdminCorrectionRequests,
   resolveAdminCorrectionRequest,
   updateAdminAttendanceCorrection,
+  markAdminAttendanceManual,
   exportAttendanceReportCsv,
   getEmployees,
 } from '../../../api';
@@ -403,6 +404,30 @@ export default function AttendanceTab() {
       showToast('error', `Error updating record: ${err.message}`);
     } finally {
       setOverrideSubmitting(false);
+    }
+  };
+
+  // Quick 1-click toggle attendance between PRESENT and ABSENT
+  const handleQuickToggleAttendance = async (record, newStatus) => {
+    try {
+      const meetingId = record.meetingId?._id || record.meetingId;
+      const employeeId = record.employeeId?._id || record.employeeId;
+      if (!meetingId || !employeeId) {
+        await updateAdminAttendanceCorrection(record._id, {
+          status: newStatus,
+          notes: `Quick 1-click update to ${newStatus} by Admin`,
+        });
+      } else {
+        await markAdminAttendanceManual(meetingId, {
+          employeeId,
+          status: newStatus,
+          notes: `Quick 1-click update to ${newStatus} by Admin`,
+        });
+      }
+      showToast('success', `Marked ${record.employeeId?.firstName || 'staff'} as ${newStatus}.`);
+      loadAttendanceData();
+    } catch (err) {
+      showToast('error', `Failed to update attendance: ${err.message}`);
     }
   };
 
@@ -955,17 +980,56 @@ export default function AttendanceTab() {
                   </span>
                 </td>
                 <td>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedRecord(r);
-                      setOverrideStatus(r.status);
-                      setOverrideNotes(r.notes || '');
-                    }}
-                    className="admin-btn admin-btn--secondary admin-btn--sm"
-                  >
-                    Override
-                  </button>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    {r.status === 'ABSENT' && (
+                      <button
+                        type="button"
+                        onClick={() => handleQuickToggleAttendance(r, 'PRESENT')}
+                        className="admin-btn admin-btn--sm"
+                        style={{
+                          background: '#059669',
+                          color: '#ffffff',
+                          borderColor: '#059669',
+                          padding: '0.25rem 0.65rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                        }}
+                        title="Quick 1-Click: Mark this employee as Present"
+                      >
+                        ✓ Mark Present
+                      </button>
+                    )}
+                    {r.status === 'PRESENT' && (
+                      <button
+                        type="button"
+                        onClick={() => handleQuickToggleAttendance(r, 'ABSENT')}
+                        className="admin-btn admin-btn--sm"
+                        style={{
+                          background: '#FEE2E2',
+                          color: '#DC2626',
+                          borderColor: '#FCA5A5',
+                          padding: '0.25rem 0.65rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                        }}
+                        title="Quick 1-Click: Mark this employee as Absent"
+                      >
+                        ✕ Mark Absent
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRecord(r);
+                        setOverrideStatus(r.status);
+                        setOverrideNotes(r.notes || '');
+                      }}
+                      className="admin-btn admin-btn--secondary admin-btn--sm"
+                      style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }}
+                    >
+                      Override
+                    </button>
+                  </div>
                 </td>
               </tr>
             )}

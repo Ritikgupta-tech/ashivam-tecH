@@ -7,6 +7,7 @@ import {
   getMyAttendanceSummary,
   getMyAttendanceCalendar,
   getUpcomingMeetings,
+  joinMeetingAttendance,
   submitAttendanceDispute,
   changeAdminPassword,
 } from '../api';
@@ -151,6 +152,33 @@ export default function EmployeePortalPage() {
     setAlternativeEmail(user?.verifiedGoogleEmail || user?.email || '');
     setFeedbackMsg({ type: '', text: '' });
     setIsModalOpen(true);
+  };
+
+  // Join Google Meet and automatically record attendance
+  const handleJoinMeeting = async (meeting) => {
+    if (!meeting?.googleMeetingUri) return;
+    try {
+      await joinMeetingAttendance(meeting._id);
+      setMeetings((prev) =>
+        prev.map((m) =>
+          m._id === meeting._id
+            ? {
+                ...m,
+                attendanceRecord: {
+                  ...(m.attendanceRecord || {}),
+                  status: 'PRESENT',
+                  verifiedVia: 'PORTAL_JOIN',
+                },
+              }
+            : m
+        )
+      );
+      setTimeout(() => loadPortalData(), 1200);
+    } catch (err) {
+      console.warn('[Employee Portal] Attendance capture on join:', err);
+    } finally {
+      window.open(meeting.googleMeetingUri, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Submit Dispute
@@ -455,28 +483,26 @@ export default function EmployeePortalPage() {
                       <ShieldCheckIcon size={20} />
                     </div>
                     <div className="emp-policy-callout__text">
-                      <strong>Authoritative Google Meet Verification Policy:</strong>
+                      <strong>Automatic Google Meet Attendance Policy:</strong>
                       <p>
-                        Attendance is determined exclusively through verified participant session records retrieved via
-                        Google Meet REST API v2 and Pub/Sub telemetry. Clicking "Join Google Meet" alone does <em>not</em> mark
-                        attendance credit. Please join from your authorized corporate email to ensure automatic reconciliation.
+                        Click "Join Google Meet" below to access your conference. Your attendance is automatically verified
+                        and recorded in the corporate registry upon launching the session.
                       </p>
                     </div>
                   </div>
 
                   <div className="emp-card__actions">
                     {todayMeeting.googleMeetingUri ? (
-                      <a
-                        href={todayMeeting.googleMeetingUri}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => handleJoinMeeting(todayMeeting)}
                         className="emp-btn-join-meet"
                         id="emp-btn-join-primary"
                       >
                         <VideoCameraIcon size={18} />
                         <span>Join Google Meet</span>
                         <ArrowRightIcon size={14} />
-                      </a>
+                      </button>
                     ) : (
                       <span className="emp-pending-uri-text">
                         Google Meet space link will be attached prior to conference start.
@@ -677,15 +703,14 @@ export default function EmployeePortalPage() {
 
                     <div className="emp-meeting-card__footer">
                       {m.googleMeetingUri ? (
-                        <a
-                          href={m.googleMeetingUri}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
+                          onClick={() => handleJoinMeeting(m)}
                           className="emp-btn-join-sm"
                         >
                           <VideoCameraIcon size={16} />
                           <span>Join Google Meet</span>
-                        </a>
+                        </button>
                       ) : (
                         <span className="emp-no-uri-label">Meet Link Pending</span>
                       )}

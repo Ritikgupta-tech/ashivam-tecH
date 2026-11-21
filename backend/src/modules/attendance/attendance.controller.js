@@ -242,6 +242,107 @@ export const getMeetingById = async (req, res, next) => {
   }
 };
 
+/**
+ * Records employee attendance when clicking "Join Google Meet" from the portal.
+ * Marks attendance as PRESENT, records join timestamp and participant session.
+ */
+export const joinMeeting = async (req, res, next) => {
+  try {
+    const { id: meetingId } = req.params;
+    const employeeId = req.user.id || req.user.employeeId;
+
+    const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee profile not found",
+        requestId: req.id,
+      });
+    }
+
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      return res.status(404).json({
+        success: false,
+        message: "Meeting not found",
+        requestId: req.id,
+      });
+    }
+
+    if (meeting.status === "CANCELLED") {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot join a cancelled meeting",
+        requestId: req.id,
+      });
+    }
+
+    const now = new Date();
+    const scheduledStart = new Date(meeting.scheduledStartTime);
+    const scheduledEnd = new Date(meeting.scheduledEndTime);
+
+    // Calculate late arrival with 15m grace period
+    const gracePeriodMinutes = 15;
+    const diffFromStartMinutes = Math.round((now.getTime() - scheduledStart.getTime()) / (1000 * 60));
+    const isLate = diffFromStartMinutes > gracePeriodMinutes;
+    const status = isLate ? "LATE" : "PRESENT";
+
+    // Duration calculation: scheduled duration or minimum 30 mins
+    const scheduledMinutes = Math.max(
+      30,
+      Math.round((scheduledEnd.getTime() - scheduledStart.getTime()) / (1000 * 60))
+    );
+
+    // 1. Create ParticipantSession
+    const sessionName = `portal-join-${meeting._id}-${employee._id}-${now.getTime()}`;
+    await ParticipantSession.create({
+      sessionName,
+      meetingId: meeting._id,
+      conferenceRecordId: meeting.googleMeetingCode || meeting.googleMeetingSpaceName || `conf-${meeting._id}`,
+      matchedEmployeeId: employee._id,
+      googleEmail: employee.googleEmail || employee.email,
+      displayName: employee.fullName || `${employee.firstName} ${employee.lastName}`.trim(),
+      startTime: now,
+      endTime: scheduledEnd > now ? scheduledEnd : new Date(now.getTime() + 60 * 60 * 1000),
+      durationSeconds: scheduledMinutes * 60,
+      joinMethod: "PORTAL_JOIN",
+    });
+
+    // 2. Upsert AttendanceRecord as PRESENT / LATE
+    const attendanceRecord = await AttendanceRecord.findOneAndUpdate(
+      { meetingId: meeting._id, employeeId: employee._id },
+      {
+        $set: {
+          status,
+          isProvisional: false,
+          firstJoinTime: now,
+          lastLeaveTime: scheduledEnd > now ? scheduledEnd : new Date(now.getTime() + 60 * 60 * 1000),
+          totalConnectedDurationMinutes: scheduledMinutes,
+          eligibleSessionMinutes: scheduledMinutes,
+          attendancePercentage: isLate ? 85 : 100,
+          verifiedVia: "PORTAL_JOIN",
+          notes: `Joined Google Meet via Employee Portal at ${now.toLocaleTimeString()}`,
+        },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Attendance verified as ${status}. Joining meeting...`,
+      data: {
+        meetingId: meeting._id,
+        googleMeetingUri: meeting.googleMeetingUri,
+        status,
+        attendanceRecord,
+      },
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const submitCorrectionRequest = async (req, res, next) => {
   try {
     const employeeId = req.user.id || req.user.employeeId;
@@ -448,6 +549,96 @@ export const updateAdminAttendanceCorrection = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Attendance record updated successfully",
+      data: record,
+      requestId: req.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Direct manual override / mark attendance for an employee in a meeting.
+ * Supports marking status as PRESENT, ABSENT, LATE, or EXCUSED.
+ */
+export const markAttendanceManual = async (req, res, next) => {
+  try {
+    const { id: meetingId } = req.params;
+    const { employeeId, status = "PRESENT", notes } = req.body || {};
+
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID is required",
+        requestId: req.id,
+      });
+    }
+
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      return res.status(404).json({
+        success: false,
+        message: "Meeting not found",
+        requestId: req.id,
+      });
+    }
+
+    const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found",
+        requestId: req.id,
+      });
+    }
+
+    const validStatuses = ["PRESENT", "ABSENT", "LATE", "EXCUSED"];
+    const targetStatus = String(status).toUpperCase();
+    if (!validStatuses.includes(targetStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid attendance status. Allowed: ${validStatuses.join(", ")}`,
+        requestId: req.id,
+      });
+    }
+
+    const scheduledStart = new Date(meeting.scheduledStartTime);
+    const scheduledEnd = new Date(meeting.scheduledEndTime);
+    const scheduledMinutes = Math.max(
+      30,
+      Math.round((scheduledEnd.getTime() - scheduledStart.getTime()) / (1000 * 60))
+    );
+
+    const record = await AttendanceRecord.findOneAndUpdate(
+      { meetingId: meeting._id, employeeId: employee._id },
+      {
+        $set: {
+          status: targetStatus,
+          isProvisional: false,
+          verifiedVia: "MANUAL_CORRECTION",
+          resolvedBy: req.user.id,
+          notes: notes || `Direct manual status update to ${targetStatus} by Admin`,
+          ...(targetStatus === "PRESENT" || targetStatus === "LATE"
+            ? {
+                firstJoinTime: scheduledStart,
+                lastLeaveTime: scheduledEnd,
+                totalConnectedDurationMinutes: scheduledMinutes,
+                eligibleSessionMinutes: scheduledMinutes,
+                attendancePercentage: targetStatus === "LATE" ? 85 : 100,
+              }
+            : {
+                totalConnectedDurationMinutes: 0,
+                eligibleSessionMinutes: 0,
+                attendancePercentage: 0,
+              }),
+        },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Employee ${employee.fullName || employee.firstName} attendance marked as ${targetStatus}`,
       data: record,
       requestId: req.id,
     });
@@ -757,6 +948,14 @@ export const updateMeeting = async (req, res, next) => {
         { meetingId: id },
         { $set: { status: "CANCELLED", isProvisional: false } }
       );
+    }
+
+    if (updates.status === "COMPLETED") {
+      try {
+        await reconcileMeetingAttendance(id);
+      } catch (recErr) {
+        console.warn(`[Attendance Controller] Auto-reconciliation on meeting completion:`, recErr.message);
+      }
     }
 
     return res.status(200).json({

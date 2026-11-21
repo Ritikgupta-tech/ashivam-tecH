@@ -210,7 +210,9 @@ const env = {
   resendApiKey: (process.env.RESEND_API_KEY || "").trim(),
   resendFrom: (process.env.RESEND_FROM || "").trim(),
   brevoApiKey: (process.env.BREVO_API_KEY || "").trim(),
-  brevoSender: (process.env.BREVO_SENDER || process.env.BREVO_FROM || process.env.BREVO_VERIFIED_SENDER || "").trim(),
+  brevoSender:
+    (process.env.BREVO_SENDER || process.env.BREVO_FROM || process.env.BREVO_VERIFIED_SENDER || "").trim() ||
+    "Ashivam Technologies <ritik95061@gmail.com>",
 
   // SMTP Settings
   smtpHost: (process.env.SMTP_HOST || "smtp.gmail.com").trim(),
@@ -222,16 +224,26 @@ const env = {
   smtpUser: (process.env.SMTP_USER || "").trim(),
   smtpPassword: (process.env.SMTP_PASS || process.env.SMTP_PASSWORD || "").trim(),
   smtpFrom:
-    (process.env.BREVO_VERIFIED_SENDER && (process.env.SMTP_HOST || "").toLowerCase().includes("brevo")
-      ? `Ashivam Technologies <${process.env.BREVO_VERIFIED_SENDER.trim()}>`
+    ((process.env.BREVO_VERIFIED_SENDER || process.env.BREVO_SENDER) &&
+    (process.env.SMTP_HOST || "").toLowerCase().match(/(brevo|mailin|sendinblue)/)
+      ? `Ashivam Technologies <${(process.env.BREVO_VERIFIED_SENDER || process.env.BREVO_SENDER).trim()}>`
+      : null) ||
+    ((process.env.SMTP_HOST || "").toLowerCase().match(/(brevo|mailin|sendinblue)/) &&
+    /teamashivam@gmail\.com/i.test(process.env.SMTP_FROM || process.env.EMAIL_FROM || process.env.COMPANY_EMAIL || "")
+      ? "Ashivam Technologies <ritik95061@gmail.com>"
       : null) ||
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL
       ? `Ashivam Technologies <${process.env.COMPANY_EMAIL.trim()}>`
       : "Ashivam Technologies <ritik95061@gmail.com>"),
   emailFrom:
-    (process.env.BREVO_VERIFIED_SENDER && (process.env.SMTP_HOST || "").toLowerCase().includes("brevo")
-      ? `Ashivam Technologies <${process.env.BREVO_VERIFIED_SENDER.trim()}>`
+    ((process.env.BREVO_VERIFIED_SENDER || process.env.BREVO_SENDER) &&
+    (process.env.SMTP_HOST || "").toLowerCase().match(/(brevo|mailin|sendinblue)/)
+      ? `Ashivam Technologies <${(process.env.BREVO_VERIFIED_SENDER || process.env.BREVO_SENDER).trim()}>`
+      : null) ||
+    ((process.env.SMTP_HOST || "").toLowerCase().match(/(brevo|mailin|sendinblue)/) &&
+    /teamashivam@gmail\.com/i.test(process.env.SMTP_FROM || process.env.EMAIL_FROM || process.env.COMPANY_EMAIL || "")
+      ? "Ashivam Technologies <ritik95061@gmail.com>"
       : null) ||
     (process.env.SMTP_FROM || process.env.CONTACT_FROM_EMAIL || process.env.EMAIL_FROM || "").trim() ||
     (process.env.COMPANY_EMAIL

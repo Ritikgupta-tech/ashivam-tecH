@@ -858,6 +858,11 @@ export const getUpcomingMeetings = () =>
 export const getMeetingDetails = (id) =>
   request(`/attendance/meetings/${id}`);
 
+export const joinMeetingAttendance = (id) =>
+  request(`/attendance/meetings/${id}/join`, {
+    method: 'POST',
+  });
+
 export const submitAttendanceDispute = (data) =>
   request('/attendance/corrections', {
     method: 'POST',
@@ -917,6 +922,12 @@ export const deleteAdminMeeting = (id) =>
 export const triggerMeetingReconciliation = (id) =>
   request(`/attendance/admin/meetings/${id}/reconcile`, {
     method: 'POST',
+  });
+
+export const markAdminAttendanceManual = (meetingId, data) =>
+  request(`/attendance/admin/meetings/${meetingId}/mark-attendance`, {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 
 export const getGoogleOAuthUrl = () =>
