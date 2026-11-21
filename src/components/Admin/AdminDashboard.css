@@ -1183,10 +1183,15 @@
 }
 
 .admin-nav-link--active {
-  background: #EFF6FF;
-  border-color: #BFDBFE;
-  color: #1D4ED8;
+  background: linear-gradient(90deg, rgba(27, 111, 160, 0.12) 0%, rgba(212, 175, 55, 0.08) 100%);
+  border-color: rgba(27, 111, 160, 0.3);
+  color: var(--clr-navy, #0B1F3A);
   font-weight: 600;
+  box-shadow: 0 1px 3px rgba(11, 31, 58, 0.04);
+}
+
+.admin-nav-link--active .admin-nav-icon {
+  color: var(--clr-sky-d, #1B6FA0);
 }
 
 .admin-nav-icon {
@@ -2943,5 +2948,50 @@ body.admin-drawer-open {
   .admin-modal-body,
   .admin-modal-footer {
     padding: 1rem 0.85rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .admin-header {
+    padding: 0.5rem 0.65rem;
+    height: 54px;
+  }
+
+  .admin-header-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .admin-brand-name {
+    font-size: 0.88rem;
+  }
+
+  .admin-content-view {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .admin-page-title {
+    font-size: 1.15rem;
+  }
+
+  .admin-stat-card {
+    padding: 0.75rem;
+  }
+
+  .admin-stat-value {
+    font-size: 1.45rem;
+  }
+
+  .admin-panel {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .admin-page-actions {
+    gap: 0.35rem;
+  }
+
+  .admin-page-actions .admin-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.76rem;
   }
 }
