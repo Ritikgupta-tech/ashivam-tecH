@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
             <p style={{ fontSize: '0.875rem', color: '#64748b', lineHeight: 1.6, marginBottom: '1.5rem' }}>
               If an active employee account exists for <strong>{email}</strong>, you will receive password reset instructions shortly. The link expires in 1 hour.
             </p>
-            <Link to="/employee-login/employee" className="admin-btn admin-btn--primary" style={{ display: 'inline-block', textAlign: 'center' }}>
+            <Link to="/employee-login/employee" className="admin-login-btn" style={{ display: 'inline-flex', justifyContent: 'center', textDecoration: 'none' }}>
               Return to Employee Login
             </Link>
           </div>
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
               type="submit"
               className="admin-login-btn"
               disabled={loading}
-              style={{ marginTop: '0.5rem' }}
+              style={{ marginTop: '0.5rem', width: '100%', justifyContent: 'center' }}
             >
               {loading ? (
                 <>

@@ -1,14 +1,44 @@
+/* ============================================================
+   ASHIVAM TECHNOLOGIES — ACTIVATE ACCOUNT PAGE STYLES
+   ============================================================ */
+
 .activate-account-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  background-color: var(--clr-soft, #F4F8FC);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(135, 206, 235, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
+  padding: 1.5rem;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  color: var(--clr-text, #172B4D);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.activate-account-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(11, 31, 58, 0.1) 1.25px, transparent 1.25px);
+  background-size: 32px 32px;
+  pointer-events: none;
 }
 
 .activate-account-card {
   max-width: 480px;
   width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--clr-border, #E2E8F0);
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 40px -15px rgba(11, 31, 58, 0.08), 0 0 50px -10px rgba(135, 206, 235, 0.2);
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
 }
 
 .activate-state-box {
@@ -16,17 +46,59 @@
 }
 
 .activate-emp-preview {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 0.85rem 1rem;
-  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 0.75rem;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.35rem;
+  box-shadow: 0 1px 3px rgba(11, 31, 58, 0.04);
+}
+
+.activate-emp-preview .emp-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--clr-navy, #0B1F3A);
+}
+
+.activate-emp-preview .emp-meta {
+  font-size: 0.825rem;
+  color: var(--clr-text-muted, #64748B);
+  margin-top: 3px;
+}
+
+.activate-emp-preview .emp-role {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  margin-top: 6px;
 }
 
 .activate-checklist {
   background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  margin-top: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.625rem;
+  padding: 0.85rem 1rem;
+  margin-top: 1rem;
+}
+
+.activate-form .admin-form-group {
+  margin-bottom: 1rem;
+}
+
+.activate-form .admin-form-input {
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .activate-account-page {
+    padding: 1rem;
+  }
+  .activate-account-card {
+    padding: 2rem 1.25rem;
+    border-radius: 1rem;
+  }
 }
