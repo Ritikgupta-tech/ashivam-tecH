@@ -701,7 +701,7 @@ export default function InternshipsTab({ currentUser }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className="admin-page-actions">
           {activeTab === 'interns' && (
             <>
               <button

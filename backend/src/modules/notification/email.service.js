@@ -261,8 +261,15 @@ const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
  * Dispatches an email via Brevo HTTPS API (Port 443).
  */
 const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
-  const fromRaw = env.brevoSender || env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>";
+  let fromRaw = env.brevoSender || env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>";
+  // Brevo strictly permits only validated senders. Default unverified teamashivam@gmail.com must be mapped to authorized ritik95061@gmail.com
+  if (/teamashivam@gmail\.com/i.test(fromRaw)) {
+    fromRaw = "Ashivam Technologies <ritik95061@gmail.com>";
+  }
   const parsedSender = parseSender(fromRaw);
+  if (/teamashivam@gmail\.com/i.test(parsedSender.email)) {
+    parsedSender.email = "ritik95061@gmail.com";
+  }
   const plainText = extractPlainText(html, text);
 
   const payload = {

@@ -141,7 +141,7 @@ export default function GoogleIntegrationTab() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="admin-page-actions">
           <button
             type="button"
             onClick={handleGlobalReconcile}

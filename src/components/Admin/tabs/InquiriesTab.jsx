@@ -176,7 +176,7 @@ export default function InquiriesTab() {
             Manage incoming business leads, technical consultation requests, and customer messages
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="admin-page-actions">
           <button
             type="button"
             className="admin-btn admin-btn--secondary admin-btn--sm"

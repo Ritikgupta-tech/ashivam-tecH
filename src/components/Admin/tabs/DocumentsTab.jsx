@@ -241,7 +241,7 @@ export default function DocumentsTab() {
             Secure enterprise repository for offer letters, NDAs, contracts, and compliance forms
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="admin-page-actions">
           <button
             type="button"
             className="admin-btn admin-btn--secondary admin-btn--sm"

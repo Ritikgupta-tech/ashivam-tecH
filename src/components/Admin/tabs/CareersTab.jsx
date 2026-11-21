@@ -429,7 +429,7 @@ export default function CareersTab() {
             Manage engineering vacancies, job descriptions, and candidate recruitment pipelines
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="admin-page-actions">
           {activeSection === 'jobs' && (
             <button
               type="button"

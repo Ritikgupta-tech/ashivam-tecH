@@ -119,7 +119,7 @@ export default function MediaTab() {
             Upload and manage images, branding logos, icons, and public web assets
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="admin-page-actions">
           <button
             type="button"
             className="admin-btn admin-btn--primary admin-btn--sm"

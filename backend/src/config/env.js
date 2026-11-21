@@ -211,7 +211,9 @@ const env = {
   resendFrom: (process.env.RESEND_FROM || "").trim(),
   brevoApiKey: (process.env.BREVO_API_KEY || "").trim(),
   brevoSender:
-    (process.env.BREVO_SENDER || process.env.BREVO_FROM || process.env.BREVO_VERIFIED_SENDER || "").trim() ||
+    (/teamashivam@gmail\.com/i.test(process.env.BREVO_SENDER || process.env.BREVO_FROM || process.env.BREVO_VERIFIED_SENDER || "")
+      ? "Ashivam Technologies <ritik95061@gmail.com>"
+      : (process.env.BREVO_SENDER || process.env.BREVO_FROM || process.env.BREVO_VERIFIED_SENDER || "").trim()) ||
     "Ashivam Technologies <ritik95061@gmail.com>",
 
   // SMTP Settings

@@ -102,7 +102,7 @@ export default function OverviewTab({ onNavigateTab }) {
             Executive metrics and system activity across Ashivam Technologies core services
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="admin-page-actions">
           <div className="admin-segmented-tabs" role="tablist" aria-label="Time Range Filter">
             {[
               { id: 'all', label: 'All Time' },

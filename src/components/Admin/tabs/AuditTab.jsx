@@ -98,7 +98,7 @@ export default function AuditTab() {
             Immutable system audit logs tracking authentication, administrative mutations, and data access
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="admin-page-actions">
           <button
             type="button"
             className="admin-btn admin-btn--secondary admin-btn--sm"

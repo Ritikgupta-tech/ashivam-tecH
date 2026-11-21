@@ -232,7 +232,7 @@ export default function AdminsTab({ currentUser }) {
             Superadmin governance: provision operational admin accounts, configure granular permissions, and manage access
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="admin-page-actions">
           <button
             type="button"
             className="admin-btn admin-btn--primary admin-btn--sm"

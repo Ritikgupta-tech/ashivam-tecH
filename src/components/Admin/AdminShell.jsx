@@ -135,6 +135,18 @@ export default function AdminShell({
     };
   }, []);
 
+  // Prevent background scroll when mobile navigation drawer is active
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('admin-drawer-open');
+    } else {
+      document.body.classList.remove('admin-drawer-open');
+    }
+    return () => {
+      document.body.classList.remove('admin-drawer-open');
+    };
+  }, [mobileMenuOpen]);
+
   const activeTabMeta = allowedTabs.find((t) => t.id === activeTab) || allowedTabs[0];
   const isSuperadmin = user?.role === 'Superadmin';
   const userInitials = (user?.name || user?.username || 'A')
@@ -216,49 +228,56 @@ export default function AdminShell({
             </button>
 
             {accountMenuOpen && (
-              <div className="admin-account-dropdown" role="menu">
-                <div className="admin-dropdown-header">
-                  <p className="admin-dropdown-user-name">{user?.name || user?.username}</p>
-                  <p className="admin-dropdown-user-handle">@{user?.username}</p>
-                  <p className="admin-dropdown-user-email">{user?.email || 'System Account'}</p>
-                  <span className={`admin-role-badge ${isSuperadmin ? 'superadmin' : 'admin'}`}>
-                    {user?.role}
-                  </span>
+              <>
+                <div
+                  className="admin-dropdown-backdrop"
+                  onClick={() => setAccountMenuOpen(false)}
+                  aria-hidden="true"
+                />
+                <div className="admin-account-dropdown" role="menu">
+                  <div className="admin-dropdown-header">
+                    <p className="admin-dropdown-user-name">{user?.name || user?.username}</p>
+                    <p className="admin-dropdown-user-handle">@{user?.username}</p>
+                    <p className="admin-dropdown-user-email">{user?.email || 'System Account'}</p>
+                    <span className={`admin-role-badge ${isSuperadmin ? 'superadmin' : 'admin'}`}>
+                      {user?.role}
+                    </span>
+                  </div>
+                  <div className="admin-dropdown-divider" />
+                  <div className="admin-dropdown-items">
+                    <Link
+                      to="/"
+                      className="admin-dropdown-link"
+                      role="menuitem"
+                      onClick={() => setAccountMenuOpen(false)}
+                    >
+                      View Public Website
+                    </Link>
+                    <button
+                      type="button"
+                      className="admin-dropdown-link"
+                      role="menuitem"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        setShowPasswordModal(true);
+                      }}
+                    >
+                      Change Password
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-dropdown-link admin-dropdown-link--danger"
+                      role="menuitem"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        onLogout();
+                      }}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
-                <div className="admin-dropdown-divider" />
-                <div className="admin-dropdown-items">
-                  <Link
-                    to="/"
-                    className="admin-dropdown-link"
-                    role="menuitem"
-                    onClick={() => setAccountMenuOpen(false)}
-                  >
-                    View Public Website
-                  </Link>
-                  <button
-                    type="button"
-                    className="admin-dropdown-link"
-                    role="menuitem"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      setShowPasswordModal(true);
-                    }}
-                  >
-                    Change Password
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-dropdown-link admin-dropdown-link--danger"
-                    role="menuitem"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      onLogout();
-                    }}
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
+              </>
             )}
           </div>
         </div>
@@ -280,6 +299,25 @@ export default function AdminShell({
           className={`admin-sidebar ${mobileMenuOpen ? 'admin-sidebar--mobile-open' : ''}`}
           aria-label="Admin Navigation"
         >
+          {/* Mobile Drawer Header with Close Button */}
+          <div className="admin-drawer-header">
+            <div className="admin-drawer-brand">
+              <Logo size={26} variant="symbol" showText={false} alt="Ashivam Technologies" />
+              <div className="admin-brand-info">
+                <span className="admin-brand-name">Ashivam</span>
+                <span className="admin-brand-sub">Admin Portal</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="admin-drawer-close"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close navigation menu"
+            >
+              <XMarkIcon size={20} />
+            </button>
+          </div>
+
           <div className="admin-sidebar-nav">
             <div className="admin-nav-group-label">WORKSPACE</div>
             <ul className="admin-nav-list">

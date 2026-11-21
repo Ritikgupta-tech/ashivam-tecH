@@ -538,7 +538,7 @@ export default function AttendanceTab() {
           </p>
         </div>
 
-        <div className="admin-page-header-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="admin-page-header-actions admin-page-actions">
           <button
             type="button"
             onClick={() => exportAttendanceReportCsv({ meetingId: selectedMeetingId || undefined })}

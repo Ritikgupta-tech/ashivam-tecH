@@ -152,42 +152,53 @@
   flex: 1;
 }
 
-/* Nav Tabs */
+/* Nav Tabs (Luxury Pill Navigation) */
 .emp-nav-tabs {
   display: flex;
-  gap: 0.5rem;
-  border-bottom: 2px solid var(--clr-border, #E2E8F0);
-  margin-bottom: 1.75rem;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--clr-border, #E2E8F0);
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(11, 31, 58, 0.03);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.emp-nav-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .emp-tab-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.15rem;
+  padding: 0.6rem 1.15rem;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--clr-text-muted, #475569);
+  border-radius: 9999px;
+  color: var(--clr-text-muted, #64748B);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s ease;
-  margin-bottom: -2px;
+  flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.emp-tab-btn:hover {
+.emp-tab-btn:hover:not(.emp-tab-btn--active) {
   color: var(--clr-navy, #0B1F3A);
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 6px 6px 0 0;
+  background: rgba(27, 111, 160, 0.08);
 }
 
 .emp-tab-btn--active {
-  color: var(--clr-sky-d, #1B6FA0);
-  border-bottom-color: var(--clr-sky-d, #1B6FA0);
+  background: linear-gradient(135deg, #1B6FA0 0%, #0B1F3A 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 12px rgba(11, 31, 58, 0.18);
 }
 
 /* Panes */
@@ -685,10 +696,13 @@
 /* Tables */
 .emp-table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 }
 
 .emp-table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
   font-size: 0.85rem;
 }
@@ -1097,14 +1111,21 @@
   cursor: pointer;
 }
 
-/* Responsive Breakpoints */
+/* Responsive Breakpoints (320px, 390px, 600px, 768px, 1024px+) */
+@media (max-width: 1024px) {
+  .emp-workspace-container {
+    padding: 1.25rem 1.25rem 4rem;
+  }
+}
+
 @media (max-width: 768px) {
   .emp-header {
     padding: 0.75rem 1rem;
+    height: 58px;
   }
 
   .emp-workspace-container {
-    padding: 1rem 0.75rem 3rem;
+    padding: 1rem 0.85rem 3.5rem;
   }
 
   .emp-welcome-banner {
@@ -1112,11 +1133,12 @@
   }
 
   .emp-card {
-    padding: 1.15rem;
+    padding: 1.25rem 1rem;
   }
 
   .emp-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
 
   .emp-meetings-grid {
@@ -1126,12 +1148,20 @@
   .emp-profile-grid {
     grid-template-columns: 1fr;
   }
+
+  .emp-pane-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
 }
 
 @media (max-width: 600px) {
   .emp-header {
-    padding: 0.6rem 0.75rem;
+    padding: 0.6rem 0.85rem;
     gap: 0.5rem;
+    height: 58px;
+    box-sizing: border-box;
   }
 
   .emp-header__divider,
@@ -1141,12 +1171,173 @@
     display: none !important;
   }
 
+  .emp-brand-name {
+    font-size: 1rem;
+  }
+
   .emp-header__right {
-    gap: 0.5rem;
+    gap: 0.65rem;
+  }
+
+  .emp-user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
+    border-radius: 8px;
   }
 
   .emp-btn-signout {
-    padding: 0.4rem 0.65rem;
+    padding: 0.35rem 0.65rem;
     font-size: 0.75rem;
+  }
+
+  .emp-nav-tabs {
+    border-radius: 12px;
+    padding: 3px;
+    gap: 0.35rem;
+  }
+
+  .emp-tab-btn {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.78rem;
+  }
+
+  .emp-welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .emp-welcome-title {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  .emp-welcome-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .emp-system-indicator {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 0.75rem;
+  }
+
+  .emp-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .emp-card__actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .emp-btn-join-meet {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+
+  .emp-table th,
+  .emp-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .emp-modal-card {
+    width: 95vw;
+    padding: 1.25rem 1rem;
+    max-height: calc(100vh - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emp-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .emp-stat-card--gold {
+    grid-column: 1 / -1;
+  }
+
+  .emp-stat-card {
+    padding: 0.85rem;
+  }
+
+  .emp-stat-card__val {
+    font-size: 1.5rem;
+  }
+
+  .emp-stat-card__label {
+    font-size: 0.72rem;
+  }
+
+  .emp-stat-card__sub {
+    font-size: 0.65rem;
+  }
+
+  .emp-calendar-controls {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .emp-calendar-current {
+    min-width: 0;
+    font-size: 0.85rem;
+  }
+
+  .emp-calendar-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .emp-attendance-summary {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .emp-workspace-container {
+    padding: 0.75rem 0.5rem 3rem;
+  }
+
+  .emp-header {
+    padding: 0.5rem 0.65rem;
+  }
+
+  .emp-nav-tabs {
+    padding: 2px;
+    gap: 0.25rem;
+  }
+
+  .emp-tab-btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.74rem;
+  }
+
+  .emp-welcome-banner {
+    padding: 1rem 0.75rem;
+  }
+
+  .emp-welcome-title {
+    font-size: 1.15rem;
+  }
+
+  .emp-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .emp-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }
