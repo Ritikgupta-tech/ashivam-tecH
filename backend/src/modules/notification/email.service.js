@@ -261,7 +261,7 @@ const sendViaResend = async ({ to, subject, html, text, replyTo }) => {
  * Dispatches an email via Brevo HTTPS API (Port 443).
  */
 const sendViaBrevo = async ({ to, subject, html, text, replyTo }) => {
-  const fromRaw = env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>";
+  const fromRaw = env.brevoSender || env.smtpFrom || env.emailFrom || "Ashivam Technologies <ritik95061@gmail.com>";
   const parsedSender = parseSender(fromRaw);
   const plainText = extractPlainText(html, text);
 
